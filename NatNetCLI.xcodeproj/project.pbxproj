@@ -1,0 +1,329 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		887AC14E1C2986D1006DE75B /* NatNetC.c in Sources */ = {isa = PBXBuildFile; fileRef = 887AC1491C286496006DE75B /* NatNetC.c */; };
+		887AC14F1C2986D8006DE75B /* NatNetMain.c in Sources */ = {isa = PBXBuildFile; fileRef = 887AC14C1C297F27006DE75B /* NatNetMain.c */; };
+		887AC15A1C2AC26F006DE75B /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 887A58D11C259EF700B5D0B1 /* main.c */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		887A58CC1C259EF700B5D0B1 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		887AC1551C2AC252006DE75B /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		887A58CE1C259EF700B5D0B1 /* NatNetCLI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = NatNetCLI; sourceTree = BUILT_PRODUCTS_DIR; };
+		887A58D11C259EF700B5D0B1 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		887A58D81C259F3B00B5D0B1 /* PacketClient */ = {isa = PBXFileReference; lastKnownFileType = folder; name = PacketClient; path = ../Samples/PacketClient; sourceTree = "<group>"; };
+		887AC1481C27EC50006DE75B /* PacketClientUDPBroadcast.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PacketClientUDPBroadcast.cpp; path = ../../Samples/PacketClient/PacketClientUDPBroadcast.cpp; sourceTree = "<group>"; };
+		887AC1491C286496006DE75B /* NatNetC.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = NatNetC.c; sourceTree = "<group>"; };
+		887AC14A1C286496006DE75B /* NatNetC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NatNetC.h; sourceTree = "<group>"; };
+		887AC14C1C297F27006DE75B /* NatNetMain.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = NatNetMain.c; sourceTree = "<group>"; };
+		887AC1591C2AC252006DE75B /* NatNetCLIOrig */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = NatNetCLIOrig; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		887A58CB1C259EF700B5D0B1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		887AC1541C2AC252006DE75B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		887A58C51C259EF700B5D0B1 = {
+			isa = PBXGroup;
+			children = (
+				887A58D81C259F3B00B5D0B1 /* PacketClient */,
+				887A58D01C259EF700B5D0B1 /* NatNetCLI */,
+				887A58CF1C259EF700B5D0B1 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		887A58CF1C259EF700B5D0B1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				887A58CE1C259EF700B5D0B1 /* NatNetCLI */,
+				887AC1591C2AC252006DE75B /* NatNetCLIOrig */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		887A58D01C259EF700B5D0B1 /* NatNetCLI */ = {
+			isa = PBXGroup;
+			children = (
+				887AC1481C27EC50006DE75B /* PacketClientUDPBroadcast.cpp */,
+				887A58D11C259EF700B5D0B1 /* main.c */,
+				887AC1491C286496006DE75B /* NatNetC.c */,
+				887AC14A1C286496006DE75B /* NatNetC.h */,
+				887AC14C1C297F27006DE75B /* NatNetMain.c */,
+			);
+			path = NatNetCLI;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		887A58CD1C259EF700B5D0B1 /* NatNetCLI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 887A58D51C259EF700B5D0B1 /* Build configuration list for PBXNativeTarget "NatNetCLI" */;
+			buildPhases = (
+				887A58CA1C259EF700B5D0B1 /* Sources */,
+				887A58CB1C259EF700B5D0B1 /* Frameworks */,
+				887A58CC1C259EF700B5D0B1 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NatNetCLI;
+			productName = NatNetCLI;
+			productReference = 887A58CE1C259EF700B5D0B1 /* NatNetCLI */;
+			productType = "com.apple.product-type.tool";
+		};
+		887AC1501C2AC252006DE75B /* NatNetCLIOrig */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 887AC1561C2AC252006DE75B /* Build configuration list for PBXNativeTarget "NatNetCLIOrig" */;
+			buildPhases = (
+				887AC1511C2AC252006DE75B /* Sources */,
+				887AC1541C2AC252006DE75B /* Frameworks */,
+				887AC1551C2AC252006DE75B /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NatNetCLIOrig;
+			productName = NatNetCLI;
+			productReference = 887AC1591C2AC252006DE75B /* NatNetCLIOrig */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		887A58C61C259EF700B5D0B1 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0720;
+				ORGANIZATIONNAME = UniTN;
+				TargetAttributes = {
+					887A58CD1C259EF700B5D0B1 = {
+						CreatedOnToolsVersion = 7.2;
+					};
+				};
+			};
+			buildConfigurationList = 887A58C91C259EF700B5D0B1 /* Build configuration list for PBXProject "NatNetCLI" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 887A58C51C259EF700B5D0B1;
+			productRefGroup = 887A58CF1C259EF700B5D0B1 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				887A58CD1C259EF700B5D0B1 /* NatNetCLI */,
+				887AC1501C2AC252006DE75B /* NatNetCLIOrig */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		887A58CA1C259EF700B5D0B1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				887AC14F1C2986D8006DE75B /* NatNetMain.c in Sources */,
+				887AC14E1C2986D1006DE75B /* NatNetC.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		887AC1511C2AC252006DE75B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				887AC15A1C2AC26F006DE75B /* main.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		887A58D31C259EF700B5D0B1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		887A58D41C259EF700B5D0B1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		887A58D61C259EF700B5D0B1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		887A58D71C259EF700B5D0B1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		887AC1571C2AC252006DE75B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		887AC1581C2AC252006DE75B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		887A58C91C259EF700B5D0B1 /* Build configuration list for PBXProject "NatNetCLI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				887A58D31C259EF700B5D0B1 /* Debug */,
+				887A58D41C259EF700B5D0B1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		887A58D51C259EF700B5D0B1 /* Build configuration list for PBXNativeTarget "NatNetCLI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				887A58D61C259EF700B5D0B1 /* Debug */,
+				887A58D71C259EF700B5D0B1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		887AC1561C2AC252006DE75B /* Build configuration list for PBXNativeTarget "NatNetCLIOrig" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				887AC1571C2AC252006DE75B /* Debug */,
+				887AC1581C2AC252006DE75B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 887A58C61C259EF700B5D0B1 /* Project object */;
+}
