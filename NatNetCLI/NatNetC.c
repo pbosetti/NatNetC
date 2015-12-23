@@ -8,17 +8,24 @@
 
 #include "NatNetC.h"
 
+#pragma mark -
+#pragma mark Class-like NatNet functions
 
-NatNet * NatNet_new(char *my_addr, char *their_addr, char *multicast_addr, u_short command_port, u_short data_port) {
-  NatNet *nn = (NatNet*)malloc(sizeof(NatNet));
-  if (NatNet_init(nn, my_addr, their_addr, multicast_addr, command_port, data_port)) {
+NatNet *NatNet_new(char *my_addr, char *their_addr, char *multicast_addr,
+                   u_short command_port, u_short data_port) {
+  NatNet *nn = (NatNet *)malloc(sizeof(NatNet));
+  if (NatNet_init(nn, my_addr, their_addr, multicast_addr, command_port,
+                  data_port)) {
     free(nn);
     return NULL;
   }
   return nn;
 }
 
-int NatNet_init(NatNet *nn, char *my_addr, char *their_addr, char *multicast_addr, u_short command_port, u_short data_port) {
+void NatNet_free(NatNet *nn) { free(nn); }
+
+int NatNet_init(NatNet *nn, char *my_addr, char *their_addr,
+                char *multicast_addr, u_short command_port, u_short data_port) {
   memset(nn, 0, sizeof(*nn));
   strcpy(nn->my_addr, my_addr);
   strcpy(nn->their_addr, their_addr);
@@ -42,7 +49,7 @@ int NatNet_bind(NatNet *nn) {
   cmd_sockaddr.sin_family = AF_INET;
   cmd_sockaddr.sin_addr.s_addr = inet_addr(nn->my_addr);
   cmd_sockaddr.sin_port = htons(0);
-  
+
   // Data socket: socket that accepts incoming data packets on nn->data_port
   data_sockaddr.sin_family = AF_INET;
   data_sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -56,7 +63,7 @@ int NatNet_bind(NatNet *nn) {
   nn->host_sockaddr.sin_family = AF_INET;
   nn->host_sockaddr.sin_addr.s_addr = inet_addr(nn->their_addr);
   nn->host_sockaddr.sin_port = htons(nn->command_port);
-  
+
   // Data socket configuration
   if ((nn->data = socket(AF_INET, SOCK_DGRAM, 0)) == INVALID_SOCKET) {
     perror("Could not create socket");
@@ -83,16 +90,17 @@ int NatNet_bind(NatNet *nn) {
     perror("Joining multicast group");
     retval--;
   }
-  if (bind(nn->data, (struct sockaddr *)&data_sockaddr, sizeof(data_sockaddr))) {
+  if (bind(nn->data, (struct sockaddr *)&data_sockaddr,
+           sizeof(data_sockaddr))) {
     perror("Binding data socket");
     retval--;
   }
-  
+
   if (retval != 0) {
     close(nn->data);
     return retval;
   }
-  
+
   // Command socket configuration
   if ((nn->command = socket(AF_INET, SOCK_DGRAM, 0)) == INVALID_SOCKET) {
     perror("Could not create command socket");
@@ -104,11 +112,12 @@ int NatNet_bind(NatNet *nn) {
     perror("Setting command socket option");
     retval--;
   }
-  if (bind(nn->command, (struct sockaddr *)&cmd_sockaddr, sizeof(cmd_sockaddr))) {
+  if (bind(nn->command, (struct sockaddr *)&cmd_sockaddr,
+           sizeof(cmd_sockaddr))) {
     perror("Binding command socket");
     retval--;
   }
-  
+
   if (retval != 0) {
     close(nn->data);
     close(nn->command);
@@ -118,122 +127,70 @@ int NatNet_bind(NatNet *nn) {
   return 0;
 }
 
-
-
-
-
-
-SOCKET CreateCommandSocket(in_addr IP_Address, unsigned short uPort, int bufsize) {
-  sockaddr_in my_addr;
-  static unsigned long ivalue;
-  SOCKET sockfd;
-  
-  // Create a blocking, datagram socket
-  if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) == INVALID_SOCKET) {
-    return -1;
+uint NatNet_send_pkt(NatNet *nn, NatNet_packet packet, uint tries) {
+  ssize_t sent = 0;
+  if (tries < 1) {
+    tries = 1;
   }
-  
-  // bind socket
-  memset(&my_addr, 0, sizeof(my_addr));
-  my_addr.sin_family = AF_INET;
-  my_addr.sin_port = htons(uPort);
-#ifdef _MSC_VER
-  my_addr.sin_addr.S_un.S_addr = IP_Address.S_un.S_addr;
-#else
-  my_addr.sin_addr.s_addr = IP_Address.s_addr;
-#endif
-  if (bind(sockfd, (struct sockaddr *)&my_addr,
-           sizeof(struct sockaddr)) == SOCKET_ERROR) {
-    closesocket(sockfd);
-    return -1;
+  while (tries--) {
+    sent = sendto(nn->command, (char *)&packet, 4 + packet.nDataBytes, 0,
+                  (struct sockaddr *)&nn->host_sockaddr,
+                  sizeof(nn->host_sockaddr));
+    if (sent != SOCKET_ERROR) {
+      return 0;
+    }
   }
-  
-  // set to broadcast mode
-  ivalue = 1;
-  if (setsockopt(sockfd, SOL_SOCKET, SO_BROADCAST, (char *)&ivalue,
-                 sizeof(ivalue)) == SOCKET_ERROR) {
-    closesocket(sockfd);
-    return -1;
-  }
-  
-  if (setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &bufsize,
-                 sizeof(bufsize)) == SOCKET_ERROR) {
-    closesocket(sockfd);
-    return -1;
-  }
-  
-  return sockfd;
+  return -1;
 }
 
-SOCKET CreateDataSocket(in_addr my_addr, in_addr multicast_addr,
-                        unsigned short uPort, int bufsize) {
-  SOCKET sockfd;
-  int value = 1;
-  struct timeval timeout = {.tv_sec = 0, .tv_usec = 50000};
-  sockaddr_in MySocketAddr;
-  
-  // create a "Data" socket
-  sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-  
-  // allow multiple clients on same machine to use address/port
-  value = 1;
-  if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (char *)&value,
-                 sizeof(value)) == SOCKET_ERROR) {
-    closesocket(sockfd);
-    return -1;
-  }
-  
-  memset(&MySocketAddr, 0, sizeof(MySocketAddr));
-  MySocketAddr.sin_family = AF_INET;
-  MySocketAddr.sin_port = htons(uPort);
-#ifdef _MSC_VER
-  MySocketAddr.sin_addr.U_un.S_addr = htonl(INADDR_ANY);
-#else
-  MySocketAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-#endif
-  if (bind(sockfd, (struct sockaddr *)&MySocketAddr,
-           sizeof(struct sockaddr)) == SOCKET_ERROR) {
-#ifdef _MSC_VER
-    printf("[PacketClient] bind failed (error: %d)\n", WSAGetLastError());
-    WSACleanup();
-#else
-    closesocket(sockfd);
-    perror("[PacketClient] bind failed");
-#endif
-    return -1;
-  }
-  
-  // join multicast group
-  struct ip_mreq Mreq;
-  Mreq.imr_multiaddr = multicast_addr;
-  Mreq.imr_interface = my_addr;
-  if (setsockopt(sockfd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char *)&Mreq,
-                 sizeof(Mreq)) == SOCKET_ERROR) {
-#ifdef _MSC_VER
-    printf("[PacketClient] join failed (error: %d)\n", WSAGetLastError());
-    WSACleanup();
-#else
-    perror("[PacketClient] join failed");
-#endif
-    return -1;
+uint NatNet_send_cmd(NatNet *nn, char *cmd, uint tries) {
+  // reset global result
+  nn->cmd_response.response = -1;
+  // format command packet
+  NatNet_packet commandPacket;
+  strcpy(commandPacket.Data.szData, cmd);
+  commandPacket.iMessage = NAT_REQUEST;
+  commandPacket.nDataBytes = (int)strlen(commandPacket.Data.szData) + 1;
+
+  // send command, and wait (a bit) for command response to set global response
+  // var in CommandListenThread
+  ssize_t iRet = sendto(
+      nn->command, (char *)&commandPacket, 4 + commandPacket.nDataBytes, 0,
+      (struct sockaddr *)&nn->host_sockaddr, sizeof(nn->host_sockaddr));
+  if (iRet == SOCKET_ERROR) {
+    perror("Socket error sending command");
+  } else {
+    int waitTries = tries;
+    while (waitTries--) {
+      if (nn->cmd_response.response != -1)
+        break;
+      sleep(1);
+    }
+
+    if (nn->cmd_response.response == -1) {
+      printf("Command response not received (timeout)\n");
+    } else if (nn->cmd_response.response == 0) {
+      printf("Command response received with success\n");
+    } else if (nn->cmd_response.response > 0) {
+      printf("Command response received with errors\n");
+    }
   }
 
-  // create a 1MB buffer
-  if (setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &bufsize,
-                 sizeof(bufsize)) == SOCKET_ERROR) {
-    return -1;
-  }
-  
-  // Set timeout
-  if (setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout,
-                 sizeof(timeout)) != 0) {
-    return -1;
-  }
-  
-  return sockfd;
+  return nn->cmd_response.response;
 }
 
+long NatNet_recv_cmd(NatNet *nn, char *data, size_t len) {
+  long bytes_received;
+  socklen_t addr_len = sizeof(struct sockaddr);
+  bytes_received = recvfrom(nn->data, data, len, 0,
+                            (struct sockaddr *)&nn->host_sockaddr, &addr_len);
+  return bytes_received;
+}
 
+#pragma mark -
+#pragma mark Utilities
+// Very Badly written functions (from original OptiTrack examples)
+// To be rewritten!
 
 // convert ip address string to addr
 bool IPAddress_StringToAddr(char *szNameOrAddress, struct in_addr *Address) {
@@ -243,30 +200,22 @@ bool IPAddress_StringToAddr(char *szNameOrAddress, struct in_addr *Address) {
   char servInfo[256];
   u_short port;
   port = 0;
-  
+
   // Set up sockaddr_in structure which is passed to the getnameinfo function
   saGNI.sin_family = AF_INET;
   saGNI.sin_addr.s_addr = inet_addr(szNameOrAddress);
   saGNI.sin_port = htons(port);
-  
+
   // getnameinfo
-  if ((retVal = getnameinfo((sockaddr *)&saGNI, sizeof(sockaddr), hostName, 256,
-                            servInfo, 256, NI_NUMERICSERV)) != 0) {
-#ifdef _MSC_VER
-    printf("[PacketClient] GetHostByAddr failed. Error #: %ld\n",
-           WSAGetLastError());
-#else
+  if ((retVal = getnameinfo((struct sockaddr *)&saGNI, sizeof(struct sockaddr),
+                            hostName, 256, servInfo, 256, NI_NUMERICSERV)) !=
+      0) {
     perror("[PacketClient] GetHostByAddr failed");
-#endif
     return false;
   }
-  
-#ifdef _MSC_VER
-  Address->S_un.S_addr = saGNI.sin_addr.S_un.S_addr;
-#else
+
   Address->s_addr = saGNI.sin_addr.s_addr;
-#endif
-  
+
   return true;
 }
 
@@ -279,42 +228,25 @@ int GetLocalIPAddresses(unsigned long Addresses[], int nMax) {
   struct sockaddr_in addr;
   int retVal = 0;
   char *port = "0";
-  
-#ifdef _MSC_VER
-  if (GetComputerName(szMyName, &NameLength) != true) {
-    printf("[PacketClient] get computer name  failed. Error #: %ld\n",
-           WSAGetLastError());
-    return 0;
-  }
-#else
+
   if (gethostname(szMyName, NameLength) != 0) {
     perror("[PacketClient] get computer name  failed");
     return 0;
   }
-#endif
-  
+
   memset(&aiHints, 0, sizeof(aiHints));
   aiHints.ai_family = AF_INET;
   aiHints.ai_socktype = SOCK_DGRAM;
   aiHints.ai_protocol = IPPROTO_UDP;
   if ((retVal = getaddrinfo(szMyName, port, &aiHints, &aiList)) != 0) {
-#ifdef _MSC_VER
-    printf("[PacketClient] getaddrinfo failed. Error #: %ld\n",
-           WSAGetLastError());
-#else
     perror("[PacketClient] getaddrinfo failed");
-#endif
     return 0;
   }
-  
+
   memcpy(&addr, aiList->ai_addr, aiList->ai_addrlen);
   freeaddrinfo(aiList);
-#ifdef _MSC_VER
-  Addresses[0] = addr.sin_addr.S_un.S_addr;
-#else
   Addresses[0] = addr.sin_addr.s_addr;
-#endif
-  
+
   return 1;
 }
 
@@ -322,13 +254,13 @@ bool DecodeTimecode(unsigned int inTimecode, unsigned int inTimecodeSubframe,
                     int *hour, int *minute, int *second, int *frame,
                     int *subframe) {
   bool bValid = true;
-  
+
   *hour = (inTimecode >> 24) & 255;
   *minute = (inTimecode >> 16) & 255;
   *second = (inTimecode >> 8) & 255;
   *frame = inTimecode & 255;
   *subframe = inTimecodeSubframe;
-  
+
   return bValid;
 }
 
@@ -338,13 +270,558 @@ bool TimecodeStringify(unsigned int inTimecode, unsigned int inTimecodeSubframe,
   int hour, minute, second, frame, subframe;
   bValid = DecodeTimecode(inTimecode, inTimecodeSubframe, &hour, &minute,
                           &second, &frame, &subframe);
-  
-  sprintf_s(Buffer, BufferSize, "%2d:%2d:%2d:%2d.%d", hour, minute, second,
-            frame, subframe);
+
+  snprintf(Buffer, BufferSize, "%2d:%2d:%2d:%2d.%d", hour, minute, second,
+           frame, subframe);
   for (unsigned int i = 0; i < strlen(Buffer); i++)
     if (Buffer[i] == ' ')
       Buffer[i] = '0';
-  
+
   return bValid;
 }
 
+
+void UnpackDebug(NatNet *nn, char *pData) {
+  int major = nn->NatNet_ver[0];
+  int minor = nn->NatNet_ver[1];
+  
+  char *ptr = pData;
+  
+  printf("Begin Packet\n-------\n");
+  
+  // message ID
+  int MessageID = 0;
+  memcpy(&MessageID, ptr, 2);
+  ptr += 2;
+  printf("Message ID : %d\n", MessageID);
+  
+  // size
+  int nBytes = 0;
+  memcpy(&nBytes, ptr, 2);
+  ptr += 2;
+  printf("Byte count : %d\n", nBytes);
+  
+  if (MessageID == 7) // FRAME OF MOCAP DATA packet
+  {
+    // frame number
+    int frameNumber = 0;
+    memcpy(&frameNumber, ptr, 4);
+    ptr += 4;
+    printf("Frame # : %d\n", frameNumber);
+    
+    // number of data sets (markersets, rigidbodies, etc)
+    int nMarkerSets = 0;
+    memcpy(&nMarkerSets, ptr, 4);
+    ptr += 4;
+    printf("Marker Set Count : %d\n", nMarkerSets);
+    
+    for (int i = 0; i < nMarkerSets; i++) {
+      // Markerset name
+      char szName[256];
+      strcpy(szName, ptr);
+      int nDataBytes = (int)strlen(szName) + 1;
+      ptr += nDataBytes;
+      printf("Model Name: %s\n", szName);
+      
+      // marker data
+      int nMarkers = 0;
+      memcpy(&nMarkers, ptr, 4);
+      ptr += 4;
+      printf("Marker Count : %d\n", nMarkers);
+      
+      for (int j = 0; j < nMarkers; j++) {
+        float x = 0;
+        memcpy(&x, ptr, 4);
+        ptr += 4;
+        float y = 0;
+        memcpy(&y, ptr, 4);
+        ptr += 4;
+        float z = 0;
+        memcpy(&z, ptr, 4);
+        ptr += 4;
+        printf("\tMarker %d : [x=%3.2f,y=%3.2f,z=%3.2f]\n", j, x, y, z);
+      }
+    }
+    
+    // unidentified markers
+    int nOtherMarkers = 0;
+    memcpy(&nOtherMarkers, ptr, 4);
+    ptr += 4;
+    printf("Unidentified Marker Count : %d\n", nOtherMarkers);
+    for (int j = 0; j < nOtherMarkers; j++) {
+      float x = 0.0f;
+      memcpy(&x, ptr, 4);
+      ptr += 4;
+      float y = 0.0f;
+      memcpy(&y, ptr, 4);
+      ptr += 4;
+      float z = 0.0f;
+      memcpy(&z, ptr, 4);
+      ptr += 4;
+      printf("\tMarker %d : pos = [%3.2f,%3.2f,%3.2f]\n", j, x, y, z);
+    }
+    
+    // rigid bodies
+    int nRigidBodies = 0;
+    memcpy(&nRigidBodies, ptr, 4);
+    ptr += 4;
+    printf("Rigid Body Count : %d\n", nRigidBodies);
+    for (int j = 0; j < nRigidBodies; j++) {
+      // rigid body pos/ori
+      int ID = 0;
+      memcpy(&ID, ptr, 4);
+      ptr += 4;
+      float x = 0.0f;
+      memcpy(&x, ptr, 4);
+      ptr += 4;
+      float y = 0.0f;
+      memcpy(&y, ptr, 4);
+      ptr += 4;
+      float z = 0.0f;
+      memcpy(&z, ptr, 4);
+      ptr += 4;
+      float qx = 0;
+      memcpy(&qx, ptr, 4);
+      ptr += 4;
+      float qy = 0;
+      memcpy(&qy, ptr, 4);
+      ptr += 4;
+      float qz = 0;
+      memcpy(&qz, ptr, 4);
+      ptr += 4;
+      float qw = 0;
+      memcpy(&qw, ptr, 4);
+      ptr += 4;
+      printf("ID : %d\n", ID);
+      printf("pos: [%3.2f,%3.2f,%3.2f]\n", x, y, z);
+      printf("ori: [%3.2f,%3.2f,%3.2f,%3.2f]\n", qx, qy, qz, qw);
+      
+      // associated marker positions
+      int nRigidMarkers = 0;
+      memcpy(&nRigidMarkers, ptr, 4);
+      ptr += 4;
+      printf("Marker Count: %d\n", nRigidMarkers);
+      int nBytes = nRigidMarkers * 3 * sizeof(float);
+      float *markerData = (float *)malloc(nBytes);
+      memcpy(markerData, ptr, nBytes);
+      ptr += nBytes;
+      
+      if (major >= 2) {
+        // associated marker IDs
+        nBytes = nRigidMarkers * sizeof(int);
+        int *markerIDs = (int *)malloc(nBytes);
+        memcpy(markerIDs, ptr, nBytes);
+        ptr += nBytes;
+        
+        // associated marker sizes
+        nBytes = nRigidMarkers * sizeof(float);
+        float *markerSizes = (float *)malloc(nBytes);
+        memcpy(markerSizes, ptr, nBytes);
+        ptr += nBytes;
+        
+        for (int k = 0; k < nRigidMarkers; k++) {
+          printf("\tMarker %d: id=%d\tsize=%3.1f\tpos=[%3.2f,%3.2f,%3.2f]\n", k,
+                 markerIDs[k], markerSizes[k], markerData[k * 3],
+                 markerData[k * 3 + 1], markerData[k * 3 + 2]);
+        }
+        
+        if (markerIDs)
+          free(markerIDs);
+        if (markerSizes)
+          free(markerSizes);
+        
+      } else {
+        for (int k = 0; k < nRigidMarkers; k++) {
+          printf("\tMarker %d: pos = [%3.2f,%3.2f,%3.2f]\n", k,
+                 markerData[k * 3], markerData[k * 3 + 1],
+                 markerData[k * 3 + 2]);
+        }
+      }
+      if (markerData)
+        free(markerData);
+      
+      if (major >= 2) {
+        // Mean marker error
+        float fError = 0.0f;
+        memcpy(&fError, ptr, 4);
+        ptr += 4;
+        printf("Mean marker error: %3.2f\n", fError);
+      }
+      
+      // 2.6 and later
+      if (((major == 2) && (minor >= 6)) || (major > 2) || (major == 0)) {
+        // params
+        short params = 0;
+        memcpy(&params, ptr, 2);
+        ptr += 2;
+        bool bTrackingValid =
+        params &
+        0x01; // 0x01 : rigid body was successfully tracked in this frame
+      }
+      
+    } // next rigid body
+    
+    // skeletons (version 2.1 and later)
+    if (((major == 2) && (minor > 0)) || (major > 2)) {
+      int nSkeletons = 0;
+      memcpy(&nSkeletons, ptr, 4);
+      ptr += 4;
+      printf("Skeleton Count : %d\n", nSkeletons);
+      for (int j = 0; j < nSkeletons; j++) {
+        // skeleton id
+        int skeletonID = 0;
+        memcpy(&skeletonID, ptr, 4);
+        ptr += 4;
+        // # of rigid bodies (bones) in skeleton
+        int nRigidBodies = 0;
+        memcpy(&nRigidBodies, ptr, 4);
+        ptr += 4;
+        printf("Rigid Body Count : %d\n", nRigidBodies);
+        for (int j = 0; j < nRigidBodies; j++) {
+          // rigid body pos/ori
+          int ID = 0;
+          memcpy(&ID, ptr, 4);
+          ptr += 4;
+          float x = 0.0f;
+          memcpy(&x, ptr, 4);
+          ptr += 4;
+          float y = 0.0f;
+          memcpy(&y, ptr, 4);
+          ptr += 4;
+          float z = 0.0f;
+          memcpy(&z, ptr, 4);
+          ptr += 4;
+          float qx = 0;
+          memcpy(&qx, ptr, 4);
+          ptr += 4;
+          float qy = 0;
+          memcpy(&qy, ptr, 4);
+          ptr += 4;
+          float qz = 0;
+          memcpy(&qz, ptr, 4);
+          ptr += 4;
+          float qw = 0;
+          memcpy(&qw, ptr, 4);
+          ptr += 4;
+          printf("ID : %d\n", ID);
+          printf("pos: [%3.2f,%3.2f,%3.2f]\n", x, y, z);
+          printf("ori: [%3.2f,%3.2f,%3.2f,%3.2f]\n", qx, qy, qz, qw);
+          
+          // associated marker positions
+          int nRigidMarkers = 0;
+          memcpy(&nRigidMarkers, ptr, 4);
+          ptr += 4;
+          printf("Marker Count: %d\n", nRigidMarkers);
+          int nBytes = nRigidMarkers * 3 * sizeof(float);
+          float *markerData = (float *)malloc(nBytes);
+          memcpy(markerData, ptr, nBytes);
+          ptr += nBytes;
+          
+          // associated marker IDs
+          nBytes = nRigidMarkers * sizeof(int);
+          int *markerIDs = (int *)malloc(nBytes);
+          memcpy(markerIDs, ptr, nBytes);
+          ptr += nBytes;
+          
+          // associated marker sizes
+          nBytes = nRigidMarkers * sizeof(float);
+          float *markerSizes = (float *)malloc(nBytes);
+          memcpy(markerSizes, ptr, nBytes);
+          ptr += nBytes;
+          
+          for (int k = 0; k < nRigidMarkers; k++) {
+            printf("\tMarker %d: id=%d\tsize=%3.1f\tpos=[%3.2f,%3.2f,%3.2f]\n",
+                   k, markerIDs[k], markerSizes[k], markerData[k * 3],
+                   markerData[k * 3 + 1], markerData[k * 3 + 2]);
+          }
+          
+          // Mean marker error (2.0 and later)
+          if (major >= 2) {
+            float fError = 0.0f;
+            memcpy(&fError, ptr, 4);
+            ptr += 4;
+            printf("Mean marker error: %3.2f\n", fError);
+          }
+          
+          // Tracking flags (2.6 and later)
+          if (((major == 2) && (minor >= 6)) || (major > 2) || (major == 0)) {
+            // params
+            short params = 0;
+            memcpy(&params, ptr, 2);
+            ptr += 2;
+            bool bTrackingValid = params & 0x01; // 0x01 : rigid body was
+                                                 // successfully tracked in this
+                                                 // frame
+          }
+          
+          // release resources
+          if (markerIDs)
+            free(markerIDs);
+          if (markerSizes)
+            free(markerSizes);
+          if (markerData)
+            free(markerData);
+          
+        } // next rigid body
+        
+      } // next skeleton
+    }
+    
+    // labeled markers (version 2.3 and later)
+    if (((major == 2) && (minor >= 3)) || (major > 2)) {
+      int nLabeledMarkers = 0;
+      memcpy(&nLabeledMarkers, ptr, 4);
+      ptr += 4;
+      printf("Labeled Marker Count : %d\n", nLabeledMarkers);
+      for (int j = 0; j < nLabeledMarkers; j++) {
+        // id
+        int ID = 0;
+        memcpy(&ID, ptr, 4);
+        ptr += 4;
+        // x
+        float x = 0.0f;
+        memcpy(&x, ptr, 4);
+        ptr += 4;
+        // y
+        float y = 0.0f;
+        memcpy(&y, ptr, 4);
+        ptr += 4;
+        // z
+        float z = 0.0f;
+        memcpy(&z, ptr, 4);
+        ptr += 4;
+        // size
+        float size = 0.0f;
+        memcpy(&size, ptr, 4);
+        ptr += 4;
+        
+        // 2.6 and later
+        if (((major == 2) && (minor >= 6)) || (major > 2) || (major == 0)) {
+          // marker params
+          short params = 0;
+          memcpy(&params, ptr, 2);
+          ptr += 2;
+          bool bOccluded =
+          params & 0x01; // marker was not visible (occluded) in this frame
+          bool bPCSolved =
+          params & 0x02; // position provided by point cloud solve
+          bool bModelSolved = params & 0x04; // position provided by model solve
+        }
+        
+        printf("ID  : %d\n", ID);
+        printf("pos : [%3.2f,%3.2f,%3.2f]\n", x, y, z);
+        printf("size: [%3.2f]\n", size);
+      }
+    }
+    
+    // Force Plate data (version 2.9 and later)
+    if (((major == 2) && (minor >= 9)) || (major > 2)) {
+      int nForcePlates;
+      memcpy(&nForcePlates, ptr, 4);
+      ptr += 4;
+      for (int iForcePlate = 0; iForcePlate < nForcePlates; iForcePlate++) {
+        // ID
+        int ID = 0;
+        memcpy(&ID, ptr, 4);
+        ptr += 4;
+        printf("Force Plate : %d\n", ID);
+        
+        // Channel Count
+        int nChannels = 0;
+        memcpy(&nChannels, ptr, 4);
+        ptr += 4;
+        
+        // Channel Data
+        for (int i = 0; i < nChannels; i++) {
+          printf(" Channel %d : ", i);
+          int nFrames = 0;
+          memcpy(&nFrames, ptr, 4);
+          ptr += 4;
+          for (int j = 0; j < nFrames; j++) {
+            float val = 0.0f;
+            memcpy(&val, ptr, 4);
+            ptr += 4;
+            printf("%3.2f   ", val);
+          }
+          printf("\n");
+        }
+      }
+    }
+    
+    // latency
+    float latency = 0.0f;
+    memcpy(&latency, ptr, 4);
+    ptr += 4;
+    printf("latency : %3.3f\n", latency);
+    
+    // timecode
+    unsigned int timecode = 0;
+    memcpy(&timecode, ptr, 4);
+    ptr += 4;
+    unsigned int timecodeSub = 0;
+    memcpy(&timecodeSub, ptr, 4);
+    ptr += 4;
+    char szTimecode[128] = "";
+    TimecodeStringify(timecode, timecodeSub, szTimecode, 128);
+    
+    // timestamp
+    double timestamp = 0.0f;
+    // 2.7 and later - increased from single to double precision
+    if (((major == 2) && (minor >= 7)) || (major > 2)) {
+      memcpy(&timestamp, ptr, 8);
+      ptr += 8;
+    } else {
+      float fTemp = 0.0f;
+      memcpy(&fTemp, ptr, 4);
+      ptr += 4;
+      timestamp = (double)fTemp;
+    }
+    
+    // frame params
+    short params = 0;
+    memcpy(&params, ptr, 2);
+    ptr += 2;
+    bool bIsRecording = params & 0x01; // 0x01 Motive is recording
+    bool bTrackedModelsChanged =
+    params & 0x02; // 0x02 Actively tracked model list has changed
+    
+    // end of data tag
+    int eod = 0;
+    memcpy(&eod, ptr, 4);
+    ptr += 4;
+    printf("End Packet\n-------------\n");
+    
+  } else if (MessageID == 5) // Data Descriptions
+  {
+    // number of datasets
+    int nDatasets = 0;
+    memcpy(&nDatasets, ptr, 4);
+    ptr += 4;
+    printf("Dataset Count : %d\n", nDatasets);
+    
+    for (int i = 0; i < nDatasets; i++) {
+      printf("Dataset %d\n", i);
+      
+      int type = 0;
+      memcpy(&type, ptr, 4);
+      ptr += 4;
+      printf("Type %d: %d\n", i, type);
+      
+      if (type == 0) // markerset
+      {
+        // name
+        char szName[256];
+        strcpy(szName, ptr);
+        int nDataBytes = (int)strlen(szName) + 1;
+        ptr += nDataBytes;
+        printf("Markerset Name: %s\n", szName);
+        
+        // marker data
+        int nMarkers = 0;
+        memcpy(&nMarkers, ptr, 4);
+        ptr += 4;
+        printf("Marker Count : %d\n", nMarkers);
+        
+        for (int j = 0; j < nMarkers; j++) {
+          char szName[256];
+          strcpy(szName, ptr);
+          int nDataBytes = (int)strlen(szName) + 1;
+          ptr += nDataBytes;
+          printf("Marker Name: %s\n", szName);
+        }
+      } else if (type == 1) // rigid body
+      {
+        if (major >= 2) {
+          // name
+          char szName[MAX_NAMELENGTH];
+          strcpy(szName, ptr);
+          ptr += strlen(ptr) + 1;
+          printf("Name: %s\n", szName);
+        }
+        
+        int ID = 0;
+        memcpy(&ID, ptr, 4);
+        ptr += 4;
+        printf("ID : %d\n", ID);
+        
+        int parentID = 0;
+        memcpy(&parentID, ptr, 4);
+        ptr += 4;
+        printf("Parent ID : %d\n", parentID);
+        
+        float xoffset = 0;
+        memcpy(&xoffset, ptr, 4);
+        ptr += 4;
+        printf("X Offset : %3.2f\n", xoffset);
+        
+        float yoffset = 0;
+        memcpy(&yoffset, ptr, 4);
+        ptr += 4;
+        printf("Y Offset : %3.2f\n", yoffset);
+        
+        float zoffset = 0;
+        memcpy(&zoffset, ptr, 4);
+        ptr += 4;
+        printf("Z Offset : %3.2f\n", zoffset);
+        
+      } else if (type == 2) // skeleton
+      {
+        char szName[MAX_NAMELENGTH];
+        strcpy(szName, ptr);
+        ptr += strlen(ptr) + 1;
+        printf("Name: %s\n", szName);
+        
+        int ID = 0;
+        memcpy(&ID, ptr, 4);
+        ptr += 4;
+        printf("ID : %d\n", ID);
+        
+        int nRigidBodies = 0;
+        memcpy(&nRigidBodies, ptr, 4);
+        ptr += 4;
+        printf("RigidBody (Bone) Count : %d\n", nRigidBodies);
+        
+        for (int i = 0; i < nRigidBodies; i++) {
+          if (major >= 2) {
+            // RB name
+            char szName[MAX_NAMELENGTH];
+            strcpy(szName, ptr);
+            ptr += strlen(ptr) + 1;
+            printf("Rigid Body Name: %s\n", szName);
+          }
+          
+          int ID = 0;
+          memcpy(&ID, ptr, 4);
+          ptr += 4;
+          printf("RigidBody ID : %d\n", ID);
+          
+          int parentID = 0;
+          memcpy(&parentID, ptr, 4);
+          ptr += 4;
+          printf("Parent ID : %d\n", parentID);
+          
+          float xoffset = 0;
+          memcpy(&xoffset, ptr, 4);
+          ptr += 4;
+          printf("X Offset : %3.2f\n", xoffset);
+          
+          float yoffset = 0;
+          memcpy(&yoffset, ptr, 4);
+          ptr += 4;
+          printf("Y Offset : %3.2f\n", yoffset);
+          
+          float zoffset = 0;
+          memcpy(&zoffset, ptr, 4);
+          ptr += 4;
+          printf("Z Offset : %3.2f\n", zoffset);
+        }
+      }
+      
+    } // next dataset
+    
+    printf("End Packet\n-------------\n");
+    
+  } else {
+    printf("Unrecognized Packet Type.\n");
+  }
+}

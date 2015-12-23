@@ -10,13 +10,6 @@
 #define NatNetC_h
 
 #include <stdio.h>
-#ifdef _MSC_VER
-#include <tchar.h>
-#include <conio.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
-
-#else
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -30,27 +23,12 @@
 #include <pthread.h>
 #include <errno.h>
 
-typedef struct in_addr in_addr;
-typedef struct sockaddr_in sockaddr_in;
-typedef struct sockaddr sockaddr;
-typedef enum {
-  false = 0,
-  true,
-} bool;
+#define MULTICAST_ADDRESS "239.255.42.99" // IANA, local network
+#define PORT_COMMAND 1510
+#define PORT_DATA 1511
 
-#define DWORD void
-#define WINAPI *
-#define SOCKET int
-#define MAX_PATH PATH_MAX
 #define SOCKET_ERROR -1
 #define INVALID_SOCKET -1
-#define closesocket close
-#define sprintf_s snprintf
-#define strcpy_s(dst, src) strcpy(dst, src)
-#define _getch getchar
-
-#endif
-
 #define MAX_NAMELENGTH 256
 
 // NATNET message ids
@@ -70,19 +48,26 @@ typedef enum {
 #define MAX_PACKETSIZE 100000
 #define RCV_BUFSIZE 0x100000
 
-
 #pragma mark -
 #pragma mark Types
+
+typedef enum {
+  false = 0,
+  true,
+} bool;
+
+typedef int SOCKET;
+
 
 // sender
 typedef struct {
   char szName[MAX_NAMELENGTH]; // sending app's name
   unsigned char
-  Version[4]; // sending app's version [major.minor.build.revision]
+      Version[4]; // sending app's version [major.minor.build.revision]
   unsigned char NatNetVersion[4]; // sending app's NatNet version
                                   // [major.minor.build.revision]
-  
-} sSender;
+
+} NatNet_sender;
 
 typedef struct {
   unsigned short iMessage;   // message ID (e.g. NAT_FRAMEOFDATA)
@@ -92,10 +77,9 @@ typedef struct {
     char szData[MAX_PACKETSIZE];
     unsigned long lData[MAX_PACKETSIZE / 4];
     float fData[MAX_PACKETSIZE / 4];
-    sSender Sender;
+    NatNet_sender Sender;
   } Data; // Payload
-  
-} sPacket;
+} NatNet_packet;
 
 typedef struct {
   char my_addr[128], their_addr[128], multicast_addr[128];
@@ -105,17 +89,37 @@ typedef struct {
   SOCKET command;
   SOCKET data;
   struct sockaddr_in host_sockaddr;
+  struct {
+    int response;
+    int response_size;
+    unsigned char response_string[PATH_MAX];
+    int response_ode;
+  } cmd_response;
+  int NatNet_ver[4];
+  int server_ver[4];
 } NatNet;
 
 #pragma mark -
 #pragma mark Function Declarations
 
-NatNet * NatNet_new(char *my_addr, char *their_addr, char *multicast_addr, u_short command_port, u_short data_port);
-int NatNet_init(NatNet *nn, char *my_addr, char *their_addr, char *multicast_addr, u_short command_port, u_short data_port);
+NatNet *NatNet_new(char *my_addr, char *their_addr, char *multicast_addr,
+                   u_short command_port, u_short data_port);
+
+void NatNet_free(NatNet *nn);
+
+int NatNet_init(NatNet *nn, char *my_addr, char *their_addr,
+                char *multicast_addr, u_short command_port, u_short data_port);
+
 int NatNet_bind(NatNet *nn);
 
-SOCKET CreateCommandSocket(in_addr IP_Address, unsigned short uPort, int bufsize);
-SOCKET CreateDataSocket(in_addr MyAddress, in_addr multicast_addr,
+uint NatNet_send_pkt(NatNet *nn, NatNet_packet packet, uint tries);
+uint NatNet_send_cmd(NatNet *nn, char *cmd, uint tries);
+long NatNet_recv_cmd(NatNet *nn, char *cmd, size_t len);
+
+
+SOCKET CreateCommandSocket(struct in_addr IP_Address, unsigned short uPort,
+                           int bufsize);
+SOCKET CreateDataSocket(struct in_addr MyAddress, struct in_addr multicast_addr,
                         unsigned short uPort, int bufsize);
 
 bool IPAddress_StringToAddr(char *szNameOrAddress, struct in_addr *Address);
@@ -125,4 +129,7 @@ bool DecodeTimecode(unsigned int inTimecode, unsigned int inTimecodeSubframe,
                     int *subframe);
 bool TimecodeStringify(unsigned int inTimecode, unsigned int inTimecodeSubframe,
                        char *Buffer, int BufferSize);
+
+void UnpackDebug(NatNet *nn, char *pData);
+
 #endif /* NatNetC_h */
