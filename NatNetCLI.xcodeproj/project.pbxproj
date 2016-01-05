@@ -7,12 +7,59 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		887AC14E1C2986D1006DE75B /* NatNetC.c in Sources */ = {isa = PBXBuildFile; fileRef = 887AC1491C286496006DE75B /* NatNetC.c */; };
+		88258B2C1C3ACEB1003A3852 /* test_fuse.c in Sources */ = {isa = PBXBuildFile; fileRef = 88258B201C3ACE62003A3852 /* test_fuse.c */; };
+		88258B2E1C3AD126003A3852 /* libosxfuse_i64.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 88258B2D1C3AD126003A3852 /* libosxfuse_i64.2.dylib */; };
+		88258B3B1C3BE92D003A3852 /* NatNetC.c in Sources */ = {isa = PBXBuildFile; fileRef = 887AC1491C286496006DE75B /* NatNetC.c */; };
+		88258B3C1C3BE92D003A3852 /* NatNetTypes.c in Sources */ = {isa = PBXBuildFile; fileRef = 88258B1A1C32D100003A3852 /* NatNetTypes.c */; };
+		88258B441C3BEC1E003A3852 /* libNatNetC.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 88258B371C3BE91A003A3852 /* libNatNetC.dylib */; };
+		88258B471C3BECC4003A3852 /* libNatNetC.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 88258B371C3BE91A003A3852 /* libNatNetC.dylib */; };
+		88258B5C1C3BEDC3003A3852 /* NatNetC.c in Sources */ = {isa = PBXBuildFile; fileRef = 887AC1491C286496006DE75B /* NatNetC.c */; };
+		88258B5D1C3BEDC3003A3852 /* NatNetTypes.c in Sources */ = {isa = PBXBuildFile; fileRef = 88258B1A1C32D100003A3852 /* NatNetTypes.c */; };
+		883BFF7C1C328FD100DD8226 /* NatNet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8877802F1C32811E00C23ED1 /* NatNet.cpp */; };
+		883BFF7D1C328FD100DD8226 /* NatNetPacket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8877803F1C32819F00C23ED1 /* NatNetPacket.cpp */; };
+		883BFF7E1C328FD100DD8226 /* NatNetSender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 887780401C32819F00C23ED1 /* NatNetSender.cpp */; };
+		883BFF801C329B9300DD8226 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 883BFF7F1C329B9300DD8226 /* CoreFoundation.framework */; };
 		887AC14F1C2986D8006DE75B /* NatNetMain.c in Sources */ = {isa = PBXBuildFile; fileRef = 887AC14C1C297F27006DE75B /* NatNetMain.c */; };
 		887AC15A1C2AC26F006DE75B /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 887A58D11C259EF700B5D0B1 /* main.c */; };
+		887AC1641C2B135D006DE75B /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 887AC1631C2B135D006DE75B /* main.c */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		88258B421C3BEC19003A3852 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 887A58C61C259EF700B5D0B1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 88258B361C3BE91A003A3852;
+			remoteInfo = NatNetC;
+		};
+		88258B451C3BECBE003A3852 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 887A58C61C259EF700B5D0B1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 88258B361C3BE91A003A3852;
+			remoteInfo = NatNetC;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXCopyFilesBuildPhase section */
+		88258B231C3ACEAC003A3852 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		887780351C32816400C23ED1 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 		887A58CC1C259EF700B5D0B1 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -31,24 +78,84 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
+		887AC15F1C2B135C006DE75B /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		88258B1A1C32D100003A3852 /* NatNetTypes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = NatNetTypes.c; path = NatNetC/NatNetTypes.c; sourceTree = "<group>"; };
+		88258B201C3ACE62003A3852 /* test_fuse.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = test_fuse.c; path = fuse/test_fuse.c; sourceTree = "<group>"; };
+		88258B251C3ACEAC003A3852 /* fuse_test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = fuse_test; sourceTree = BUILT_PRODUCTS_DIR; };
+		88258B2D1C3AD126003A3852 /* libosxfuse_i64.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libosxfuse_i64.2.dylib; path = /usr/local/lib/libosxfuse_i64.2.dylib; sourceTree = "<absolute>"; };
+		88258B371C3BE91A003A3852 /* libNatNetC.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libNatNetC.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		88258B3E1C3BEBA7003A3852 /* NatNetTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NatNetTypes.h; path = include/NatNetC/NatNetTypes.h; sourceTree = "<group>"; };
+		88258B401C3BEBAF003A3852 /* NatNetC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NatNetC.h; path = include/NatNetC.h; sourceTree = "<group>"; };
+		88258B581C3BEDAD003A3852 /* libNatNetC.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libNatNetC.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		883BFF7F1C329B9300DD8226 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		887780271C32805A00C23ED1 /* CommandListener.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CommandListener.h; sourceTree = "<group>"; };
+		887780281C32805A00C23ED1 /* FrameListener.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FrameListener.h; sourceTree = "<group>"; };
+		887780291C32805A00C23ED1 /* NatNet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NatNet.h; sourceTree = "<group>"; };
+		8877802A1C32805A00C23ED1 /* NatNetPacket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NatNetPacket.h; sourceTree = "<group>"; };
+		8877802B1C32805A00C23ED1 /* NatNetSender.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NatNetSender.h; sourceTree = "<group>"; };
+		8877802D1C32809300C23ED1 /* SimpleExample.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SimpleExample.cpp; sourceTree = "<group>"; };
+		8877802F1C32811E00C23ED1 /* NatNet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NatNet.cpp; sourceTree = "<group>"; };
+		887780311C32814900C23ED1 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		887780371C32816400C23ED1 /* NatNetLinux */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = NatNetLinux; sourceTree = BUILT_PRODUCTS_DIR; };
+		8877803F1C32819F00C23ED1 /* NatNetPacket.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NatNetPacket.cpp; sourceTree = "<group>"; };
+		887780401C32819F00C23ED1 /* NatNetSender.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NatNetSender.cpp; sourceTree = "<group>"; };
 		887A58CE1C259EF700B5D0B1 /* NatNetCLI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = NatNetCLI; sourceTree = BUILT_PRODUCTS_DIR; };
 		887A58D11C259EF700B5D0B1 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
-		887A58D81C259F3B00B5D0B1 /* PacketClient */ = {isa = PBXFileReference; lastKnownFileType = folder; name = PacketClient; path = ../Samples/PacketClient; sourceTree = "<group>"; };
-		887AC1481C27EC50006DE75B /* PacketClientUDPBroadcast.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = PacketClientUDPBroadcast.cpp; path = ../../Samples/PacketClient/PacketClientUDPBroadcast.cpp; sourceTree = "<group>"; };
-		887AC1491C286496006DE75B /* NatNetC.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = NatNetC.c; sourceTree = "<group>"; };
-		887AC14A1C286496006DE75B /* NatNetC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NatNetC.h; sourceTree = "<group>"; };
+		887AC1491C286496006DE75B /* NatNetC.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = NatNetC.c; path = NatNetC/NatNetC.c; sourceTree = "<group>"; };
+		887AC14A1C286496006DE75B /* NatNetC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NatNetC.h; path = ../include/NatNetC.h; sourceTree = "<group>"; };
 		887AC14C1C297F27006DE75B /* NatNetMain.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = NatNetMain.c; sourceTree = "<group>"; };
 		887AC1591C2AC252006DE75B /* NatNetCLIOrig */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = NatNetCLIOrig; sourceTree = BUILT_PRODUCTS_DIR; };
+		887AC1611C2B135D006DE75B /* test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test; sourceTree = BUILT_PRODUCTS_DIR; };
+		887AC1631C2B135D006DE75B /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		88258B221C3ACEAC003A3852 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				88258B2E1C3AD126003A3852 /* libosxfuse_i64.2.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		88258B341C3BE91A003A3852 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		88258B551C3BEDAD003A3852 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		887780341C32816400C23ED1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				883BFF801C329B9300DD8226 /* CoreFoundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		887A58CB1C259EF700B5D0B1 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				88258B471C3BECC4003A3852 /* libNatNetC.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -59,14 +166,105 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		887AC15E1C2B135C006DE75B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				88258B441C3BEC1E003A3852 /* libNatNetC.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		88258B1F1C3ACE38003A3852 /* fuse */ = {
+			isa = PBXGroup;
+			children = (
+				88258B201C3ACE62003A3852 /* test_fuse.c */,
+			);
+			name = fuse;
+			sourceTree = "<group>";
+		};
+		88258B2F1C3BE7B2003A3852 /* NatNetC */ = {
+			isa = PBXGroup;
+			children = (
+				887AC1491C286496006DE75B /* NatNetC.c */,
+				88258B1A1C32D100003A3852 /* NatNetTypes.c */,
+				88258B611C3BEEC2003A3852 /* include */,
+			);
+			name = NatNetC;
+			sourceTree = "<group>";
+		};
+		88258B321C3BE801003A3852 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				88258B2D1C3AD126003A3852 /* libosxfuse_i64.2.dylib */,
+				883BFF7F1C329B9300DD8226 /* CoreFoundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		88258B601C3BEEB0003A3852 /* NatNetC */ = {
+			isa = PBXGroup;
+			children = (
+				88258B3E1C3BEBA7003A3852 /* NatNetTypes.h */,
+			);
+			name = NatNetC;
+			sourceTree = "<group>";
+		};
+		88258B611C3BEEC2003A3852 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				88258B601C3BEEB0003A3852 /* NatNetC */,
+				88258B401C3BEBAF003A3852 /* NatNetC.h */,
+			);
+			name = include;
+			sourceTree = "<group>";
+		};
+		887780241C32801C00C23ED1 /* NatNetLinux */ = {
+			isa = PBXGroup;
+			children = (
+				8877802C1C32805F00C23ED1 /* src */,
+				887780261C32804800C23ED1 /* include */,
+			);
+			name = NatNetLinux;
+			sourceTree = "<group>";
+		};
+		887780261C32804800C23ED1 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				887780271C32805A00C23ED1 /* CommandListener.h */,
+				887780281C32805A00C23ED1 /* FrameListener.h */,
+				887780291C32805A00C23ED1 /* NatNet.h */,
+				8877802A1C32805A00C23ED1 /* NatNetPacket.h */,
+				8877802B1C32805A00C23ED1 /* NatNetSender.h */,
+			);
+			name = include;
+			path = NatNetLinux/include;
+			sourceTree = "<group>";
+		};
+		8877802C1C32805F00C23ED1 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				8877802D1C32809300C23ED1 /* SimpleExample.cpp */,
+				8877802F1C32811E00C23ED1 /* NatNet.cpp */,
+				8877803F1C32819F00C23ED1 /* NatNetPacket.cpp */,
+				887780401C32819F00C23ED1 /* NatNetSender.cpp */,
+				887780311C32814900C23ED1 /* main.cpp */,
+			);
+			name = src;
+			path = NatNetLinux;
+			sourceTree = "<group>";
+		};
 		887A58C51C259EF700B5D0B1 = {
 			isa = PBXGroup;
 			children = (
-				887A58D81C259F3B00B5D0B1 /* PacketClient */,
 				887A58D01C259EF700B5D0B1 /* NatNetCLI */,
+				88258B2F1C3BE7B2003A3852 /* NatNetC */,
+				887AC1621C2B135D006DE75B /* test */,
+				88258B1F1C3ACE38003A3852 /* fuse */,
+				887780241C32801C00C23ED1 /* NatNetLinux */,
+				88258B321C3BE801003A3852 /* Frameworks */,
 				887A58CF1C259EF700B5D0B1 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -76,6 +274,11 @@
 			children = (
 				887A58CE1C259EF700B5D0B1 /* NatNetCLI */,
 				887AC1591C2AC252006DE75B /* NatNetCLIOrig */,
+				887AC1611C2B135D006DE75B /* test */,
+				887780371C32816400C23ED1 /* NatNetLinux */,
+				88258B251C3ACEAC003A3852 /* fuse_test */,
+				88258B371C3BE91A003A3852 /* libNatNetC.dylib */,
+				88258B581C3BEDAD003A3852 /* libNatNetC.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -83,18 +286,109 @@
 		887A58D01C259EF700B5D0B1 /* NatNetCLI */ = {
 			isa = PBXGroup;
 			children = (
-				887AC1481C27EC50006DE75B /* PacketClientUDPBroadcast.cpp */,
 				887A58D11C259EF700B5D0B1 /* main.c */,
-				887AC1491C286496006DE75B /* NatNetC.c */,
 				887AC14A1C286496006DE75B /* NatNetC.h */,
 				887AC14C1C297F27006DE75B /* NatNetMain.c */,
 			);
 			path = NatNetCLI;
 			sourceTree = "<group>";
 		};
+		887AC1621C2B135D006DE75B /* test */ = {
+			isa = PBXGroup;
+			children = (
+				887AC1631C2B135D006DE75B /* main.c */,
+			);
+			path = test;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
+/* Begin PBXHeadersBuildPhase section */
+		88258B351C3BE91A003A3852 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		88258B561C3BEDAD003A3852 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
 /* Begin PBXNativeTarget section */
+		88258B241C3ACEAC003A3852 /* fuse_test */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 88258B291C3ACEAC003A3852 /* Build configuration list for PBXNativeTarget "fuse_test" */;
+			buildPhases = (
+				88258B211C3ACEAC003A3852 /* Sources */,
+				88258B221C3ACEAC003A3852 /* Frameworks */,
+				88258B231C3ACEAC003A3852 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = fuse_test;
+			productName = fuse_test;
+			productReference = 88258B251C3ACEAC003A3852 /* fuse_test */;
+			productType = "com.apple.product-type.tool";
+		};
+		88258B361C3BE91A003A3852 /* NatNetC */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 88258B381C3BE91A003A3852 /* Build configuration list for PBXNativeTarget "NatNetC" */;
+			buildPhases = (
+				88258B331C3BE91A003A3852 /* Sources */,
+				88258B341C3BE91A003A3852 /* Frameworks */,
+				88258B351C3BE91A003A3852 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NatNetC;
+			productName = NatNetC;
+			productReference = 88258B371C3BE91A003A3852 /* libNatNetC.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		88258B571C3BEDAD003A3852 /* NatNetCstatic */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 88258B591C3BEDAD003A3852 /* Build configuration list for PBXNativeTarget "NatNetCstatic" */;
+			buildPhases = (
+				88258B541C3BEDAD003A3852 /* Sources */,
+				88258B551C3BEDAD003A3852 /* Frameworks */,
+				88258B561C3BEDAD003A3852 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NatNetCstatic;
+			productName = NatNetCstatic;
+			productReference = 88258B581C3BEDAD003A3852 /* libNatNetC.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		887780361C32816400C23ED1 /* NatNetLinux */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8877803B1C32816400C23ED1 /* Build configuration list for PBXNativeTarget "NatNetLinux" */;
+			buildPhases = (
+				887780331C32816400C23ED1 /* Sources */,
+				887780341C32816400C23ED1 /* Frameworks */,
+				887780351C32816400C23ED1 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NatNetLinux;
+			productName = NatNetLinux;
+			productReference = 887780371C32816400C23ED1 /* NatNetLinux */;
+			productType = "com.apple.product-type.tool";
+		};
 		887A58CD1C259EF700B5D0B1 /* NatNetCLI */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 887A58D51C259EF700B5D0B1 /* Build configuration list for PBXNativeTarget "NatNetCLI" */;
@@ -106,6 +400,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				88258B461C3BECBE003A3852 /* PBXTargetDependency */,
 			);
 			name = NatNetCLI;
 			productName = NatNetCLI;
@@ -129,6 +424,24 @@
 			productReference = 887AC1591C2AC252006DE75B /* NatNetCLIOrig */;
 			productType = "com.apple.product-type.tool";
 		};
+		887AC1601C2B135C006DE75B /* test */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 887AC1671C2B135D006DE75B /* Build configuration list for PBXNativeTarget "test" */;
+			buildPhases = (
+				887AC15D1C2B135C006DE75B /* Sources */,
+				887AC15E1C2B135C006DE75B /* Frameworks */,
+				887AC15F1C2B135C006DE75B /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				88258B431C3BEC19003A3852 /* PBXTargetDependency */,
+			);
+			name = test;
+			productName = test;
+			productReference = 887AC1611C2B135D006DE75B /* test */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -138,7 +451,22 @@
 				LastUpgradeCheck = 0720;
 				ORGANIZATIONNAME = UniTN;
 				TargetAttributes = {
+					88258B241C3ACEAC003A3852 = {
+						CreatedOnToolsVersion = 7.2;
+					};
+					88258B361C3BE91A003A3852 = {
+						CreatedOnToolsVersion = 7.2;
+					};
+					88258B571C3BEDAD003A3852 = {
+						CreatedOnToolsVersion = 7.2;
+					};
+					887780361C32816400C23ED1 = {
+						CreatedOnToolsVersion = 7.2;
+					};
 					887A58CD1C259EF700B5D0B1 = {
+						CreatedOnToolsVersion = 7.2;
+					};
+					887AC1601C2B135C006DE75B = {
 						CreatedOnToolsVersion = 7.2;
 					};
 				};
@@ -156,18 +484,58 @@
 			projectRoot = "";
 			targets = (
 				887A58CD1C259EF700B5D0B1 /* NatNetCLI */,
+				887AC1601C2B135C006DE75B /* test */,
+				88258B241C3ACEAC003A3852 /* fuse_test */,
+				88258B361C3BE91A003A3852 /* NatNetC */,
+				88258B571C3BEDAD003A3852 /* NatNetCstatic */,
+				887780361C32816400C23ED1 /* NatNetLinux */,
 				887AC1501C2AC252006DE75B /* NatNetCLIOrig */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		88258B211C3ACEAC003A3852 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				88258B2C1C3ACEB1003A3852 /* test_fuse.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		88258B331C3BE91A003A3852 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				88258B3B1C3BE92D003A3852 /* NatNetC.c in Sources */,
+				88258B3C1C3BE92D003A3852 /* NatNetTypes.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		88258B541C3BEDAD003A3852 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				88258B5C1C3BEDC3003A3852 /* NatNetC.c in Sources */,
+				88258B5D1C3BEDC3003A3852 /* NatNetTypes.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		887780331C32816400C23ED1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				883BFF7C1C328FD100DD8226 /* NatNet.cpp in Sources */,
+				883BFF7D1C328FD100DD8226 /* NatNetPacket.cpp in Sources */,
+				883BFF7E1C328FD100DD8226 /* NatNetSender.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		887A58CA1C259EF700B5D0B1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				887AC14F1C2986D8006DE75B /* NatNetMain.c in Sources */,
-				887AC14E1C2986D1006DE75B /* NatNetC.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -179,9 +547,122 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		887AC15D1C2B135C006DE75B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				887AC1641C2B135D006DE75B /* main.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		88258B431C3BEC19003A3852 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 88258B361C3BE91A003A3852 /* NatNetC */;
+			targetProxy = 88258B421C3BEC19003A3852 /* PBXContainerItemProxy */;
+		};
+		88258B461C3BECBE003A3852 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 88258B361C3BE91A003A3852 /* NatNetC */;
+			targetProxy = 88258B451C3BECBE003A3852 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		88258B2A1C3ACEAC003A3852 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"_FILE_OFFSET_BITS=64",
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = /usr/local/include/osxfuse;
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		88258B2B1C3ACEAC003A3852 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = "_FILE_OFFSET_BITS=64";
+				HEADER_SEARCH_PATHS = /usr/local/include/osxfuse;
+				LIBRARY_SEARCH_PATHS = /usr/local/lib;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		88258B391C3BE91A003A3852 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = NO;
+				DEPLOYMENT_LOCATION = YES;
+				DSTROOT = "$(PROJECT_DIR)/lib";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_PREFIX = lib;
+				INSTALL_PATH = /;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		88258B3A1C3BE91A003A3852 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = NO;
+				DEPLOYMENT_LOCATION = YES;
+				DSTROOT = "$(PROJECT_DIR)/lib";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_PREFIX = lib;
+				INSTALL_PATH = /;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		88258B5A1C3BEDAD003A3852 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = NO;
+				DEPLOYMENT_LOCATION = YES;
+				DSTROOT = "$(PROJECT_DIR)/lib";
+				EXECUTABLE_PREFIX = lib;
+				INSTALL_PATH = /;
+				PRODUCT_NAME = NatNetC;
+			};
+			name = Debug;
+		};
+		88258B5B1C3BEDAD003A3852 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = NO;
+				DEPLOYMENT_LOCATION = YES;
+				DSTROOT = "$(PROJECT_DIR)/lib";
+				EXECUTABLE_PREFIX = lib;
+				INSTALL_PATH = /;
+				PRODUCT_NAME = NatNetC;
+			};
+			name = Release;
+		};
+		8877803C1C32816400C23ED1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				HEADER_SEARCH_PATHS = include;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		8877803D1C32816400C23ED1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				HEADER_SEARCH_PATHS = include;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		887A58D31C259EF700B5D0B1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -218,6 +699,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/include";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -255,6 +737,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/include";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
@@ -293,9 +776,56 @@
 			};
 			name = Release;
 		};
+		887AC1651C2B135D006DE75B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		887AC1661C2B135D006DE75B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		88258B291C3ACEAC003A3852 /* Build configuration list for PBXNativeTarget "fuse_test" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				88258B2A1C3ACEAC003A3852 /* Debug */,
+				88258B2B1C3ACEAC003A3852 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		88258B381C3BE91A003A3852 /* Build configuration list for PBXNativeTarget "NatNetC" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				88258B391C3BE91A003A3852 /* Debug */,
+				88258B3A1C3BE91A003A3852 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		88258B591C3BEDAD003A3852 /* Build configuration list for PBXNativeTarget "NatNetCstatic" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				88258B5A1C3BEDAD003A3852 /* Debug */,
+				88258B5B1C3BEDAD003A3852 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		8877803B1C32816400C23ED1 /* Build configuration list for PBXNativeTarget "NatNetLinux" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8877803C1C32816400C23ED1 /* Debug */,
+				8877803D1C32816400C23ED1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		887A58C91C259EF700B5D0B1 /* Build configuration list for PBXProject "NatNetCLI" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -319,6 +849,15 @@
 			buildConfigurations = (
 				887AC1571C2AC252006DE75B /* Debug */,
 				887AC1581C2AC252006DE75B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		887AC1671C2B135D006DE75B /* Build configuration list for PBXNativeTarget "test" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				887AC1651C2B135D006DE75B /* Debug */,
+				887AC1661C2B135D006DE75B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

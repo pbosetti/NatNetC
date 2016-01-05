@@ -19,7 +19,7 @@
 
  */
 
-#include "NatNetC.h"
+#include <NatNetC.h>
 
 #include <stdio.h>
 
@@ -244,6 +244,7 @@ void *CommandListenThread(void *dummy) {
 void *DataListenThread(void *dummy) {
   NatNet *nn = (NatNet *)dummy;
   char szData[20000];
+  size_t len;
   long nDataBytesReceived;
 
   while (1) {
@@ -251,7 +252,7 @@ void *DataListenThread(void *dummy) {
     // ourselves)
     nDataBytesReceived = NatNet_recv_cmd(nn, szData, sizeof(szData));
     if (nDataBytesReceived > 0 && errno != EINVAL) {
-      UnpackDebug(nn, szData);
+      NatNet_unpack_all(nn, szData, &len);
     }
   }
 
