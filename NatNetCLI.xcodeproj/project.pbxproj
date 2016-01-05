@@ -113,7 +113,6 @@
 		887A58CE1C259EF700B5D0B1 /* NatNetCLI */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = NatNetCLI; sourceTree = BUILT_PRODUCTS_DIR; };
 		887A58D11C259EF700B5D0B1 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		887AC1491C286496006DE75B /* NatNetC.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = NatNetC.c; path = NatNetC/NatNetC.c; sourceTree = "<group>"; };
-		887AC14A1C286496006DE75B /* NatNetC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NatNetC.h; path = ../include/NatNetC.h; sourceTree = "<group>"; };
 		887AC14C1C297F27006DE75B /* NatNetMain.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = NatNetMain.c; sourceTree = "<group>"; };
 		887AC1591C2AC252006DE75B /* NatNetCLIOrig */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = NatNetCLIOrig; sourceTree = BUILT_PRODUCTS_DIR; };
 		887AC1611C2B135D006DE75B /* test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -287,7 +286,6 @@
 			isa = PBXGroup;
 			children = (
 				887A58D11C259EF700B5D0B1 /* main.c */,
-				887AC14A1C286496006DE75B /* NatNetC.h */,
 				887AC14C1C297F27006DE75B /* NatNetMain.c */,
 			);
 			path = NatNetCLI;

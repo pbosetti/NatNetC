@@ -3,3 +3,6 @@
 /mruby
 *.DS_Store
 *.o
+*.depend
+*.temp
+*.tmp
