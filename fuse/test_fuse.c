@@ -6,44 +6,10 @@
 //  Copyright © 2016 UniTN. All rights reserved.
 //
 
-/*
- FUSE: Filesystem in Userspace
- Copyright (C) 2001-2007  Miklos Szeredi <miklos@szeredi.hu>
- 
- This program can be distributed under the terms of the GNU GPL.
- See the file COPYING.
- */
-
-/** @file
- *
- * hello.c - minimal FUSE example featuring fuse_main usage
- *
- * \section section_compile compiling this example
- *
- * gcc -Wall hello.c `pkg-config fuse3 --cflags --libs` -o hello
- *
- * \section section_usage usage
- \verbatim
- % mkdir mnt
- % ./hello mnt        # program will vanish into the background
- % ls -la mnt
- total 4
- drwxr-xr-x 2 root root      0 Jan  1  1970 ./
- drwxrwx--- 1 root vboxsf 4096 Jun 16 23:12 ../
- -r--r--r-- 1 root root     13 Jan  1  1970 hello
- % cat mnt/hello
- Hello World!
- % fusermount -u mnt
- \endverbatim
- *
- * \section section_source the complete source
- * \include hello.c
- */
-
-
 #define FUSE_USE_VERSION 30
-
-//#include <config.h>
+#define VERSION_MAJOR 0
+#define VERSION_MINOR 1
+#define VERSION_MAX_LEN 64
 
 #include <fuse.h>
 #include <fuse/fuse_common.h>
@@ -56,8 +22,8 @@
 
 typedef enum fuse_readdir_flags fuse_readdir_flags_t;
 
-static const char *hello_str = "Hello World!\n";
-static const char *hello_path = "/hello";
+static char version_str[VERSION_MAX_LEN];
+static const char *version_path = "/version";
 static const char *time_path = "/time";
 
 static const char *frame_path = "/frame";
@@ -67,63 +33,63 @@ struct fuse_status {
   size_t time_size, frame_size, info_size;
 };
 static struct fuse_status hello_status = {
-  .time_size = 1024,
+  .time_size = 0,
+  .frame_size = 0,
+  .info_size = 0
 };
 
 
-static int hello_getattr(const char *path, struct stat *stbuf)
+static int NatNet_getattr(const char *path, struct stat *stbuf)
 {
   int res = 0;
+  memset(stbuf, 0, sizeof(struct stat));
+
 #ifdef __linux__
   struct timespec tv;
   clock_gettime(CLOCK_MONOTONIC, &tv);
+  stbuf->st_mtim.tv_sec = tv.tv_sec;
+  stbuf->st_mtim.tv_nsec = tv.tv_nsec;
+  stbuf->st_atim.tv_sec = tv.tv_sec;
+  stbuf->st_atim.tv_nsec = tv.tv_nsec;
+  stbuf->st_ctim.tv_sec = tv.tv_sec;
+  stbuf->st_ctim.tv_nsec = tv.tv_nsec;
 #else
   struct timeval tv;
   gettimeofday(&tv, NULL);
+  stbuf->st_mtimespec.tv_sec = tv.tv_sec;
+  stbuf->st_mtimespec.tv_nsec = tv.tv_usec * 1000;
+  stbuf->st_atimespec.tv_sec = tv.tv_sec;
+  stbuf->st_atimespec.tv_nsec = tv.tv_usec * 1000;
+  stbuf->st_ctimespec.tv_sec = tv.tv_sec;
+  stbuf->st_ctimespec.tv_nsec = tv.tv_usec * 1000;
 #endif
 
-  memset(stbuf, 0, sizeof(struct stat));
   if (strcmp(path, "/") == 0) {
-    stbuf->st_mode = S_IFDIR | 0755;
+    stbuf->st_mode = S_IFDIR | 0555;
     stbuf->st_nlink = 2;
   }
   else if (strcmp(path, "/frame") == 0) {
-    stbuf->st_mode = S_IFDIR | 0755;
+    stbuf->st_mode = S_IFDIR | 0555;
     stbuf->st_nlink = 2;
   }
   else if (strcmp(path, "/info") == 0) {
-    stbuf->st_mode = S_IFDIR | 0755;
+    stbuf->st_mode = S_IFDIR | 0555;
     stbuf->st_nlink = 2;
   }
   else if (strcmp(path, "/data") == 0) {
-    stbuf->st_mode = S_IFDIR | 0755;
+    stbuf->st_mode = S_IFDIR | 0555;
     stbuf->st_nlink = 2;
   }
   else if (strcmp(path, time_path) == 0) {
     stbuf->st_mode = S_IFREG | 0444;
     stbuf->st_nlink = 1;
     stbuf->st_size = 1024;
-#ifdef __linux__
-    stbuf->st_mtim.tv_sec = tv.tv_sec;
-    stbuf->st_mtim.tv_nsec = tv.tv_nsec;
-    stbuf->st_atim.tv_sec = tv.tv_sec;
-    stbuf->st_atim.tv_nsec = tv.tv_nsec;
-    stbuf->st_ctim.tv_sec = tv.tv_sec;
-    stbuf->st_ctim.tv_nsec = tv.tv_nsec;
-#else
-    stbuf->st_mtimespec.tv_sec = tv.tv_sec;
-    stbuf->st_mtimespec.tv_nsec = tv.tv_usec * 1000;
-    stbuf->st_atimespec.tv_sec = tv.tv_sec;
-    stbuf->st_atimespec.tv_nsec = tv.tv_usec * 1000;
-    stbuf->st_ctimespec.tv_sec = tv.tv_sec;
-    stbuf->st_ctimespec.tv_nsec = tv.tv_usec * 1000;
-#endif
   }
 
-  else if (strcmp(path, hello_path) == 0) {
+  else if (strcmp(path, version_path) == 0) {
     stbuf->st_mode = S_IFREG | 0444;
     stbuf->st_nlink = 1;
-    stbuf->st_size = strlen(hello_str);
+    stbuf->st_size = strlen(version_str);
   }
   else {
     res = -ENOENT;
@@ -131,7 +97,7 @@ static int hello_getattr(const char *path, struct stat *stbuf)
   return res;
 }
 
-static int hello_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
+static int NatNet_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
                          off_t offset, struct fuse_file_info *fi)
 {
   (void) offset;
@@ -147,19 +113,19 @@ static int hello_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
   filler(buf, info_path + 1, NULL, 0);
   filler(buf, time_path + 1, NULL, 0);
 
-  filler(buf, hello_path + 1, NULL, 0);
+  filler(buf, version_path + 1, NULL, 0);
   
   return 0;
 }
 
-static int hello_open(const char *path, struct fuse_file_info *fi)
+static int NatNet_open(const char *path, struct fuse_file_info *fi)
 {
   fi->direct_io = 1;
   if (strcmp(path, time_path) == 0) {
 
   }
-  else if (strcmp(path, hello_path) == 0) {
-    fi->direct_io = 0;
+  else if (strcmp(path, version_path) == 0) {
+
   }
   else {
     return -ENOENT;
@@ -171,20 +137,20 @@ static int hello_open(const char *path, struct fuse_file_info *fi)
   return 0;
 }
 
-static int hello_read(const char *path, char *buf, size_t size, off_t offset,
+static int NatNet_read(const char *path, char *buf, size_t size, off_t offset,
                       struct fuse_file_info *fi)
 {
   size_t len;
   (void) fi;
 
 
-  if(strcmp(path, hello_path) == 0) {
+  if(strcmp(path, version_path) == 0) {
     
-    len = strlen(hello_str);
+    len = strlen(version_str);
     if (offset < len) {
       if (offset + size > len)
         size = len - offset;
-      memcpy(buf, hello_str + offset, size);
+      memcpy(buf, version_str + offset, size);
     } else
       size = 0;
     
@@ -214,20 +180,21 @@ static int hello_read(const char *path, char *buf, size_t size, off_t offset,
 }
 
 
-static struct fuse_operations hello_oper = {
-  .getattr	= hello_getattr,
-  .readdir	= hello_readdir,
-  .open		= hello_open,
-  .read		= hello_read
+static struct fuse_operations NatNet_oper = {
+  .getattr	= NatNet_getattr,
+  .readdir	= NatNet_readdir,
+  .open		= NatNet_open,
+  .read		= NatNet_read
 };
 
 
 int main(int argc, char *argv[])
 {
   struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
+  snprintf(version_str, VERSION_MAX_LEN, "NatNet fuse client Version: %d.%d\n", VERSION_MAJOR, VERSION_MINOR);
   
   fuse_opt_parse(&args, NULL, NULL, NULL);
   fuse_opt_add_arg(&args, "-o direct_io");
 
-  return fuse_main(argc, argv, &hello_oper, NULL);
+  return fuse_main(argc, argv, &NatNet_oper, NULL);
 }
