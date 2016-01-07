@@ -79,15 +79,21 @@ static int hello_getattr(const char *path, struct stat *stbuf)
     stbuf->st_mode = S_IFREG | 0444;
     stbuf->st_nlink = 1;
     stbuf->st_size = 1024;
+#ifndef __linux__
     stbuf->st_mtimespec.tv_sec = tv.tv_sec;
     stbuf->st_mtimespec.tv_nsec = tv.tv_usec * 1000;
-    stbuf->st_mtimespec.tv_sec = tv.tv_sec;
-    stbuf->st_atimespec.tv_nsec = tv.tv_usec * 1000;
     stbuf->st_atimespec.tv_sec = tv.tv_sec;
     stbuf->st_atimespec.tv_nsec = tv.tv_usec * 1000;
-    stbuf->st_ctimespec.tv_nsec = tv.tv_usec * 1000;
     stbuf->st_ctimespec.tv_sec = tv.tv_sec;
     stbuf->st_ctimespec.tv_nsec = tv.tv_usec * 1000;
+#else
+    stbuf->st_mtim.tv_sec = tv.tv_sec;
+    stbuf->st_mtim.tv_nsec = tv.tv_usec * 1000;
+    stbuf->st_atim.tv_sec = tv.tv_sec;
+    stbuf->st_atim.tv_nsec = tv.tv_usec * 1000;
+    stbuf->st_ctim.tv_sec = tv.tv_sec;
+    stbuf->st_ctim.tv_nsec = tv.tv_usec * 1000;
+#endif 
   }
   else {
     res = -ENOENT;
@@ -155,7 +161,7 @@ static int read(const char *path, char *buf, size_t size, off_t offset,
     double t = (double)(tv.tv_sec) + ((double)(tv.tv_usec) / 1.0E6);
     char loc_buf[1024];
     size_t len;
-    sprintf(loc_buf, "---\nfloat: %.6f\nsec: %ld\nusec: %d\n", t, tv.tv_sec, tv.tv_usec);
+    sprintf(loc_buf, "---\nfloat: %.6f\nsec: %ld\nusec: %ld\n", t, tv.tv_sec, (long)tv.tv_usec);
     len = strlen(loc_buf);
     if (offset < len) {
       if (offset + size > len)

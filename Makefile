@@ -25,6 +25,13 @@ TEST_SRCS := $(shell find test -mindepth 1 -maxdepth 4 -name "*.c")
 TEST_OBJS = $(TEST_SRCS:.c=.o)
 TESTNAME = nn_test
 
+FUSE_SRCS = fuse/test_fuse.c
+FUSE_OBJS = $(FUSE_SRCS:.c=.o)
+FUSE_LIBPATH = 
+FUSE_LIBS = -lfuse
+FUSE_BIN = fuse_test
+
+
 SRCS = $(LIB_SRCS) $(DEMO_SRCS) $(TEST_SRCS)
 OBJS = $(LIB_OBJS) $(DEMO_OBJS) $(TEST_OBJS)
 
@@ -69,6 +76,9 @@ demo: dirs static $(DEMO_OBJS)
 	
 test: dirs static $(TEST_OBJS)
 	$(C) $(TEST_OBJS) $(BIN_LIBPATH) $(BIN_LIBS) $(LIB_DIR)/lib$(LIBNAME).a -o $(BIN_DIR)/$(TESTNAME)
+	
+fuse: dirs
+	$(C) -D_FILE_OFFSET_BITS=64 $(FUSE_SRCS) $(FUSE_LIBPATH) $(FUSE_LIBS) -o $(BIN_DIR)/$(FUSE_BIN)
 	
 .c.o:
 	$(C) $(CFLAGS) -c $< -o $@
