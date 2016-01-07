@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "88258B571C3BEDAD003A3852"
-               BuildableName = "libNatNetCstatic.a"
+               BuildableName = "libNatNetC.a"
                BlueprintName = "NatNetCstatic"
                ReferencedContainer = "container:NatNetCLI.xcodeproj">
             </BuildableReference>
@@ -46,7 +46,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "88258B571C3BEDAD003A3852"
-            BuildableName = "libNatNetCstatic.a"
+            BuildableName = "libNatNetC.a"
             BlueprintName = "NatNetCstatic"
             ReferencedContainer = "container:NatNetCLI.xcodeproj">
          </BuildableReference>
@@ -64,7 +64,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "88258B571C3BEDAD003A3852"
-            BuildableName = "libNatNetCstatic.a"
+            BuildableName = "libNatNetC.a"
             BlueprintName = "NatNetCstatic"
             ReferencedContainer = "container:NatNetCLI.xcodeproj">
          </BuildableReference>

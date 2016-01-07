@@ -60,6 +60,17 @@ static const char *hello_str = "Hello World!\n";
 static const char *hello_path = "/hello";
 static const char *time_path = "/time";
 
+static const char *frame_path = "/frame";
+static const char *info_path = "/info";
+
+struct fuse_status {
+  size_t time_size, frame_size, info_size;
+};
+static struct fuse_status hello_status = {
+  .time_size = 1024,
+};
+
+
 static int hello_getattr(const char *path, struct stat *stbuf)
 {
   int res = 0;
@@ -70,15 +81,23 @@ static int hello_getattr(const char *path, struct stat *stbuf)
   if (strcmp(path, "/") == 0) {
     stbuf->st_mode = S_IFDIR | 0755;
     stbuf->st_nlink = 2;
-  } else if (strcmp(path, hello_path) == 0) {
-    stbuf->st_mode = S_IFREG | 0444;
-    stbuf->st_nlink = 1;
-    stbuf->st_size = strlen(hello_str);
+  }
+  else if (strcmp(path, "/frame") == 0) {
+    stbuf->st_mode = S_IFDIR | 0755;
+    stbuf->st_nlink = 2;
+  }
+  else if (strcmp(path, "/info") == 0) {
+    stbuf->st_mode = S_IFDIR | 0755;
+    stbuf->st_nlink = 2;
+  }
+  else if (strcmp(path, "/data") == 0) {
+    stbuf->st_mode = S_IFDIR | 0755;
+    stbuf->st_nlink = 2;
   }
   else if (strcmp(path, time_path) == 0) {
     stbuf->st_mode = S_IFREG | 0444;
     stbuf->st_nlink = 1;
-    stbuf->st_size = 1024;
+    stbuf->st_size = hello_status.time_size;
     stbuf->st_mtimespec.tv_sec = tv.tv_sec;
     stbuf->st_mtimespec.tv_nsec = tv.tv_usec * 1000;
     stbuf->st_mtimespec.tv_sec = tv.tv_sec;
@@ -88,6 +107,12 @@ static int hello_getattr(const char *path, struct stat *stbuf)
     stbuf->st_ctimespec.tv_nsec = tv.tv_usec * 1000;
     stbuf->st_ctimespec.tv_sec = tv.tv_sec;
     stbuf->st_ctimespec.tv_nsec = tv.tv_usec * 1000;
+  }
+
+  else if (strcmp(path, hello_path) == 0) {
+    stbuf->st_mode = S_IFREG | 0444;
+    stbuf->st_nlink = 1;
+    stbuf->st_size = strlen(hello_str);
   }
   else {
     res = -ENOENT;
@@ -106,19 +131,24 @@ static int hello_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
   
   filler(buf, ".", NULL, 0);
   filler(buf, "..", NULL, 0);
-  filler(buf, hello_path + 1, NULL, 0);
+  filler(buf, "data", NULL, 0);
+  filler(buf, frame_path + 1, NULL, 0);
+  filler(buf, info_path + 1, NULL, 0);
   filler(buf, time_path + 1, NULL, 0);
+
+  filler(buf, hello_path + 1, NULL, 0);
   
   return 0;
 }
 
 static int hello_open(const char *path, struct fuse_file_info *fi)
 {
-  if (strcmp(path, hello_path) == 0) {
-    
+  fi->direct_io = 1;
+  if (strcmp(path, time_path) == 0) {
+
   }
-  else if (strcmp(path, time_path) == 0) {
-    fi->direct_io = 1;
+  else if (strcmp(path, hello_path) == 0) {
+    fi->direct_io = 0;
   }
   else {
     return -ENOENT;
@@ -130,7 +160,7 @@ static int hello_open(const char *path, struct fuse_file_info *fi)
   return 0;
 }
 
-static int read(const char *path, char *buf, size_t size, off_t offset,
+static int hello_read(const char *path, char *buf, size_t size, off_t offset,
                       struct fuse_file_info *fi)
 {
   size_t len;
@@ -155,12 +185,13 @@ static int read(const char *path, char *buf, size_t size, off_t offset,
     double t = (double)(tv.tv_sec) + ((double)(tv.tv_usec) / 1.0E6);
     char loc_buf[1024];
     size_t len;
-    sprintf(loc_buf, "---\nfloat: %.6f\nsec: %ld\nusec: %d\n", t, tv.tv_sec, tv.tv_usec);
+    sprintf(loc_buf, "---\nfloat: %.6f\nsec: %ld\nusec: %ld\n", t, tv.tv_sec, (long)tv.tv_usec);
     len = strlen(loc_buf);
     if (offset < len) {
       if (offset + size > len)
         size = len - offset;
       memcpy(buf, loc_buf + offset, size);
+      hello_status.time_size = size;
     }
     else {
       size = 0;
@@ -176,13 +207,13 @@ static struct fuse_operations hello_oper = {
   .getattr	= hello_getattr,
   .readdir	= hello_readdir,
   .open		= hello_open,
-  .read		= read
+  .read		= hello_read
 };
+
 
 int main(int argc, char *argv[])
 {
   struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
-  
   fuse_opt_parse(&args, NULL, NULL, NULL);
   fuse_opt_add_arg(&args, "-o direct_io");
 

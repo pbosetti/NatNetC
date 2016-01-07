@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "A43278D0307D6A54AA9C317A8199268C6B35B119",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "A43278D0307D6A54AA9C317A8199268C6B35B119" : 0,
+    "EA219BFC353DE036FB09F67B72E93EEADEE538C2" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "BA65B3FE-A157-4E49-9139-9DF52D61FE21",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "A43278D0307D6A54AA9C317A8199268C6B35B119" : "NatNetCLI\/",
+    "EA219BFC353DE036FB09F67B72E93EEADEE538C2" : "NatNetCLI\/NatNetLinux\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "NatNetCLI",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "NatNetCLI.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:pbosetti\/NatNetC.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "A43278D0307D6A54AA9C317A8199268C6B35B119"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:pbosetti\/NatNetLinux.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "EA219BFC353DE036FB09F67B72E93EEADEE538C2"
+    }
+  ]
+}
