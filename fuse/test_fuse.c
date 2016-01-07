@@ -74,8 +74,13 @@ static struct fuse_status hello_status = {
 static int hello_getattr(const char *path, struct stat *stbuf)
 {
   int res = 0;
+#ifdef __linux__
+  struct timespec tv;
+  clock_gettime(CLOCK_MONOTONIC, &tv);
+#else
   struct timeval tv;
   gettimeofday(&tv, NULL);
+#endif
 
   memset(stbuf, 0, sizeof(struct stat));
   if (strcmp(path, "/") == 0) {
@@ -100,11 +105,11 @@ static int hello_getattr(const char *path, struct stat *stbuf)
     stbuf->st_size = 1024;
 #ifdef __linux__
     stbuf->st_mtim.tv_sec = tv.tv_sec;
-    stbuf->st_mtim.tv_nsec = tv.tv_usec * 1000;
+    stbuf->st_mtim.tv_nsec = tv.tv_nsec;
     stbuf->st_atim.tv_sec = tv.tv_sec;
-    stbuf->st_atim.tv_nsec = tv.tv_usec * 1000;
+    stbuf->st_atim.tv_nsec = tv.tv_nsec;
     stbuf->st_ctim.tv_sec = tv.tv_sec;
-    stbuf->st_ctim.tv_nsec = tv.tv_usec * 1000;
+    stbuf->st_ctim.tv_nsec = tv.tv_nsec;
 #else
     stbuf->st_mtimespec.tv_sec = tv.tv_sec;
     stbuf->st_mtimespec.tv_nsec = tv.tv_usec * 1000;
