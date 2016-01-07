@@ -87,7 +87,7 @@ clean:
 	rm -f $(OBJS)
 
 clobber: clean
-	rm -f $(LIB_DIR)/* $(BIN_DIR)/*
+	rm -rf $(LIB_DIR)/* $(BIN_DIR)/*
 
 depend:
 	mkdep $(CXXFLAGS) $(SRCS)
