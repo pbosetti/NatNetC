@@ -27,8 +27,6 @@ TESTNAME = nn_test
 
 FUSE_SRCS = fuse/test_fuse.c
 FUSE_OBJS = $(FUSE_SRCS:.c=.o)
-FUSE_LIBPATH = 
-FUSE_LIBS = -lfuse
 FUSE_BIN = fuse_test
 
 
@@ -42,11 +40,16 @@ DLLNAME = lib$(LIBNAME).so
 DLLFLAGS = -shared -Wl,-soname,$(DLLNAME)
 BIN_LIBPATH = -L./lib
 BIN_LIBS = -lpthread
+FUSE_LIBS = -lfuse
+FUSE_LIBPATH = 
 else ifeq ($(UNAME), Darwin)
 DLLNAME = lib$(LIBNAME).dylib
 DLLFLAGS = -dynamiclib -install_name $(LIB_DIR)/$(DLLNAME) -current_version 1.0
 BIN_LIBPATH = -L./lib
 BIN_LIBS = -lpthread
+FUSE_HEADERPATH = -I/usr/local/include/osxfuse
+FUSE_LIBS = -losxfuse
+FUSE_LIBPATH = -L/usr/local/lib
 endif
 
 all: static dll
@@ -78,7 +81,7 @@ test: dirs static $(TEST_OBJS)
 	$(C) $(TEST_OBJS) $(BIN_LIBPATH) $(BIN_LIBS) $(LIB_DIR)/lib$(LIBNAME).a -o $(BIN_DIR)/$(TESTNAME)
 	
 fuse: dirs
-	$(C) -D_FILE_OFFSET_BITS=64 $(FUSE_SRCS) $(FUSE_LIBPATH) $(FUSE_LIBS) -o $(BIN_DIR)/$(FUSE_BIN)
+	$(C) -D_FILE_OFFSET_BITS=64 $(FUSE_SRCS) $(FUSE_HEADERPATH) $(FUSE_LIBPATH) $(FUSE_LIBS) -o $(BIN_DIR)/$(FUSE_BIN)
 	
 .c.o:
 	$(C) $(CFLAGS) -c $< -o $@
