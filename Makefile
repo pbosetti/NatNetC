@@ -5,13 +5,15 @@ INC_DIR = ./include
 
 C = clang
 CFLAGS = -O3 -g -fPIC -I$(INC_DIR)
+HEADERPATHS = -I/usr/local/include 
+LIBPATH = -L/usr/local/lib
 
 L = clang
 LFLAGS = -L$(LIB_DIR)
 
 AR = ar
 ARFLAGS = rcs
-#DEFINES=-D 
+DEFINES=-DNATNET_YAML=1
 
 LIB_SRCS := $(shell find NatNetC -mindepth 1 -maxdepth 4 -name "*.c")
 LIB_OBJS = $(LIB_SRCS:.c=.o)
@@ -46,10 +48,10 @@ else ifeq ($(UNAME), Darwin)
 DLLNAME = lib$(LIBNAME).dylib
 DLLFLAGS = -dynamiclib -install_name $(LIB_DIR)/$(DLLNAME) -current_version 1.0
 BIN_LIBPATH = -L./lib
-BIN_LIBS = -lpthread
-FUSE_HEADERPATH = -I/usr/local/include -I/usr/local/include/osxfuse
+BIN_LIBS = -lpthread -lyaml
+FUSE_HEADERPATH = -I/usr/local/include/osxfuse
 FUSE_LIBS = -losxfuse -llua
-FUSE_LIBPATH = -L/usr/local/lib
+FUSE_LIBPATH = 
 endif
 
 all: static dll
@@ -75,16 +77,17 @@ dll: dirs $(LIB_OBJS)
 	$(C) $(DLLFLAGS) $(LIB_OBJS) -o $(LIB_DIR)/$(DLLNAME)
 	
 demo: dirs static $(DEMO_OBJS)
-	$(C) $(DEMO_OBJS) $(BIN_LIBPATH) $(BIN_LIBS) $(LIB_DIR)/lib$(LIBNAME).a -o $(BIN_DIR)/$(DEMONAME)
+	$(C) $(DEMO_OBJS) $(BIN_LIBPATH) $(LIBPATH) $(HEADERPATHS) $(BIN_LIBS) $(LIB_DIR)/lib$(LIBNAME).a -o $(BIN_DIR)/$(DEMONAME)
 	
 test: dirs static $(TEST_OBJS)
-	$(C) $(TEST_OBJS) $(BIN_LIBPATH) $(BIN_LIBS) $(LIB_DIR)/lib$(LIBNAME).a -o $(BIN_DIR)/$(TESTNAME)
+	$(C) $(DEFINES) $(TEST_OBJS) $(HEADERPATHS) $(LIBPATH) $(BIN_LIBPATH) $(BIN_LIBS) $(LIB_DIR)/lib$(LIBNAME).a -o $(BIN_DIR)/$(TESTNAME)
 	
 fuse: dirs
-	$(C) -D_FILE_OFFSET_BITS=64 $(CFLAGS) $(FUSE_SRCS) $(FUSE_HEADERPATH) $(FUSE_LIBPATH) $(FUSE_LIBS) -o $(BIN_DIR)/$(FUSE_BIN)
+	$(C) -D_FILE_OFFSET_BITS=64 $(CFLAGS) $(FUSE_SRCS) $(HEADERPATHS) $(FUSE_HEADERPATH) $(LIBPATH) $(FUSE_LIBPATH) $(FUSE_LIBS) -o $(BIN_DIR)/$(FUSE_BIN)
+	-mkdir -p $(BIN_DIR)/mnt
 	
 .c.o:
-	$(C) $(CFLAGS) -c $< -o $@
+	$(C) $(DEFINES) $(HEADERPATHS) $(CFLAGS) -c $< -o $@
 	
 clean:
 	rm -f $(OBJS)
