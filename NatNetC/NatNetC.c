@@ -8,6 +8,7 @@
 
 #include "NatNetC.h"
 
+
 #pragma mark -
 #pragma mark Class-like NatNet functions
 
@@ -24,6 +25,9 @@ NatNet *NatNet_new(char *my_addr, char *their_addr, char *multicast_addr,
 
 void NatNet_free(NatNet *nn) {
   NatNet_frame_free(nn->last_frame);
+#ifdef NATNET_YAML
+  free(nn->yaml);
+#endif
   free(nn);
 }
 
@@ -39,6 +43,9 @@ int NatNet_init(NatNet *nn, char *my_addr, char *their_addr,
   nn->timeout.tv_sec = 0;
   nn->timeout.tv_usec = 100000;
   nn->last_frame = NatNet_frame_new(0, 0);
+#ifdef NATNET_YAML
+  nn->yaml = NULL;
+#endif
   return 0;
 }
 

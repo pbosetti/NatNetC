@@ -7,6 +7,7 @@
 //
 
 #include <stdio.h>
+#define NATNET_YAML
 #include <NatNetC.h>
 
 int main(int argc, const char * argv[]) {
@@ -87,8 +88,14 @@ int main(int argc, const char * argv[]) {
   size_t len = 0;
   memset(pData, 0, 2048);
   memcpy(pData, &messageID, 2);
-  NatNet_unpack_all(nn, pData, &len);
+  //NatNet_unpack_all(nn, pData, &len);
   
+  nn->NatNet_ver[0] = 2;
+  nn->NatNet_ver[1] = 6;
+  
+  NatNet_unpack_yaml(nn, pData, &len);
+  
+  printf("YAML: \n%s\n", nn->yaml);
   
   NatNet_free(nn);
   

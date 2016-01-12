@@ -23,6 +23,7 @@
 #include <pthread.h>
 #include <errno.h>
 
+
 #include "NatNetC/NatNetTypes.h"
 
 
@@ -65,6 +66,10 @@ uint NatNet_send_cmd(NatNet *nn, char *cmd, uint tries);
 long NatNet_recv_cmd(NatNet *nn, char *cmd, size_t len);
 
 void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len);
+#ifdef NATNET_YAML
+int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len);
+#endif
+
 
 
 

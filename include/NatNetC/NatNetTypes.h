@@ -163,6 +163,9 @@ typedef struct {
   int NatNet_ver[4];
   int server_ver[4];
   NatNet_frame *last_frame;
+#ifdef NATNET_YAML
+  char * yaml;
+#endif
 } NatNet;
 
 

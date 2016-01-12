@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8807B3C21C43AD6B00973BE6 /* NatNetYAML.c in Sources */ = {isa = PBXBuildFile; fileRef = 8807B3C01C43A7E000973BE6 /* NatNetYAML.c */; };
+		8807B3C31C43AD6D00973BE6 /* NatNetYAML.c in Sources */ = {isa = PBXBuildFile; fileRef = 8807B3C01C43A7E000973BE6 /* NatNetYAML.c */; };
+		8807B3C51C43AF9500973BE6 /* libyaml-0.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8807B3C41C43AF9500973BE6 /* libyaml-0.2.dylib */; };
+		8807B3C61C43AF9E00973BE6 /* libyaml-0.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8807B3C41C43AF9500973BE6 /* libyaml-0.2.dylib */; };
+		8807B3C71C43AFA500973BE6 /* libyaml-0.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8807B3C41C43AF9500973BE6 /* libyaml-0.2.dylib */; };
 		88258B2C1C3ACEB1003A3852 /* test_fuse.c in Sources */ = {isa = PBXBuildFile; fileRef = 88258B201C3ACE62003A3852 /* test_fuse.c */; };
 		88258B2E1C3AD126003A3852 /* libosxfuse_i64.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 88258B2D1C3AD126003A3852 /* libosxfuse_i64.2.dylib */; };
 		88258B3B1C3BE92D003A3852 /* NatNetC.c in Sources */ = {isa = PBXBuildFile; fileRef = 887AC1491C286496006DE75B /* NatNetC.c */; };
@@ -90,6 +95,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		8807B3C01C43A7E000973BE6 /* NatNetYAML.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = NatNetYAML.c; path = NatNetC/NatNetYAML.c; sourceTree = "<group>"; };
+		8807B3C41C43AF9500973BE6 /* libyaml-0.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libyaml-0.2.dylib"; path = "../../../../../usr/local/Cellar/libyaml/0.1.6_1/lib/libyaml-0.2.dylib"; sourceTree = "<group>"; };
 		88258B1A1C32D100003A3852 /* NatNetTypes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = NatNetTypes.c; path = NatNetC/NatNetTypes.c; sourceTree = "<group>"; };
 		88258B201C3ACE62003A3852 /* test_fuse.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = test_fuse.c; path = fuse/test_fuse.c; sourceTree = "<group>"; };
 		88258B251C3ACEAC003A3852 /* fuse_test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = fuse_test; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -132,6 +139,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8807B3C61C43AF9E00973BE6 /* libyaml-0.2.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -139,6 +147,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8807B3C71C43AFA500973BE6 /* libyaml-0.2.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -154,6 +163,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8807B3C51C43AF9500973BE6 /* libyaml-0.2.dylib in Frameworks */,
 				88258B471C3BECC4003A3852 /* libNatNetC.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -189,6 +199,7 @@
 			children = (
 				887AC1491C286496006DE75B /* NatNetC.c */,
 				88258B1A1C32D100003A3852 /* NatNetTypes.c */,
+				8807B3C01C43A7E000973BE6 /* NatNetYAML.c */,
 				88258B611C3BEEC2003A3852 /* include */,
 			);
 			name = NatNetC;
@@ -197,6 +208,7 @@
 		88258B321C3BE801003A3852 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8807B3C41C43AF9500973BE6 /* libyaml-0.2.dylib */,
 				88258B2D1C3AD126003A3852 /* libosxfuse_i64.2.dylib */,
 				883BFF7F1C329B9300DD8226 /* CoreFoundation.framework */,
 			);
@@ -506,6 +518,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				88258B3B1C3BE92D003A3852 /* NatNetC.c in Sources */,
+				8807B3C21C43AD6B00973BE6 /* NatNetYAML.c in Sources */,
 				88258B3C1C3BE92D003A3852 /* NatNetTypes.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -515,6 +528,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				88258B5C1C3BEDC3003A3852 /* NatNetC.c in Sources */,
+				8807B3C31C43AD6D00973BE6 /* NatNetYAML.c in Sources */,
 				88258B5D1C3BEDC3003A3852 /* NatNetTypes.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -579,7 +593,10 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				HEADER_SEARCH_PATHS = /usr/local/include/osxfuse;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include,
+					/usr/local/include/osxfuse,
+				);
 				INSTALL_PATH = /bin;
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -592,7 +609,10 @@
 				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(PROJECT_DIR)";
 				GCC_PREPROCESSOR_DEFINITIONS = "_FILE_OFFSET_BITS=64";
-				HEADER_SEARCH_PATHS = /usr/local/include/osxfuse;
+				HEADER_SEARCH_PATHS = (
+					/usr/local/include,
+					/usr/local/include/osxfuse,
+				);
 				INSTALL_PATH = /bin;
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -608,8 +628,15 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				EXECUTABLE_PREFIX = lib;
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "NATNET_YAML=1";
+				HEADER_SEARCH_PATHS = /usr/local/include;
 				INSTALL_PATH = /;
+				LIBRARY_SEARCH_PATHS = (
+					/usr/local/lib,
+					/usr/local/Cellar/libyaml/0.1.6_1/lib,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/include";
 			};
 			name = Debug;
 		};
@@ -622,8 +649,15 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				EXECUTABLE_PREFIX = lib;
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "NATNET_YAML=1";
+				HEADER_SEARCH_PATHS = /usr/local/include;
 				INSTALL_PATH = /;
+				LIBRARY_SEARCH_PATHS = (
+					/usr/local/lib,
+					/usr/local/Cellar/libyaml/0.1.6_1/lib,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/include";
 			};
 			name = Release;
 		};
@@ -634,8 +668,15 @@
 				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(PROJECT_DIR)/lib";
 				EXECUTABLE_PREFIX = lib;
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "NATNET_YAML=1";
+				HEADER_SEARCH_PATHS = /usr/local/include;
 				INSTALL_PATH = /;
+				LIBRARY_SEARCH_PATHS = (
+					/usr/local/lib,
+					/usr/local/Cellar/libyaml/0.1.6_1/lib,
+				);
 				PRODUCT_NAME = NatNetC;
+				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/include";
 			};
 			name = Debug;
 		};
@@ -646,8 +687,15 @@
 				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(PROJECT_DIR)/lib";
 				EXECUTABLE_PREFIX = lib;
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "NATNET_YAML=1";
+				HEADER_SEARCH_PATHS = /usr/local/include;
 				INSTALL_PATH = /;
+				LIBRARY_SEARCH_PATHS = (
+					/usr/local/lib,
+					/usr/local/Cellar/libyaml/0.1.6_1/lib,
+				);
 				PRODUCT_NAME = NatNetC;
+				USER_HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/include";
 			};
 			name = Release;
 		};
@@ -752,6 +800,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = NO;
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "NATNET_YAML=1";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/libyaml/0.1.6_1/lib,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -760,6 +813,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = NO;
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "NATNET_YAML=1";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/Cellar/libyaml/0.1.6_1/lib,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -783,6 +841,8 @@
 		887AC1651C2B135D006DE75B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_WARN_INT_CONVERSION = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -790,6 +850,8 @@
 		887AC1661C2B135D006DE75B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_WARN_INT_CONVERSION = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -804,6 +866,7 @@
 				88258B2B1C3ACEAC003A3852 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		88258B381C3BE91A003A3852 /* Build configuration list for PBXNativeTarget "NatNetC" */ = {
 			isa = XCConfigurationList;
@@ -812,6 +875,7 @@
 				88258B3A1C3BE91A003A3852 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		88258B591C3BEDAD003A3852 /* Build configuration list for PBXNativeTarget "NatNetCstatic" */ = {
 			isa = XCConfigurationList;
@@ -820,6 +884,7 @@
 				88258B5B1C3BEDAD003A3852 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		8877803B1C32816400C23ED1 /* Build configuration list for PBXNativeTarget "NatNetLinux" */ = {
 			isa = XCConfigurationList;
