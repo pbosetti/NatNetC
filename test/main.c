@@ -7,11 +7,22 @@
 //
 
 #include <stdio.h>
+#ifndef NATNET_YAML
 #define NATNET_YAML
+#endif
 #include <NatNetC.h>
+#include <sys/stat.h>
 
 int main(int argc, const char * argv[]) {
-  // insert code here...
+  
+  struct stat info;
+  char *data_file_name = (char *)argv[1];
+  stat(data_file_name, &info);
+  printf("FILE %s SIZE: %lld\n", data_file_name, info.st_size);
+  FILE *data_file = fopen(data_file_name, "r");
+  char *data = (char *)calloc(info.st_size, sizeof(char));
+  fread(data, info.st_size, sizeof(char), data_file);
+  fclose(data_file);
   
   size_t nsets = 3;
   size_t nmarkers = 10;
@@ -88,12 +99,13 @@ int main(int argc, const char * argv[]) {
   size_t len = 0;
   memset(pData, 0, 2048);
   memcpy(pData, &messageID, 2);
-  //NatNet_unpack_all(nn, pData, &len);
   
   nn->NatNet_ver[0] = 2;
   nn->NatNet_ver[1] = 6;
   
-  NatNet_unpack_yaml(nn, pData, &len);
+  NatNet_unpack_all(nn, data, &len);
+  
+  //NatNet_unpack_yaml(nn, data, &len);
   
   printf("YAML: \n%s\n", nn->yaml);
   

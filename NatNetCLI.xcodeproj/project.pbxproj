@@ -16,7 +16,6 @@
 		88258B2E1C3AD126003A3852 /* libosxfuse_i64.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 88258B2D1C3AD126003A3852 /* libosxfuse_i64.2.dylib */; };
 		88258B3B1C3BE92D003A3852 /* NatNetC.c in Sources */ = {isa = PBXBuildFile; fileRef = 887AC1491C286496006DE75B /* NatNetC.c */; };
 		88258B3C1C3BE92D003A3852 /* NatNetTypes.c in Sources */ = {isa = PBXBuildFile; fileRef = 88258B1A1C32D100003A3852 /* NatNetTypes.c */; };
-		88258B441C3BEC1E003A3852 /* libNatNetC.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 88258B371C3BE91A003A3852 /* libNatNetC.dylib */; };
 		88258B471C3BECC4003A3852 /* libNatNetC.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 88258B371C3BE91A003A3852 /* libNatNetC.dylib */; };
 		88258B5C1C3BEDC3003A3852 /* NatNetC.c in Sources */ = {isa = PBXBuildFile; fileRef = 887AC1491C286496006DE75B /* NatNetC.c */; };
 		88258B5D1C3BEDC3003A3852 /* NatNetTypes.c in Sources */ = {isa = PBXBuildFile; fileRef = 88258B1A1C32D100003A3852 /* NatNetTypes.c */; };
@@ -27,6 +26,7 @@
 		887AC14F1C2986D8006DE75B /* NatNetMain.c in Sources */ = {isa = PBXBuildFile; fileRef = 887AC14C1C297F27006DE75B /* NatNetMain.c */; };
 		887AC15A1C2AC26F006DE75B /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 887A58D11C259EF700B5D0B1 /* main.c */; };
 		887AC1641C2B135D006DE75B /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 887AC1631C2B135D006DE75B /* main.c */; };
+		88CAAB411C4665C400908F11 /* libNatNetC.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 88258B581C3BEDAD003A3852 /* libNatNetC.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -43,6 +43,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 88258B361C3BE91A003A3852;
 			remoteInfo = NatNetC;
+		};
+		88CAAB421C4665CD00908F11 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 887A58C61C259EF700B5D0B1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 88258B571C3BEDAD003A3852;
+			remoteInfo = NatNetCstatic;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -179,7 +186,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				88258B441C3BEC1E003A3852 /* libNatNetC.dylib in Frameworks */,
+				88CAAB411C4665C400908F11 /* libNatNetC.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -445,6 +452,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				88CAAB431C4665CD00908F11 /* PBXTargetDependency */,
 				88258B431C3BEC19003A3852 /* PBXTargetDependency */,
 			);
 			name = test;
@@ -579,6 +587,11 @@
 			isa = PBXTargetDependency;
 			target = 88258B361C3BE91A003A3852 /* NatNetC */;
 			targetProxy = 88258B451C3BECBE003A3852 /* PBXContainerItemProxy */;
+		};
+		88CAAB431C4665CD00908F11 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 88258B571C3BEDAD003A3852 /* NatNetCstatic */;
+			targetProxy = 88CAAB421C4665CD00908F11 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -842,7 +855,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_WARN_INT_CONVERSION = NO;
+				DEPLOYMENT_LOCATION = YES;
+				DSTROOT = "$(PROJECT_DIR)";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				INSTALL_PATH = /bin;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -851,7 +867,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_WARN_INT_CONVERSION = NO;
+				DEPLOYMENT_LOCATION = YES;
+				DSTROOT = "$(PROJECT_DIR)";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				INSTALL_PATH = /bin;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

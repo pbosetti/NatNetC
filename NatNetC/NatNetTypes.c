@@ -22,7 +22,7 @@ void NatNet_markers_set_alloc_markers(NatNet_markers_set *ms, size_t n_markers) 
     ms->markers = calloc(n_markers, sizeof(NatNet_point));
   }
   else if (ms->n_markers != n_markers) {  // growing/shrinking
-    ms->markers = realloc(ms->markers, sizeof(NatNet_point));
+    ms->markers = realloc(ms->markers, n_markers * sizeof(NatNet_point));
   }
   ms->n_markers = n_markers;
 }
@@ -48,7 +48,7 @@ void NatNet_rigid_body_alloc_markers(NatNet_rigid_body *rb, size_t n_markers) {
     rb->markers = calloc(n_markers, sizeof(NatNet_point));
   }
   else if (rb->n_markers != n_markers) {  // growing/shrinking
-    rb->markers = realloc(rb->markers, sizeof(NatNet_point));
+    rb->markers = realloc(rb->markers, n_markers * sizeof(NatNet_point));
   }
   rb->n_markers = n_markers;
 }
@@ -109,7 +109,7 @@ void NatNet_frame_alloc_marker_sets(NatNet_frame *frame, size_t n_marker_sets) {
       NatNet_markers_set_free(frame->marker_sets[i]);
     }
   }
-  if (frame->n_marker_sets == 0) { // Allocating
+  if (frame->n_marker_sets == 0 || frame->marker_sets == NULL) { // Allocating
     frame->marker_sets = calloc(n_marker_sets, sizeof(NatNet_markers_set *));
   }
   else if (n_marker_sets != frame->n_marker_sets) { // Resizing
@@ -141,33 +141,33 @@ void NatNet_frame_alloc_skeletons(NatNet_frame *frame, size_t n_skeletons) {
       NatNet_skeleton_free(frame->skeletons[i]);
     }
   }
-  if (frame->n_skeletons == 0) { // Allocating
+  if (frame->n_skeletons == 0 || frame->skeletons == NULL) { // Allocating
     frame->skeletons = calloc(n_skeletons, sizeof(NatNet_skeleton *));
   }
   else if (n_skeletons != frame->n_skeletons) { //Resizing
-    frame->skeletons = realloc(frame->skeletons, sizeof(NatNet_skeleton *));
+    frame->skeletons = realloc(frame->skeletons, n_skeletons * sizeof(NatNet_skeleton *));
   }
   frame->n_skeletons = n_skeletons;
 }
 
 void NatNet_frame_alloc_ui_markers(NatNet_frame *frame, size_t n_ui_markers) {
   // Nothing to release when shrinking
-  if (frame->n_ui_markers == 0) {
+  if (frame->n_ui_markers == 0 || frame->ui_markers == NULL) {
     frame->ui_markers = calloc(n_ui_markers, sizeof(NatNet_point));
   }
   else if (n_ui_markers != frame->n_ui_markers) {
-    frame->ui_markers = realloc(frame->ui_markers, sizeof(NatNet_point));
+    frame->ui_markers = realloc(frame->ui_markers, n_ui_markers * sizeof(NatNet_point));
   }
   frame->n_ui_markers = n_ui_markers;
 }
 
 void NatNet_frame_alloc_labeled_markers(NatNet_frame *frame, size_t n_labeled_markers) {
   // Nothing to release when shrinking
-  if (frame->n_ui_markers == 0) {
+  if (frame->n_ui_markers == 0 || frame->ui_markers == NULL) {
     frame->labeled_markers = calloc(n_labeled_markers, sizeof(NatNet_labeled_marker));
   }
   else if (n_labeled_markers != frame->n_labeled_markers) {
-    frame->labeled_markers = realloc(frame->labeled_markers, sizeof(NatNet_labeled_marker));
+    frame->labeled_markers = realloc(frame->labeled_markers, n_labeled_markers * sizeof(NatNet_labeled_marker));
   }
   frame->n_labeled_markers = n_labeled_markers;
 }

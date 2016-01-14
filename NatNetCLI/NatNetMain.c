@@ -72,6 +72,13 @@ int main(int argc, char *argv[]) {
   printf("Multicast Group:       %s\n", nn->multicast_addr);
   printf("Data port:             %d\n", nn->data_port);
   printf("Command port:          %d\n", nn->command_port);
+  
+  // send initial ping command
+  NatNet_packet PacketOut;
+  PacketOut.iMessage = NAT_PING;
+  PacketOut.nDataBytes = 0;
+  NatNet_send_pkt(nn, PacketOut, 3);
+
 
   // startup our "Command Listener" thread
   pthread_t command_listener;
@@ -87,11 +94,6 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  // send initial ping command
-  NatNet_packet PacketOut;
-  PacketOut.iMessage = NAT_PING;
-  PacketOut.nDataBytes = 0;
-  NatNet_send_pkt(nn, PacketOut, 3);
 
   printf("Packet Client started\n\n");
   printf("Commands:\ns\tsend data descriptions\nf\tsend frame of data\nt\tsend "
@@ -198,10 +200,10 @@ void *CommandListenThread(void *dummy) {
     // handle command
     switch (PacketIn.iMessage) {
     case NAT_MODELDEF:
-      UnpackDebug(nn, (char *)&PacketIn);
+        //UnpackDebug(nn, (char *)&PacketIn);
       break;
     case NAT_FRAMEOFDATA:
-      UnpackDebug(nn, (char *)&PacketIn);
+        //UnpackDebug(nn, (char *)&PacketIn);
       break;
     case NAT_PINGRESPONSE:
       for (int i = 0; i < 4; i++) {
@@ -250,9 +252,22 @@ void *DataListenThread(void *dummy) {
   while (1) {
     // Block until we receive a datagram from the network (from anyone including
     // ourselves)
-    nDataBytesReceived = NatNet_recv_cmd(nn, szData, sizeof(szData));
+    nDataBytesReceived = NatNet_recv_data(nn, szData, sizeof(szData));
     if (nDataBytesReceived > 0 && errno != EINVAL) {
       NatNet_unpack_all(nn, szData, &len);
+      printf("---\nBodies: %zu\n", nn->last_frame->n_bodies);
+      for (int i = 0; i < nn->last_frame->n_bodies; i++) {
+        printf("  Body %d L[%11.6f %11.6f %11.6f]  O[%11.6f %11.6f %11.6f %11.6f]\n", i,
+               nn->last_frame->bodies[i]->loc.x,
+               nn->last_frame->bodies[i]->loc.y,
+               nn->last_frame->bodies[i]->loc.z,
+               nn->last_frame->bodies[i]->ori.qx,
+               nn->last_frame->bodies[i]->ori.qy,
+               nn->last_frame->bodies[i]->ori.qz,
+               nn->last_frame->bodies[i]->ori.qw
+               );
+      }
+      printf("Latency: %f\n", nn->last_frame->latency);
     }
   }
 

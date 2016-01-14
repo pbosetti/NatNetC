@@ -748,8 +748,8 @@ bool TimecodeStringify(unsigned int inTimecode, unsigned int inTimecodeSubframe,
 }
 
 void Unpack(char *pData) {
-  int major = NatNetVersion[0];
-  int minor = NatNetVersion[1];
+  int major = ServerVersion[0];
+  int minor = ServerVersion[1];
 
   char *ptr = pData;
 

@@ -57,8 +57,7 @@ int yaml_write_handler(void *data, unsigned char *buffer, size_t size) {
     if (!(nn->yaml = (char *)calloc(size + 1, sizeof(char)))) {
       return 0;
     }
-  }
-  else if (size > strlen(nn->yaml)) {
+  } else if (size > strlen(nn->yaml)) {
     if (!(nn->yaml = (char *)realloc(nn->yaml, size + 1))) {
       return 0;
     }
@@ -68,8 +67,8 @@ int yaml_write_handler(void *data, unsigned char *buffer, size_t size) {
 }
 
 int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
-  int major = nn->NatNet_ver[0];
-  int minor = nn->NatNet_ver[1];
+  int major = 2; //nn->NatNet_ver[0];
+  int minor = 9; //nn->NatNet_ver[1];
   char *ptr = pData;
 
   yaml_emitter_t emitter;
@@ -83,7 +82,7 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
   }
 
   /* Set the emitter parameters. */
-  //yaml_emitter_set_output_string(&emitter, buffer, BUFFER_SIZE, &written);
+  // yaml_emitter_set_output_string(&emitter, buffer, BUFFER_SIZE, &written);
   yaml_emitter_set_output(&emitter, yaml_write_handler, nn);
   yaml_emitter_set_canonical(&emitter, 0);
   yaml_emitter_set_unicode(&emitter, 1);
@@ -141,7 +140,6 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
     YAML_ADD_STRING(&emitter, &event, key, event_error, emitter_error);
 
     YAML_SEQUENCE_START(&emitter, &event, event_error, emitter_error);
-    nMarkerSets = 2;
     for (int i = 0; i < nMarkerSets; i++) {
       // Markerset name
       char szName[256];
@@ -161,7 +159,6 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
       strcpy(key, "markers");
       YAML_ADD_STRING(&emitter, &event, key, event_error, emitter_error);
       YAML_SEQUENCE_START(&emitter, &event, event_error, emitter_error);
-      nMarkers = 3;
       for (int j = 0; j < nMarkers; j++) {
         YAML_SEQUENCE_START(&emitter, &event, event_error, emitter_error);
         float x = 0;
@@ -196,7 +193,6 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
 
     YAML_ADD_STRING(&emitter, &event, "uiMarkers", event_error, emitter_error);
     YAML_SEQUENCE_START(&emitter, &event, event_error, emitter_error);
-    nOtherMarkers = 2;
     for (int j = 0; j < nOtherMarkers; j++) {
       YAML_SEQUENCE_START(&emitter, &event, event_error, emitter_error);
       float x = 0.0f;
@@ -228,7 +224,6 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
     YAML_ADD_STRING(&emitter, &event, "rigidBodies", event_error,
                     emitter_error);
     YAML_SEQUENCE_START(&emitter, &event, event_error, emitter_error);
-    nRigidBodies = 1;
     for (int j = 0; j < nRigidBodies; j++) {
       // rigid body pos/ori
       int ID = 0;
@@ -306,7 +301,6 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
         float *markerSizes = (float *)malloc(nBytes);
         memcpy(markerSizes, ptr, nBytes);
         ptr += nBytes;
-        nRigidMarkers = 1;
         for (int k = 0; k < nRigidMarkers; k++) {
           YAML_MAPPING_START(&emitter, &event, event_error, emitter_error);
           sprintf(value, "%d", markerIDs[k]);
@@ -332,7 +326,6 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
           free(markerSizes);
 
       } else {
-        nRigidMarkers = 1;
         for (int k = 0; k < nRigidMarkers; k++) {
           YAML_MAPPING_START(&emitter, &event, event_error, emitter_error);
           sprintf(value, "%d", k);
@@ -502,7 +495,6 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
       memcpy(&nLabeledMarkers, ptr, 4);
       ptr += 4;
 
-      nLabeledMarkers = 1;
       for (int j = 0; j < nLabeledMarkers; j++) {
         // id
         int ID = 0;
@@ -692,14 +684,15 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
   yaml_event_delete(&event);
   yaml_emitter_delete(&emitter);
 
-
   return 0;
 
 event_error:
-  nn->yaml = "---\nmessageType: YAML Event Error";
+  nn->yaml = calloc(1024, sizeof(char));
+  strncpy(nn->yaml, "---\nmessageType: YAML Event Error", 1024);
   return -1;
 emitter_error:
-  nn->yaml = "---\nmessageType: YAML Emitter Error";
+  nn->yaml = calloc(1024, sizeof(char));
+  strncpy(nn->yaml, "---\nmessageType: YAML Emitter Error", 1024);
   return -2;
 }
 

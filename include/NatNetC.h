@@ -64,6 +64,7 @@ int NatNet_bind(NatNet *nn);
 uint NatNet_send_pkt(NatNet *nn, NatNet_packet packet, uint tries);
 uint NatNet_send_cmd(NatNet *nn, char *cmd, uint tries);
 long NatNet_recv_cmd(NatNet *nn, char *cmd, size_t len);
+long NatNet_recv_data(NatNet *nn, char *cmd, size_t len);
 
 void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len);
 #ifdef NATNET_YAML
