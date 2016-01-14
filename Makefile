@@ -5,7 +5,7 @@ INC_DIR = ./include
 
 C = clang
 CFLAGS = -O3 -g -fPIC -I$(INC_DIR)
-HEADERPATHS = -I/usr/local/include 
+HEADERPATHS = -I/usr/local/include
 LIBPATH = -L/usr/local/lib
 
 L = clang
@@ -42,6 +42,7 @@ DLLNAME = lib$(LIBNAME).so
 DLLFLAGS = -shared -Wl,-soname,$(DLLNAME)
 BIN_LIBPATH = -L./lib
 BIN_LIBS = -lpthread
+FUSE_HEADERPATH = -I/usr/include/lua5.2
 FUSE_LIBS = -lfuse
 FUSE_LIBPATH = 
 else ifeq ($(UNAME), Darwin)
