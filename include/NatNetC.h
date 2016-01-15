@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <errno.h>
+#include <stdarg.h>
 
 
 #include "NatNetC/NatNetTypes.h"
@@ -71,11 +72,16 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len);
 int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len);
 #endif
 
+#pragma mark -
+#pragma mark Custom printf templates
+int NatNet_printf_noop(const char * restrict format, ...);
+int NatNet_printf_std(const char * restrict format, ...);
 
 
 
 
-
+#pragma mark -
+#pragma mark Fossile functions (to be removed later)
 SOCKET CreateCommandSocket(struct in_addr IP_Address, unsigned short uPort,
                            int bufsize);
 SOCKET CreateDataSocket(struct in_addr MyAddress, struct in_addr multicast_addr,
@@ -88,7 +94,5 @@ bool DecodeTimecode(unsigned int inTimecode, unsigned int inTimecodeSubframe,
                     int *subframe);
 bool TimecodeStringify(unsigned int inTimecode, unsigned int inTimecodeSubframe,
                        char *Buffer, int BufferSize);
-
-void UnpackDebug(NatNet *nn, char *pData);
 
 #endif /* NatNetC_h */
