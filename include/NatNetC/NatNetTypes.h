@@ -166,6 +166,7 @@ typedef struct {
 #ifdef NATNET_YAML
   char * yaml;
 #endif
+  int (* printf)(const char * restrict format, ...);
 } NatNet;
 
 

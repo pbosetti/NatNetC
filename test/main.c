@@ -102,7 +102,7 @@ int main(int argc, const char * argv[]) {
   
   nn->NatNet_ver[0] = 2;
   nn->NatNet_ver[1] = 6;
-  
+  nn->printf = &NatNet_printf_std;
   NatNet_unpack_all(nn, data, &len);
   
   //NatNet_unpack_yaml(nn, data, &len);
