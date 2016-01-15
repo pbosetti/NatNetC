@@ -109,13 +109,15 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
   char key[128], value[1024];
 
   // message ID
-  int MessageID = 0;
+  short MessageID = 0;
   memcpy(&MessageID, ptr, 2);
+  MessageID = ntohs(MessageID);
   ptr += 2;
 
   // size
-  int nBytes = 0;
+  short nBytes = 0;
   memcpy(&nBytes, ptr, 2);
+  nBytes = ntohs(nBytes);
   ptr += 2;
 
   if (MessageID == 7) // FRAME OF MOCAP DATA packet
@@ -123,6 +125,7 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
     // frame number
     int frameNumber = 0;
     memcpy(&frameNumber, ptr, 4);
+    frameNumber = ntohl(frameNumber);
     ptr += 4;
 
     YAML_ADD_PAIR(&emitter, &event, "messageType", "mocapFrame", event_error,
@@ -134,6 +137,7 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
     // number of data sets (markersets, rigidbodies, etc)
     int nMarkerSets = 0;
     memcpy(&nMarkerSets, ptr, 4);
+    nMarkerSets = ntohl(nMarkerSets);
     ptr += 4;
 
     strcpy(key, "markersSet");
@@ -150,6 +154,7 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
       // marker data
       int nMarkers = 0;
       memcpy(&nMarkers, ptr, 4);
+      nMarkers = ntohl(nMarkers);
       ptr += 4;
 
       YAML_MAPPING_START(&emitter, &event, event_error, emitter_error);
@@ -189,6 +194,7 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
     // unidentified markers
     int nOtherMarkers = 0;
     memcpy(&nOtherMarkers, ptr, 4);
+    nOtherMarkers = ntohl(nOtherMarkers);
     ptr += 4;
 
     YAML_ADD_STRING(&emitter, &event, "uiMarkers", event_error, emitter_error);
@@ -220,6 +226,7 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
     // rigid bodies
     int nRigidBodies = 0;
     memcpy(&nRigidBodies, ptr, 4);
+    nRigidBodies = ntohl(nRigidBodies);
     ptr += 4;
     YAML_ADD_STRING(&emitter, &event, "rigidBodies", event_error,
                     emitter_error);
@@ -228,6 +235,7 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
       // rigid body pos/ori
       int ID = 0;
       memcpy(&ID, ptr, 4);
+      ID = ntohl(ID);
       ptr += 4;
       float x = 0.0f;
       memcpy(&x, ptr, 4);
@@ -280,6 +288,7 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
       // associated marker positions
       int nRigidMarkers = 0;
       memcpy(&nRigidMarkers, ptr, 4);
+      nRigidMarkers = ntohl(nRigidMarkers);
       ptr += 4;
 
       int nBytes = nRigidMarkers * 3 * sizeof(float);
@@ -303,7 +312,7 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
         ptr += nBytes;
         for (int k = 0; k < nRigidMarkers; k++) {
           YAML_MAPPING_START(&emitter, &event, event_error, emitter_error);
-          sprintf(value, "%d", markerIDs[k]);
+          sprintf(value, "%d", ntohl(markerIDs[k]));
           YAML_ADD_PAIR(&emitter, &event, "ID", value, event_error,
                         emitter_error);
           YAML_ADD_STRING(&emitter, &event, "pos", event_error, emitter_error);
@@ -364,6 +373,7 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
         // params
         short params = 0;
         memcpy(&params, ptr, 2);
+        params = ntohs(params);
         ptr += 2;
         bool bTrackingValid =
             params &
@@ -382,17 +392,20 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
     if (((major == 2) && (minor > 0)) || (major > 2)) {
       int nSkeletons = 0;
       memcpy(&nSkeletons, ptr, 4);
+      nSkeletons = ntohl(nSkeletons);
       ptr += 4;
 
       for (int j = 0; j < nSkeletons; j++) {
         // skeleton id
         int skeletonID = 0;
         memcpy(&skeletonID, ptr, 4);
+        skeletonID = ntohl(skeletonID);
         ptr += 4;
 
         // # of rigid bodies (bones) in skeleton
         int nRigidBodies = 0;
         memcpy(&nRigidBodies, ptr, 4);
+        nRigidBodies = ntohl(nRigidBodies);
         ptr += 4;
         printf("Rigid Body Count : %d\n", nRigidBodies);
 
@@ -400,6 +413,7 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
           // rigid body pos/ori
           int ID = 0;
           memcpy(&ID, ptr, 4);
+          ID = ntohl(ID);
           ptr += 4;
           float x = 0.0f;
           memcpy(&x, ptr, 4);
@@ -429,6 +443,7 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
           // associated marker positions
           int nRigidMarkers = 0;
           memcpy(&nRigidMarkers, ptr, 4);
+          nRigidMarkers = ntohl(nRigidMarkers);
           ptr += 4;
           printf("Marker Count: %d\n", nRigidMarkers);
           int nBytes = nRigidMarkers * 3 * sizeof(float);
@@ -450,7 +465,7 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
 
           for (int k = 0; k < nRigidMarkers; k++) {
             printf("\tMarker %d: id=%d\tsize=%3.1f\tpos=[%3.2f,%3.2f,%3.2f]\n",
-                   k, markerIDs[k], markerSizes[k], markerData[k * 3],
+                   k, ntohl(markerIDs[k]), markerSizes[k], markerData[k * 3],
                    markerData[k * 3 + 1], markerData[k * 3 + 2]);
           }
 
@@ -467,6 +482,7 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
             // params
             short params = 0;
             memcpy(&params, ptr, 2);
+            params = ntohs(params);
             ptr += 2;
             bool bTrackingValid = params & 0x01; // 0x01 : rigid body was
                                                  // successfully tracked in this
@@ -493,12 +509,14 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
       YAML_SEQUENCE_START(&emitter, &event, event_error, emitter_error);
       int nLabeledMarkers = 0;
       memcpy(&nLabeledMarkers, ptr, 4);
+      nLabeledMarkers = ntohl(nLabeledMarkers);
       ptr += 4;
 
       for (int j = 0; j < nLabeledMarkers; j++) {
         // id
         int ID = 0;
         memcpy(&ID, ptr, 4);
+        ID = ntohl(ID);
         ptr += 4;
         // x
         float x = 0.0f;
@@ -538,6 +556,7 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
           // marker params
           short params = 0;
           memcpy(&params, ptr, 2);
+          params = ntohs(params);
           ptr += 2;
           bool bOccluded =
               params & 0x01; // marker was not visible (occluded) in this frame
@@ -565,24 +584,28 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
     if (((major == 2) && (minor >= 9)) || (major > 2)) {
       int nForcePlates;
       memcpy(&nForcePlates, ptr, 4);
+      nForcePlates = ntohl(nForcePlates);
       ptr += 4;
       for (int iForcePlate = 0; iForcePlate < nForcePlates; iForcePlate++) {
         // ID
         int ID = 0;
         memcpy(&ID, ptr, 4);
+        ID = ntohl(ID);
         ptr += 4;
         printf("Force Plate : %d\n", ID);
-
+        
         // Channel Count
         int nChannels = 0;
         memcpy(&nChannels, ptr, 4);
+        nChannels = ntohl(nChannels);
         ptr += 4;
-
+        
         // Channel Data
         for (int i = 0; i < nChannels; i++) {
           printf(" Channel %d : ", i);
           int nFrames = 0;
           memcpy(&nFrames, ptr, 4);
+          nFrames = ntohl(nFrames);
           ptr += 4;
           for (int j = 0; j < nFrames; j++) {
             float val = 0.0f;
@@ -594,7 +617,7 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
         }
       }
     }
-
+    
     // latency
     float latency = 0.0f;
     memcpy(&latency, ptr, 4);
@@ -606,9 +629,11 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
     // timecode
     unsigned int timecode = 0;
     memcpy(&timecode, ptr, 4);
+    timecode = ntohl(timecode);
     ptr += 4;
     unsigned int timecodeSub = 0;
     memcpy(&timecodeSub, ptr, 4);
+    timecodeSub = ntohl(timecodeSub);
     ptr += 4;
 
     sprintf(value, "%d", timecode);
@@ -640,6 +665,7 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
     // frame params
     short params = 0;
     memcpy(&params, ptr, 2);
+    params = ntohs(params);
     ptr += 2;
     bool bIsRecording = params & 0x01; // 0x01 Motive is recording
     bool bTrackedModelsChanged =
@@ -657,8 +683,10 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
     // end of data tag
     int eod = 0;
     memcpy(&eod, ptr, 4);
+    eod = ntohl(eod);
     ptr += 4;
-  } else {
+  }
+  else {
     printf("Unrecognized Packet Type.\n");
   }
   *len = (size_t)(ptr - pData);
