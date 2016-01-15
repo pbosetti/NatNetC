@@ -27,6 +27,7 @@
 		887AC15A1C2AC26F006DE75B /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 887A58D11C259EF700B5D0B1 /* main.c */; };
 		887AC1641C2B135D006DE75B /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 887AC1631C2B135D006DE75B /* main.c */; };
 		88CAAB411C4665C400908F11 /* libNatNetC.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 88258B581C3BEDAD003A3852 /* libNatNetC.a */; };
+		AD533F371C4800890011BBC4 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = AD533F361C4800890011BBC4 /* main.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -99,6 +100,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
+		AD533F321C4800890011BBC4 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -131,6 +141,8 @@
 		887AC1591C2AC252006DE75B /* NatNetCLIOrig */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = NatNetCLIOrig; sourceTree = BUILT_PRODUCTS_DIR; };
 		887AC1611C2B135D006DE75B /* test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = test; sourceTree = BUILT_PRODUCTS_DIR; };
 		887AC1631C2B135D006DE75B /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		AD533F341C4800890011BBC4 /* fuse_yaml */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = fuse_yaml; sourceTree = BUILT_PRODUCTS_DIR; };
+		AD533F361C4800890011BBC4 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -187,6 +199,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				88CAAB411C4665C400908F11 /* libNatNetC.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AD533F311C4800890011BBC4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -282,6 +301,7 @@
 				887AC1621C2B135D006DE75B /* test */,
 				88258B1F1C3ACE38003A3852 /* fuse */,
 				887780241C32801C00C23ED1 /* NatNetLinux */,
+				AD533F351C4800890011BBC4 /* fuse_yaml */,
 				88258B321C3BE801003A3852 /* Frameworks */,
 				887A58CF1C259EF700B5D0B1 /* Products */,
 			);
@@ -297,6 +317,7 @@
 				88258B251C3ACEAC003A3852 /* fuse_test */,
 				88258B371C3BE91A003A3852 /* libNatNetC.dylib */,
 				88258B581C3BEDAD003A3852 /* libNatNetC.a */,
+				AD533F341C4800890011BBC4 /* fuse_yaml */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -316,6 +337,14 @@
 				887AC1631C2B135D006DE75B /* main.c */,
 			);
 			path = test;
+			sourceTree = "<group>";
+		};
+		AD533F351C4800890011BBC4 /* fuse_yaml */ = {
+			isa = PBXGroup;
+			children = (
+				AD533F361C4800890011BBC4 /* main.c */,
+			);
+			path = fuse_yaml;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -461,6 +490,23 @@
 			productReference = 887AC1611C2B135D006DE75B /* test */;
 			productType = "com.apple.product-type.tool";
 		};
+		AD533F331C4800890011BBC4 /* fuse_yaml */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AD533F3A1C4800890011BBC4 /* Build configuration list for PBXNativeTarget "fuse_yaml" */;
+			buildPhases = (
+				AD533F301C4800890011BBC4 /* Sources */,
+				AD533F311C4800890011BBC4 /* Frameworks */,
+				AD533F321C4800890011BBC4 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = fuse_yaml;
+			productName = fuse_yaml;
+			productReference = AD533F341C4800890011BBC4 /* fuse_yaml */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -488,6 +534,9 @@
 					887AC1601C2B135C006DE75B = {
 						CreatedOnToolsVersion = 7.2;
 					};
+					AD533F331C4800890011BBC4 = {
+						CreatedOnToolsVersion = 7.2;
+					};
 				};
 			};
 			buildConfigurationList = 887A58C91C259EF700B5D0B1 /* Build configuration list for PBXProject "NatNetCLI" */;
@@ -509,6 +558,7 @@
 				88258B571C3BEDAD003A3852 /* NatNetCstatic */,
 				887780361C32816400C23ED1 /* NatNetLinux */,
 				887AC1501C2AC252006DE75B /* NatNetCLIOrig */,
+				AD533F331C4800890011BBC4 /* fuse_yaml */,
 			);
 		};
 /* End PBXProject section */
@@ -590,6 +640,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				887AC1641C2B135D006DE75B /* main.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AD533F301C4800890011BBC4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AD533F371C4800890011BBC4 /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -893,6 +951,20 @@
 			};
 			name = Release;
 		};
+		AD533F381C4800890011BBC4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		AD533F391C4800890011BBC4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -967,6 +1039,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		AD533F3A1C4800890011BBC4 /* Build configuration list for PBXNativeTarget "fuse_yaml" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AD533F381C4800890011BBC4 /* Debug */,
+				AD533F391C4800890011BBC4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 	};
