@@ -29,3 +29,10 @@ Fully experimental and significantly incomplete.
 - Implement a Fuse filesystem that exports NatNet frames as YAML files and as raw data binary files.
 - Use write operations in the FUSE filesystem for changing parameters at run time.
 - Test performance, i.e. provide a frame-rate value on different platforms. Reference platforms/OSs are Intel/OS X 10.11, Intel/Debian 8, and ARM/Raspibian.
+
+
+# License
+This software is provided according to the GPL General Public License v.3, according to the original License text available [here](http://www.gnu.org/licenses/gpl.html).
+
+#Authors
+Authors of this software are Paolo[dot]Bosetti and Mirko[dot]Brentari (both [at]unitn[dot]it).
