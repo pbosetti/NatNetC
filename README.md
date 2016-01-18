@@ -32,7 +32,7 @@ Fully experimental and significantly incomplete.
 
 
 # License
-This software is provided according to the GPL General Public License v.3, according to the original License text available [here](http://www.gnu.org/licenses/gpl.html).
+This software is provided according to the LGPL (Lesser General Public License) v.3, according to the original License text available [here](http://www.gnu.org/licenses/lgpl.html).
 
 #Authors
 Authors of this software are Paolo[dot]Bosetti and Mirko[dot]Brentari (both [at]unitn[dot]it).
