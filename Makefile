@@ -4,7 +4,7 @@ BIN_DIR = ./bin
 INC_DIR = ./include
 
 C = clang
-CFLAGS = -O3 -g -fPIC -I$(INC_DIR)
+CFLAGS = -O3 -fPIC -I$(INC_DIR)
 HEADERPATHS = -I/usr/local/include
 LIBPATH = -L/usr/local/lib
 
@@ -27,9 +27,9 @@ TEST_SRCS := $(shell find test -mindepth 1 -maxdepth 4 -name "*.c")
 TEST_OBJS = $(TEST_SRCS:.c=.o)
 TESTNAME = nn_test
 
-FUSE_SRCS = fuse_yaml/main.c
+FUSE_SRCS = fuse_yaml/NatNetFUSE.c
 FUSE_OBJS = $(FUSE_SRCS:.c=.o)
-FUSE_BIN = fuse_yaml
+FUSE_BIN = NatNetFUSE
 
 
 SRCS = $(LIB_SRCS) $(DEMO_SRCS) $(TEST_SRCS)
@@ -43,7 +43,7 @@ DLLFLAGS = -shared -Wl,-soname,$(DLLNAME)
 BIN_LIBPATH = -L./lib
 BIN_LIBS = -lpthread
 FUSE_HEADERPATH = 
-FUSE_LIBS = -lfuse -lpthread
+FUSE_LIBS = -lfuse -lpthread -lyaml
 FUSE_LIBPATH = 
 else ifeq ($(UNAME), Darwin)
 DLLNAME = lib$(LIBNAME).dylib
@@ -51,7 +51,7 @@ DLLFLAGS = -dynamiclib -install_name $(LIB_DIR)/$(DLLNAME) -current_version 1.0
 BIN_LIBPATH = -L./lib
 BIN_LIBS = -lpthread -lyaml
 FUSE_HEADERPATH = -I/usr/local/include/osxfuse
-FUSE_LIBS = -losxfuse -lpthread
+FUSE_LIBS = -losxfuse -lpthread -lyaml
 FUSE_LIBPATH = 
 endif
 
@@ -84,7 +84,7 @@ test: dirs static $(TEST_OBJS)
 	$(C) $(DEFINES) $(TEST_OBJS) $(HEADERPATHS) $(LIBPATH) $(BIN_LIBPATH) $(BIN_LIBS) $(LIB_DIR)/lib$(LIBNAME).a -o $(BIN_DIR)/$(TESTNAME)
 	
 fuse: dirs static
-	$(C) -D_FILE_OFFSET_BITS=64 $(CFLAGS) $(HEADERPATHS) $(FUSE_HEADERPATH) $(LIBPATH) $(FUSE_LIBPATH) $(FUSE_LIBS) $(LIB_DIR)/lib$(LIBNAME).a $(FUSE_SRCS) -o $(BIN_DIR)/$(FUSE_BIN)
+	$(C) -D_FILE_OFFSET_BITS=64 $(DEFINES) $(CFLAGS) $(HEADERPATHS) $(FUSE_HEADERPATH) $(LIBPATH) $(FUSE_LIBPATH) $(FUSE_LIBS) $(LIB_DIR)/lib$(LIBNAME).a $(FUSE_SRCS) -o $(BIN_DIR)/$(FUSE_BIN)
 	-mkdir -p $(BIN_DIR)/mnt
 	
 .c.o:
