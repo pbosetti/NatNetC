@@ -14,10 +14,24 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "88258B241C3ACEAC003A3852"
-               BuildableName = "fuse_test"
-               BlueprintName = "fuse_test"
-               ReferencedContainer = "container:NatNetCLI.xcodeproj">
+               BlueprintIdentifier = "88258B361C3BE91A003A3852"
+               BuildableName = "libNatNetC.dylib"
+               BlueprintName = "NatNetC"
+               ReferencedContainer = "container:NatNetC.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "YES"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "88258B571C3BEDAD003A3852"
+               BuildableName = "libNatNetC.a"
+               BlueprintName = "NatNetCstatic"
+               ReferencedContainer = "container:NatNetC.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -32,10 +46,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "88258B241C3ACEAC003A3852"
-            BuildableName = "fuse_test"
-            BlueprintName = "fuse_test"
-            ReferencedContainer = "container:NatNetCLI.xcodeproj">
+            BlueprintIdentifier = "88258B361C3BE91A003A3852"
+            BuildableName = "libNatNetC.dylib"
+            BlueprintName = "NatNetC"
+            ReferencedContainer = "container:NatNetC.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -46,36 +60,20 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
-      useCustomWorkingDirectory = "YES"
-      customWorkingDirectory = "$(PROJECT_DIR)/bin"
+      useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "88258B241C3ACEAC003A3852"
-            BuildableName = "fuse_test"
-            BlueprintName = "fuse_test"
-            ReferencedContainer = "container:NatNetCLI.xcodeproj">
+            BlueprintIdentifier = "88258B361C3BE91A003A3852"
+            BuildableName = "libNatNetC.dylib"
+            BlueprintName = "NatNetC"
+            ReferencedContainer = "container:NatNetC.xcodeproj">
          </BuildableReference>
-      </BuildableProductRunnable>
-      <CommandLineArguments>
-         <CommandLineArgument
-            argument = "-f"
-            isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "-o direct_io"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "mnt"
-            isEnabled = "YES">
-         </CommandLineArgument>
-      </CommandLineArguments>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -85,16 +83,6 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "88258B241C3ACEAC003A3852"
-            BuildableName = "fuse_test"
-            BlueprintName = "fuse_test"
-            ReferencedContainer = "container:NatNetCLI.xcodeproj">
-         </BuildableReference>
-      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

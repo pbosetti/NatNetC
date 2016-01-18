@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "88258B571C3BEDAD003A3852"
-               BuildableName = "libNatNetC.a"
-               BlueprintName = "NatNetCstatic"
-               ReferencedContainer = "container:NatNetCLI.xcodeproj">
+               BlueprintIdentifier = "887AC1501C2AC252006DE75B"
+               BuildableName = "NatNetCLIOrig"
+               BlueprintName = "NatNetCLIOrig"
+               ReferencedContainer = "container:NatNetC.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -29,6 +29,15 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "887AC1501C2AC252006DE75B"
+            BuildableName = "NatNetCLIOrig"
+            BlueprintName = "NatNetCLIOrig"
+            ReferencedContainer = "container:NatNetC.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -42,15 +51,26 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <MacroExpansion>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "88258B571C3BEDAD003A3852"
-            BuildableName = "libNatNetC.a"
-            BlueprintName = "NatNetCstatic"
-            ReferencedContainer = "container:NatNetCLI.xcodeproj">
+            BlueprintIdentifier = "887AC1501C2AC252006DE75B"
+            BuildableName = "NatNetCLIOrig"
+            BlueprintName = "NatNetCLIOrig"
+            ReferencedContainer = "container:NatNetC.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "192.168.0.200"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "192.168.0.128"
+            isEnabled = "YES">
+         </CommandLineArgument>
+      </CommandLineArguments>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -60,15 +80,16 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
+      <BuildableProductRunnable
+         runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "88258B571C3BEDAD003A3852"
-            BuildableName = "libNatNetC.a"
-            BlueprintName = "NatNetCstatic"
-            ReferencedContainer = "container:NatNetCLI.xcodeproj">
+            BlueprintIdentifier = "887AC1501C2AC252006DE75B"
+            BuildableName = "NatNetCLIOrig"
+            BlueprintName = "NatNetCLIOrig"
+            ReferencedContainer = "container:NatNetC.xcodeproj">
          </BuildableReference>
-      </MacroExpansion>
+      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

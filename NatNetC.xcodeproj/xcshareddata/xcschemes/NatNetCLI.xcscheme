@@ -17,7 +17,7 @@
                BlueprintIdentifier = "887A58CD1C259EF700B5D0B1"
                BuildableName = "NatNetCLI"
                BlueprintName = "NatNetCLI"
-               ReferencedContainer = "container:NatNetCLI.xcodeproj">
+               ReferencedContainer = "container:NatNetC.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -35,7 +35,7 @@
             BlueprintIdentifier = "887A58CD1C259EF700B5D0B1"
             BuildableName = "NatNetCLI"
             BlueprintName = "NatNetCLI"
-            ReferencedContainer = "container:NatNetCLI.xcodeproj">
+            ReferencedContainer = "container:NatNetC.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -58,7 +58,7 @@
             BlueprintIdentifier = "887A58CD1C259EF700B5D0B1"
             BuildableName = "NatNetCLI"
             BlueprintName = "NatNetCLI"
-            ReferencedContainer = "container:NatNetCLI.xcodeproj">
+            ReferencedContainer = "container:NatNetC.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
@@ -81,7 +81,7 @@
    <ProfileAction
       buildConfiguration = "Release"
       shouldUseLaunchSchemeArgsEnv = "YES"
-      savedToolIdentifier = ""
+      savedToolIdentifier = "/Applications/Xcode.app/Contents/Applications/Instruments.app/Contents/Resources/templates/Leaks.tracetemplate"
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
       <BuildableProductRunnable
@@ -91,7 +91,7 @@
             BlueprintIdentifier = "887A58CD1C259EF700B5D0B1"
             BuildableName = "NatNetCLI"
             BlueprintName = "NatNetCLI"
-            ReferencedContainer = "container:NatNetCLI.xcodeproj">
+            ReferencedContainer = "container:NatNetC.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
