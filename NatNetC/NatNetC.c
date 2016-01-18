@@ -53,8 +53,10 @@ int NatNet_init(NatNet *nn, char *my_addr, char *their_addr,
   nn->data_timeout.tv_sec = 0;
   nn->data_timeout.tv_usec = 100000;
   nn->cmd_timeout.tv_sec = 0;
-  nn->cmd_timeout.tv_usec = 100000;
-  nn->last_frame = NatNet_frame_new(0, 0);
+  nn->cmd_timeout.tv_usec = 500000;
+  if ((nn->last_frame = NatNet_frame_new(0, 0)) == NULL) {
+    return -1;
+  }
 #ifdef NATNET_YAML
   nn->yaml = NULL;
 #endif
