@@ -28,6 +28,8 @@
 		887AC1641C2B135D006DE75B /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 887AC1631C2B135D006DE75B /* main.c */; };
 		88CAAB411C4665C400908F11 /* libNatNetC.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 88258B581C3BEDAD003A3852 /* libNatNetC.a */; };
 		AD533F371C4800890011BBC4 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = AD533F361C4800890011BBC4 /* main.c */; };
+		ADEFF7281C4CDF9A00A2E027 /* libosxfuse_i64.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 88258B2D1C3AD126003A3852 /* libosxfuse_i64.2.dylib */; };
+		ADEFF7291C4D10A600A2E027 /* libyaml-0.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8807B3C41C43AF9500973BE6 /* libyaml-0.2.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -206,6 +208,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ADEFF7281C4CDF9A00A2E027 /* libosxfuse_i64.2.dylib in Frameworks */,
+				ADEFF7291C4D10A600A2E027 /* libyaml-0.2.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -954,6 +958,25 @@
 		AD533F381C4800890011BBC4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = NO;
+				DEPLOYMENT_LOCATION = YES;
+				DSTROOT = "$(PROJECT_DIR)";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"_FILE_OFFSET_BITS=64",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "NATNET_YAML=1";
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/include",
+					/usr/local/include,
+					/usr/local/include/osxfuse,
+				);
+				INSTALL_PATH = /bin;
+				LIBRARY_SEARCH_PATHS = (
+					/usr/local/lib,
+					/usr/local/Cellar/libyaml/0.1.6_1/lib,
+				);
+				OTHER_LDFLAGS = "$(PROJECT_DIR)/lib/libNatNetC.a";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -961,6 +984,22 @@
 		AD533F391C4800890011BBC4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = NO;
+				DEPLOYMENT_LOCATION = YES;
+				DSTROOT = "$(PROJECT_DIR)";
+				GCC_PREPROCESSOR_DEFINITIONS = "-D_FILE_OFFSET_BITS=64";
+				GCC_PREPROCESSOR_DEFINITIONS_NOT_USED_IN_PRECOMPS = "NATNET_YAML=1";
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/include",
+					/usr/local/include,
+					/usr/local/include/osxfuse,
+				);
+				INSTALL_PATH = /bin;
+				LIBRARY_SEARCH_PATHS = (
+					/usr/local/lib,
+					/usr/local/Cellar/libyaml/0.1.6_1/lib,
+				);
+				OTHER_LDFLAGS = "$(PROJECT_DIR)/lib/libNatNetC.a";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -1047,6 +1086,7 @@
 				AD533F391C4800890011BBC4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
