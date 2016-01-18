@@ -50,8 +50,10 @@ int NatNet_init(NatNet *nn, char *my_addr, char *their_addr,
   nn->command_port = command_port;
   nn->data_port = data_port;
   nn->receive_bufsize = RCV_BUFSIZE;
-  nn->timeout.tv_sec = 0;
-  nn->timeout.tv_usec = 100000;
+  nn->data_timeout.tv_sec = 0;
+  nn->data_timeout.tv_usec = 100000;
+  nn->cmd_timeout.tv_sec = 0;
+  nn->cmd_timeout.tv_usec = 100000;
   nn->last_frame = NatNet_frame_new(0, 0);
 #ifdef NATNET_YAML
   nn->yaml = NULL;
@@ -102,8 +104,8 @@ int NatNet_bind(NatNet *nn) {
     perror("Setting data socket receive buffer");
     retval--;
   }
-  if (setsockopt(nn->data, SOL_SOCKET, SO_RCVTIMEO, &nn->timeout,
-                 sizeof(nn->timeout)) != 0) {
+  if (setsockopt(nn->data, SOL_SOCKET, SO_RCVTIMEO, &nn->data_timeout,
+                 sizeof(nn->data_timeout)) != 0) {
     perror("Setting data socket timeout");
     retval--;
   }
@@ -132,6 +134,11 @@ int NatNet_bind(NatNet *nn) {
   if (setsockopt(nn->command, SOL_SOCKET, SO_BROADCAST, (char *)&opt_value,
                  sizeof(opt_value))) {
     perror("Setting command socket option");
+    retval--;
+  }
+  if (setsockopt(nn->command, SOL_SOCKET, SO_RCVTIMEO, &nn->cmd_timeout,
+                 sizeof(nn->cmd_timeout)) != 0) {
+    perror("Setting command socket timeout");
     retval--;
   }
   if (bind(nn->command, (struct sockaddr *)&cmd_sockaddr,

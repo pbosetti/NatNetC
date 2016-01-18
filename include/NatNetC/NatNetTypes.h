@@ -150,7 +150,8 @@ typedef struct {
   char my_addr[128], their_addr[128], multicast_addr[128];
   u_short command_port, data_port;
   int receive_bufsize;
-  struct timeval timeout;
+  struct timeval data_timeout;
+  struct timeval cmd_timeout;
   SOCKET command;
   SOCKET data;
   struct sockaddr_in host_sockaddr;
