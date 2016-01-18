@@ -19,23 +19,27 @@
 
  */
 
-#include <NatNetC.h>
-
 #define FUSE_USE_VERSION 30
 #define VERSION_MAJOR 0
 #define VERSION_MINOR 1
 #define VERSION_MAX_LEN 64
+#define _GNU_SOURCE
 
-#include <stdlib.h>
-#include <fuse.h>
-#include <fuse/fuse_common.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <time.h>
 #include <sys/time.h>
 #include <regex.h>
+#include <fuse.h>
+#include <fuse/fuse_common.h>
+
+#include <NatNetC.h>
+
+
+
 
 #pragma warning(disable : 4996)
 #pragma GCC diagnostic ignored "-Wunused"
