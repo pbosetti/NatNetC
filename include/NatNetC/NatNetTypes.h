@@ -27,7 +27,7 @@
 
 // max size of packet (actual packet size is dynamic)
 #define MAX_PACKETSIZE 100000
-#define RCV_BUFSIZE 0x100000
+#define RCV_BUFSIZE 20000
 #define MAX_NAMELENGTH 256
 
 

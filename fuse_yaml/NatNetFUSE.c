@@ -257,14 +257,27 @@ static int NatNet_read(const char *path, char *buf, size_t size, off_t offset,
       ret = (int)size;
     }
     else if (strcmp(path_components[2], "frame.yaml") == 0) {
-      len = strlen(nn->yaml);
+      static bool frame_aval = false;
+      static size_t len = 0;
+      if (!frame_aval) {
+        char szData[20000];
+        long nDataBytesReceived;
+        nDataBytesReceived = NatNet_recv_data(nn, szData, sizeof(szData));
+        if (nDataBytesReceived > 0 && errno != EINVAL) {
+          NatNet_unpack_yaml(nn, szData, &len);
+        }
+        frame_aval = true;
+      }
+      //len = strlen(yaml_buffer);
       if (offset < len) {
         if (offset + size > len)
           size = len - offset;
         memcpy(buf, nn->yaml + offset, size);
-      } else
+      }
+      else {
         size = 0;
-      
+        frame_aval = false;
+      }
       ret = (int)size;
     }
   }
@@ -333,13 +346,13 @@ int main(int argc, char *argv[]) {
   long version_response = get_version(nn);
 
   // startup our "Data Listener" thread
-  pthread_t data_listener;
-  if (pthread_create(&data_listener, NULL, DataListenThread, nn) != 0) {
-    perror("[PacketClient] Error creating data listener thread");
-    return 1;
-  }
-
-  printf("Packet Client started\n\n");
+//  pthread_t data_listener;
+//  if (pthread_create(&data_listener, NULL, DataListenThread, nn) != 0) {
+//    perror("[PacketClient] Error creating data listener thread");
+//    return 1;
+//  }
+//
+//  printf("Packet Client started\n\n");
 
   
   struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
