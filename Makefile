@@ -4,7 +4,7 @@ BIN_DIR = ./bin
 INC_DIR = ./include
 
 C = clang
-CFLAGS = -O3 -fPIC -I$(INC_DIR)
+CFLAGS = -fPIC -I$(INC_DIR) -pthread
 HEADERPATHS = -I/usr/local/include
 LIBPATH = -L/usr/local/lib
 
@@ -38,20 +38,22 @@ OBJS = $(LIB_OBJS) $(DEMO_OBJS) $(TEST_OBJS)
 UNAME := $(shell uname)
 
 ifeq ($(UNAME), Linux)
+CFLAGS += -O2
 DLLNAME = lib$(LIBNAME).so
 DLLFLAGS = -shared -Wl,-soname,$(DLLNAME)
 BIN_LIBPATH = -L./lib
 BIN_LIBS = -lpthread
 FUSE_HEADERPATH = 
-FUSE_LIBS = -lfuse -lpthread -lyaml
+FUSE_LIBS = -lfuse -pthread -lyaml
 FUSE_LIBPATH = 
 else ifeq ($(UNAME), Darwin)
+CFLAGS += -O3
 DLLNAME = lib$(LIBNAME).dylib
 DLLFLAGS = -dynamiclib -install_name $(LIB_DIR)/$(DLLNAME) -current_version 1.0
 BIN_LIBPATH = -L./lib
 BIN_LIBS = -lpthread -lyaml
 FUSE_HEADERPATH = -I/usr/local/include/osxfuse
-FUSE_LIBS = -losxfuse -lpthread -lyaml
+FUSE_LIBS = -losxfuse -pthread -lyaml
 FUSE_LIBPATH = 
 endif
 
