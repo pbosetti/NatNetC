@@ -256,9 +256,7 @@ static int NatNet_read(const char *path, char *buf, size_t size, off_t offset,
       
       ret = (int)size;
     }
-  }
-  else if (strcmp(path_components[1], "frame") == 0) {
-    if (strcmp(path_components[2], "frame.yaml") == 0) {
+    else if (strcmp(path_components[2], "frame.yaml") == 0) {
       len = strlen(nn->yaml);
       if (offset < len) {
         if (offset + size > len)
@@ -409,19 +407,19 @@ void *DataListenThread(void *dummy) {
     if (nDataBytesReceived > 0 && errno != EINVAL) {
 //      NatNet_unpack_all(nn, szData, &len);
       NatNet_unpack_yaml(nn, szData, &len);
-      printf("---\nBodies: %zu\n", nn->last_frame->n_bodies);
-      for (int i = 0; i < nn->last_frame->n_bodies; i++) {
-        printf("  Body %d L[%11.6f %11.6f %11.6f]  O[%11.6f %11.6f %11.6f "
-               "%11.6f]\n",
-               i, nn->last_frame->bodies[i]->loc.x,
-               nn->last_frame->bodies[i]->loc.y,
-               nn->last_frame->bodies[i]->loc.z,
-               nn->last_frame->bodies[i]->ori.qx,
-               nn->last_frame->bodies[i]->ori.qy,
-               nn->last_frame->bodies[i]->ori.qz,
-               nn->last_frame->bodies[i]->ori.qw);
-      }
-      printf("Latency: %f\n", nn->last_frame->latency);
+//      printf("---\nBodies: %zu\n", nn->last_frame->n_bodies);
+//      for (int i = 0; i < nn->last_frame->n_bodies; i++) {
+//        printf("  Body %d L[%11.6f %11.6f %11.6f]  O[%11.6f %11.6f %11.6f "
+//               "%11.6f]\n",
+//               i, nn->last_frame->bodies[i]->loc.x,
+//               nn->last_frame->bodies[i]->loc.y,
+//               nn->last_frame->bodies[i]->loc.z,
+//               nn->last_frame->bodies[i]->ori.qx,
+//               nn->last_frame->bodies[i]->ori.qy,
+//               nn->last_frame->bodies[i]->ori.qz,
+//               nn->last_frame->bodies[i]->ori.qw);
+//      }
+//      printf("Latency: %f\n", nn->last_frame->latency);
     }
   }
 
