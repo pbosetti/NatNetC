@@ -4,7 +4,7 @@ BIN_DIR = ./bin
 INC_DIR = ./include
 
 C = clang
-CFLAGS = -fPIC -I$(INC_DIR) -pthread
+CFLAGS = -fPIC -I$(INC_DIR) -pthread -D_MULTI_THREADED
 HEADERPATHS = -I/usr/local/include
 LIBPATH = -L/usr/local/lib
 
