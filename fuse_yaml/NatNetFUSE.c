@@ -262,9 +262,15 @@ static int NatNet_read(const char *path, char *buf, size_t size, off_t offset,
       if (!frame_aval) {
         char szData[20000];
         long nDataBytesReceived;
-        nDataBytesReceived = NatNet_recv_data(nn, szData, sizeof(szData));
-        if (nDataBytesReceived > 0 && errno != EINVAL) {
-          NatNet_unpack_yaml(nn, szData, &len);
+        if (NatNet_bind_data(nn)) {
+          strcpy(nn->yaml, "---\nError: Errror binding data socket\n");
+        }
+        else {
+          nDataBytesReceived = NatNet_recv_data(nn, szData, sizeof(szData));
+          if (nDataBytesReceived > 0 && errno != EINVAL) {
+            NatNet_unpack_yaml(nn, szData, &len);
+          }
+          close(nn->data);
         }
         frame_aval = true;
       }
@@ -331,8 +337,8 @@ int main(int argc, char *argv[]) {
   nn = NatNet_new(szMyIPAddress, szServerIPAddress, MULTICAST_ADDRESS,
                           PORT_COMMAND, PORT_DATA);
   
-  if (NatNet_bind(nn)) {
-    perror("Error binding NetNat");
+  if (NatNet_bind_command(nn)) {
+    perror("Error binding NetNat command");
     return -1;
   }
 
