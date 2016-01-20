@@ -52,11 +52,41 @@
 #pragma mark -
 #pragma mark Function Declarations
 
+/*!
+ Create a new NatNet object, which is an instance of NatNet struct.
+ 
+ \return a \p NatNet instance
+ 
+ \param my_addr This host address (e.g. "128.0.0.1")
+ \param their_addr host address of host running Motive
+ \param multicast_addr multicast address, default to \p MULTICAST_ADDRESS
+ \param command_port local port listening for commands
+ \param data_port local port listening for data
+ */
 NatNet *NatNet_new(char *my_addr, char *their_addr, char *multicast_addr,
                    u_short command_port, u_short data_port);
 
+/*!
+ Free NatNet allocated memory.
+ 
+ \return void
+ 
+ \param nn the NatNet instance to be freed
+ */
 void NatNet_free(NatNet *nn);
 
+/*!
+ Initialize a newly allocated  NatNet object.
+ 
+ \return 0 on success
+ 
+ \param nn theNatNet struct to be initialized
+ \param my_addr This host address (e.g. "128.0.0.1")
+ \param their_addr host address of host running Motive
+ \param multicast_addr multicast address, default to \p MULTICAST_ADDRESS
+ \param command_port local port listening for commands
+ \param data_port local port listening for data
+ */
 int NatNet_init(NatNet *nn, char *my_addr, char *their_addr,
                 char *multicast_addr, u_short command_port, u_short data_port);
 
