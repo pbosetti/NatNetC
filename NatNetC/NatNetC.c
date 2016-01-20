@@ -234,10 +234,7 @@ long NatNet_recv_data(NatNet *nn, char *data, size_t len) {
   ptr += len;
 
 
-#ifndef _ntohs
-#define _ntohs(i) i
-#define _ntohl(i) i
-#endif
+
 
 void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
   // Check where's the problem here (on windows, version goes here)
@@ -252,14 +249,14 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
   // message ID
   short MessageID = 0;
   memcpy(&MessageID, ptr, 2);
-  MessageID = _ntohs(MessageID);
+  IPLTOHS(MessageID);
   ptr += 2;
   nn->printf("Message ID : %d\n", MessageID);
   
   // size
   short nBytes = 0;
   memcpy(&nBytes, ptr, 2);
-  nBytes = _ntohs(nBytes);
+  IPLTOHS(nBytes);
   ptr += 2;
   nn->printf("Byte count : %d\n", nBytes);
   
@@ -269,7 +266,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
     // frame number
     int frameNumber = 0;
     memcpy(&frameNumber, ptr, 4);
-    frameNumber = _ntohl(frameNumber);
+    IPLTOHL(frameNumber);
     ptr += 4;
     nn->printf("Frame # : %d\n", frameNumber);
     frame->ID = frameNumber;
@@ -278,7 +275,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
     // number of data sets (markersets, rigidbodies, etc)
     int nMarkerSets = 0;
     memcpy(&nMarkerSets, ptr, 4);
-    nMarkerSets = _ntohl(nMarkerSets);
+    IPLTOHL(nMarkerSets);
     ptr += 4;
     nn->printf("Marker Set Count : %d\n", nMarkerSets);
     NatNet_frame_alloc_marker_sets(frame, nMarkerSets);
@@ -294,7 +291,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
       // marker data
       int nMarkers = 0;
       memcpy(&nMarkers, ptr, 4);
-      nMarkers = _ntohl(nMarkers);
+      IPLTOHL(nMarkers);
       ptr += 4;
       nn->printf("Marker Count : %d\n", nMarkers);
       
@@ -325,7 +322,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
     // unidentified markers
     int nOtherMarkers = 0;
     memcpy(&nOtherMarkers, ptr, 4);
-    nOtherMarkers = _ntohl(nOtherMarkers);
+    IPLTOHL(nOtherMarkers);
     ptr += 4;
     nn->printf("Unidentified Marker Count : %d\n", nOtherMarkers);
     NatNet_frame_alloc_ui_markers(frame, nOtherMarkers);
@@ -350,7 +347,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
     // rigid bodies
     int nRigidBodies = 0;
     memcpy(&nRigidBodies, ptr, 4);
-    nRigidBodies = _ntohl(nRigidBodies);
+    IPLTOHL(nRigidBodies);
     ptr += 4;
     nn->printf("Rigid Body Count : %d\n", nRigidBodies);
     NatNet_frame_alloc_bodies(frame, nRigidBodies);
@@ -359,7 +356,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
       // rigid body pos/ori
       int ID = 0;
       memcpy(&ID, ptr, 4);
-      ID = _ntohl(ID);
+      IPLTOHL(ID);
       ptr += 4;
       float x = 0.0f;
       memcpy(&x, ptr, 4);
@@ -389,7 +386,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
       // associated marker positions
       int nRigidMarkers = 0;
       memcpy(&nRigidMarkers, ptr, 4);
-      nRigidMarkers = _ntohl(nRigidMarkers);
+      IPLTOHL(nRigidMarkers);
       ptr += 4;
       nn->printf("Marker Count: %d\n", nRigidMarkers);
       int nBytes = nRigidMarkers * 3 * sizeof(float);
@@ -428,7 +425,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
         
         for (int k = 0; k < nRigidMarkers; k++) {
           nn->printf("\tMarker %d: id=%d\tsize=%3.1f\tpos=[%3.2f,%3.2f,%3.2f]\n", k,
-                 _ntohl(markerIDs[k]), markerSizes[k], markerData[k * 3],
+                 LTOHL(markerIDs[k]), markerSizes[k], markerData[k * 3],
                  markerData[k * 3 + 1], markerData[k * 3 + 2]);
           frame->bodies[j]->markers[k].x = markerData[k * 3];
           frame->bodies[j]->markers[k].y = markerData[k * 3 + 1];
@@ -469,7 +466,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
         // params
         short params = 0;
         memcpy(&params, ptr, 2);
-        params = _ntohs(params);
+        IPLTOHS(params);
         ptr += 2;
         bool bTrackingValid =
         params &
@@ -483,7 +480,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
     if (((major == 2) && (minor > 0)) || (major > 2)) {
       int nSkeletons = 0;
       memcpy(&nSkeletons, ptr, 4);
-      nSkeletons = _ntohl(nSkeletons);
+      IPLTOHL(nSkeletons);
       ptr += 4;
       nn->printf("Skeleton Count : %d\n", nSkeletons);
       NatNet_frame_alloc_skeletons(frame, nSkeletons);
@@ -491,13 +488,13 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
         // skeleton id
         int skeletonID = 0;
         memcpy(&skeletonID, ptr, 4);
-        skeletonID = _ntohl(skeletonID);
+        IPLTOHL(skeletonID);
         ptr += 4;
         
         // # of rigid bodies (bones) in skeleton
         int nRigidBodies = 0;
         memcpy(&nRigidBodies, ptr, 4);
-        nRigidBodies = _ntohl(nRigidBodies);
+        IPLTOHL(nRigidBodies);
         ptr += 4;
         nn->printf("Rigid Body Count : %d\n", nRigidBodies);
         
@@ -513,7 +510,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
           // rigid body pos/ori
           int ID = 0;
           memcpy(&ID, ptr, 4);
-          ID = _ntohl(ID);
+          IPLTOHL(ID);
           ptr += 4;
           float x = 0.0f;
           memcpy(&x, ptr, 4);
@@ -543,7 +540,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
           // associated marker positions
           int nRigidMarkers = 0;
           memcpy(&nRigidMarkers, ptr, 4);
-          nRigidMarkers = _ntohl(nRigidMarkers);
+          IPLTOHL(nRigidMarkers);
           ptr += 4;
           nn->printf("Marker Count: %d\n", nRigidMarkers);
           int nBytes = nRigidMarkers * 3 * sizeof(float);
@@ -580,7 +577,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
           
           for (int k = 0; k < nRigidMarkers; k++) {
             nn->printf("\tMarker %d: id=%d\tsize=%3.1f\tpos=[%3.2f,%3.2f,%3.2f]\n",
-                   k, _ntohl(markerIDs[k]), markerSizes[k], markerData[k * 3],
+                   k, LTOHL(markerIDs[k]), markerSizes[k], markerData[k * 3],
                    markerData[k * 3 + 1], markerData[k * 3 + 2]);
             frame->skeletons[j]->bodies[i]->markers[k].x = markerData[k * 3];
             frame->skeletons[j]->bodies[i]->markers[k].y = markerData[k * 3 + 1];
@@ -602,7 +599,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
             // params
             short params = 0;
             memcpy(&params, ptr, 2);
-            params = _ntohs(params);
+            IPLTOHS(params);
             ptr += 2;
             bool bTrackingValid = params & 0x01; // 0x01 : rigid body was
                                                  // successfully tracked in this
@@ -627,7 +624,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
     if (((major == 2) && (minor >= 3)) || (major > 2)) {
       int nLabeledMarkers = 0;
       memcpy(&nLabeledMarkers, ptr, 4);
-      nLabeledMarkers = _ntohl(nLabeledMarkers);
+      IPLTOHL(nLabeledMarkers);
       ptr += 4;
       nn->printf("Labeled Marker Count : %d\n", nLabeledMarkers);
       NatNet_frame_alloc_labeled_markers(frame, nLabeledMarkers);
@@ -636,7 +633,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
         // id
         int ID = 0;
         memcpy(&ID, ptr, 4);
-        ID = _ntohl(ID);
+        IPLTOHL(ID);
         ptr += 4;
         // x
         float x = 0.0f;
@@ -660,7 +657,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
           // marker params
           short params = 0;
           memcpy(&params, ptr, 2);
-          params = _ntohs(params);
+          IPLTOHS(params);
           ptr += 2;
           bool bOccluded =
           params & 0x01; // marker was not visible (occluded) in this frame
@@ -689,20 +686,20 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
     if (((major == 2) && (minor >= 9)) || (major > 2)) {
       int nForcePlates;
       memcpy(&nForcePlates, ptr, 4);
-      nForcePlates = _ntohl(nForcePlates);
+      IPLTOHL(nForcePlates);
       ptr += 4;
       for (int iForcePlate = 0; iForcePlate < nForcePlates; iForcePlate++) {
         // ID
         int ID = 0;
         memcpy(&ID, ptr, 4);
-        ID = _ntohl(ID);
+        IPLTOHL(ID);
         ptr += 4;
         nn->printf("Force Plate : %d\n", ID);
         
         // Channel Count
         int nChannels = 0;
         memcpy(&nChannels, ptr, 4);
-        nChannels = _ntohl(nChannels);
+        IPLTOHL(nChannels);
         ptr += 4;
         
         // Channel Data
@@ -710,7 +707,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
           nn->printf(" Channel %d : ", i);
           int nFrames = 0;
           memcpy(&nFrames, ptr, 4);
-          nFrames = _ntohl(nFrames);
+          IPLTOHL(nFrames);
           ptr += 4;
           for (int j = 0; j < nFrames; j++) {
             float val = 0.0f;
@@ -733,11 +730,11 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
     // timecode
     unsigned int timecode = 0;
     memcpy(&timecode, ptr, 4);
-    timecode = _ntohl(timecode);
+    IPLTOHL(timecode);
     ptr += 4;
     unsigned int timecodeSub = 0;
     memcpy(&timecodeSub, ptr, 4);
-    timecodeSub = _ntohl(timecodeSub);
+    IPLTOHL(timecodeSub);
     ptr += 4;
     frame->timecode = timecode;
     frame->sub_timecode = timecodeSub;
@@ -762,7 +759,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
     // frame params
     short params = 0;
     memcpy(&params, ptr, 2);
-    params = _ntohs(params);
+    IPLTOHS(params);
     ptr += 2;
     bool bIsRecording = params & 0x01; // 0x01 Motive is recording
     bool bTrackedModelsChanged =
@@ -774,7 +771,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
     // end of data tag
     int eod = 0;
     memcpy(&eod, ptr, 4);
-    eod = _ntohl(eod);
+    IPLTOHL(eod);
     ptr += 4;
     nn->printf("End Packet\n-------------\n");
     
@@ -783,7 +780,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
     // number of datasets
     int nDatasets = 0;
     memcpy(&nDatasets, ptr, 4);
-    nDatasets = _ntohl(nDatasets);
+    IPLTOHL(nDatasets);
     ptr += 4;
     nn->printf("Dataset Count : %d\n", nDatasets);
     
@@ -792,7 +789,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
       
       int type = 0;
       memcpy(&type, ptr, 4);
-      type = _ntohl(type);
+      IPLTOHL(type);
       ptr += 4;
       nn->printf("Type %d: %d\n", i, type);
       
@@ -808,7 +805,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
         // marker data
         int nMarkers = 0;
         memcpy(&nMarkers, ptr, 4);
-        nMarkers = _ntohl(nMarkers);
+        IPLTOHL(nMarkers);
         ptr += 4;
         nn->printf("Marker Count : %d\n", nMarkers);
         
@@ -831,13 +828,13 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
         
         int ID = 0;
         memcpy(&ID, ptr, 4);
-        ID = _ntohl(ID);
+        IPLTOHL(ID);
         ptr += 4;
         nn->printf("ID : %d\n", ID);
         
         int parentID = 0;
         memcpy(&parentID, ptr, 4);
-        parentID = _ntohl(parentID);
+        IPLTOHL(parentID);
         ptr += 4;
         nn->printf("Parent ID : %d\n", parentID);
         
@@ -865,13 +862,13 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
         
         int ID = 0;
         memcpy(&ID, ptr, 4);
-        ID = _ntohl(ID);
+        IPLTOHL(ID);
         ptr += 4;
         nn->printf("ID : %d\n", ID);
         
         int nRigidBodies = 0;
         memcpy(&nRigidBodies, ptr, 4);
-        nRigidBodies = _ntohl(nRigidBodies);
+        IPLTOHL(nRigidBodies);
         ptr += 4;
         nn->printf("RigidBody (Bone) Count : %d\n", nRigidBodies);
         
@@ -886,13 +883,13 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
           
           int ID = 0;
           memcpy(&ID, ptr, 4);
-          ID = _ntohl(ID);
+          IPLTOHL(ID);
           ptr += 4;
           nn->printf("RigidBody ID : %d\n", ID);
           
           int parentID = 0;
           memcpy(&parentID, ptr, 4);
-          parentID = _ntohl(parentID);
+          IPLTOHL(parentID);
           ptr += 4;
           nn->printf("Parent ID : %d\n", parentID);
           
@@ -923,15 +920,35 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
 
 }
 
-#ifndef _ntohs
-#undef _ntohs
-#undef _ntohl
-#endif
-
 
 
 #pragma mark -
 #pragma mark Utilities
+
+int swap4(int i) {
+  i = ((i & (0x0000FFFF)) << 16) | ((i & (0xFFFF0000)) >> 16);
+  i = ((i & (0x00FF00FF)) << 8) | ((i & (0xFF00FF00)) >>8);
+  return i;
+}
+
+void ipswap4(void *a) {
+  int *i = (int *)a;
+  *i = ((*i & (0x0000FFFF)) << 16) | ((*i & (0xFFFF0000)) >> 16);
+  *i = ((*i & (0x00FF00FF)) << 8) | ((*i & (0xFF00FF00)) >>8);
+}
+
+short swap2(short i) {
+  i = ((i & (0x00FF00FF)) << 8) | ((i & (0xFF00FF00)) >>8);
+  return i;
+}
+
+void ipswap2(void *a) {
+  short *i = (short *)a;
+  *i = ((*i & (0x00FF00FF)) << 8) | ((*i & (0xFF00FF00)) >>8);
+}
+
+#pragma mark -
+#pragma mark Top Be Removed
 // Very Badly written functions (from original OptiTrack examples)
 // To be rewritten!
 

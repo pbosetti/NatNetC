@@ -79,6 +79,34 @@ int NatNet_printf_std(const char * restrict format, ...);
 
 
 
+#pragma mark -
+#pragma mark Utilities
+// Byte swapping functions for 2 (short) and 4 byte integers
+// Remember: Use system ntohl/htonl family of functions for converting from/to
+//           big-endian (network) to host byte order (little endian for i386,
+//           big endian for ARM)
+//           Use these functions for converting from little to big and viceversa
+// Functions beginning with 'ip' work In-Place on the passed pointer.
+// NatNet protocol uses little-endian order (i386).
+// Corresponding macros are made available for
+#ifdef __BIG_ENDIAN
+#define IPLTOHS(i) ipswap2(i)
+#define LTOHS(i) swap2(i)
+#define IPLTOHL(i) ipswap4(i)
+#define LTOHL(i) swap4(i)
+#else
+#define IPLTOHS(i)
+#define LTOHS(i) i
+#define IPLTOHL(i)
+#define LTOHL(i) i
+#endif
+int swap4(int i);
+void ipswap4(void *a);
+short swap2(short i);
+void ipswap2(void *a);
+
+
+
 
 #pragma mark -
 #pragma mark Fossile functions (to be removed later)
