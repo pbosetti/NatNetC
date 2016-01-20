@@ -61,6 +61,8 @@ int NatNet_init(NatNet *nn, char *my_addr, char *their_addr,
                 char *multicast_addr, u_short command_port, u_short data_port);
 
 int NatNet_bind(NatNet *nn);
+int NatNet_bind_command(NatNet *nn);
+int NatNet_bind_data(NatNet *nn);
 
 uint NatNet_send_pkt(NatNet *nn, NatNet_packet packet, uint tries);
 uint NatNet_send_cmd(NatNet *nn, char *cmd, uint tries);

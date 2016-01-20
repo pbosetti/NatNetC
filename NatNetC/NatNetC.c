@@ -43,6 +43,10 @@ int NatNet_printf_std(const char * restrict format, ...) {
 
 int NatNet_init(NatNet *nn, char *my_addr, char *their_addr,
                 char *multicast_addr, u_short command_port, u_short data_port) {
+  struct sockaddr_in cmd_sockaddr, data_sockaddr;
+  struct in_addr multicast_in_addr;
+  struct ip_mreq mreq;
+  
   memset(nn, 0, sizeof(*nn));
   strcpy(nn->my_addr, my_addr);
   strcpy(nn->their_addr, their_addr);
@@ -61,34 +65,42 @@ int NatNet_init(NatNet *nn, char *my_addr, char *their_addr,
   nn->yaml = NULL;
 #endif
   nn->printf = &NatNet_printf_noop;
+  
+    // Command socket: socket receiving incoming command replies, broadcast mode
+  cmd_sockaddr.sin_family = AF_INET;
+  cmd_sockaddr.sin_addr.s_addr = inet_addr(nn->my_addr);
+  cmd_sockaddr.sin_port = htons(0);
+  
+    // Data socket: socket that accepts incoming data packets on nn->data_port
+  data_sockaddr.sin_family = AF_INET;
+  data_sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+  data_sockaddr.sin_port = htons(nn->data_port);
+    // Multicast group to which data socket is added
+  multicast_in_addr.s_addr = inet_addr(nn->multicast_addr);
+  mreq.imr_multiaddr = multicast_in_addr;
+  mreq.imr_interface = cmd_sockaddr.sin_addr;
+  
+    // Host socket address, to which commands will be sent
+  nn->host_sockaddr.sin_family = AF_INET;
+  nn->host_sockaddr.sin_addr.s_addr = inet_addr(nn->their_addr);
+  nn->host_sockaddr.sin_port = htons(nn->command_port);
+
   return 0;
 }
 
 int NatNet_bind(NatNet *nn) {
-  struct sockaddr_in cmd_sockaddr, data_sockaddr;
-  struct in_addr multicast_in_addr;
+  int retval = 0;
+  retval += NatNet_bind_command(nn);
+  retval += NatNet_bind_data(nn);
+  return retval;
+}
+
+int NatNet_bind_data(NatNet *nn) {
+  struct sockaddr_in data_sockaddr;
   struct ip_mreq mreq;
   int opt_value = 0;
   int retval = 0;
 
-  // Command socket: socket receiving incoming command replies, broadcast mode
-  cmd_sockaddr.sin_family = AF_INET;
-  cmd_sockaddr.sin_addr.s_addr = inet_addr(nn->my_addr);
-  cmd_sockaddr.sin_port = htons(0);
-
-  // Data socket: socket that accepts incoming data packets on nn->data_port
-  data_sockaddr.sin_family = AF_INET;
-  data_sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-  data_sockaddr.sin_port = htons(nn->data_port);
-  // Multicast group to which data socket is added
-  multicast_in_addr.s_addr = inet_addr(nn->multicast_addr);
-  mreq.imr_multiaddr = multicast_in_addr;
-  mreq.imr_interface = cmd_sockaddr.sin_addr;
-
-  // Host socket address, to which commands will be sent
-  nn->host_sockaddr.sin_family = AF_INET;
-  nn->host_sockaddr.sin_addr.s_addr = inet_addr(nn->their_addr);
-  nn->host_sockaddr.sin_port = htons(nn->command_port);
 
   // Data socket configuration
   if ((nn->data = socket(AF_INET, SOCK_DGRAM, 0)) == INVALID_SOCKET) {
@@ -127,6 +139,15 @@ int NatNet_bind(NatNet *nn) {
     return retval;
   }
 
+  return 0;
+}
+
+
+int NatNet_bind_command(NatNet *nn) {
+  struct sockaddr_in cmd_sockaddr;
+  int opt_value = 0;
+  int retval = 0;
+  
   // Command socket configuration
   if ((nn->command = socket(AF_INET, SOCK_DGRAM, 0)) == INVALID_SOCKET) {
     perror("Could not create command socket");
@@ -148,13 +169,13 @@ int NatNet_bind(NatNet *nn) {
     perror("Binding command socket");
     retval--;
   }
-
+  
   if (retval != 0) {
     close(nn->data);
     close(nn->command);
     return retval;
   }
-
+  
   return 0;
 }
 
