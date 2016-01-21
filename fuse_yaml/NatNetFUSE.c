@@ -263,7 +263,10 @@ static int NatNet_read(const char *path, char *buf, size_t size, off_t offset,
         char szData[20000];
         long nDataBytesReceived;
         if (NatNet_bind_data(nn)) {
-          strcpy(nn->yaml, "---\nError: Errror binding data socket\n");
+          char *msg;
+          asprintf(msg, "---\nError: Errror binding data socket\nErrorMSG: %s\n",
+                   strerror(errno));
+          nn->yaml = msg;
         }
         else {
           nDataBytesReceived = NatNet_recv_data(nn, szData, sizeof(szData));

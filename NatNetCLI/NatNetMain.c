@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
   NatNet *nn = NatNet_new(szMyIPAddress, szServerIPAddress, MULTICAST_ADDRESS,
                           PORT_COMMAND, PORT_DATA);
   if (NatNet_bind(nn)) {
-    perror("Error binding NetNat");
+    perror("Error binding NatNet");
     return -1;
   }
 

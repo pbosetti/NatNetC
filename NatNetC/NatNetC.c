@@ -179,7 +179,7 @@ int NatNet_bind_command(NatNet *nn) {
   return 0;
 }
 
-uint NatNet_send_pkt(NatNet *nn, NatNet_packet packet, uint tries) {
+int NatNet_send_pkt(NatNet *nn, NatNet_packet packet, uint tries) {
   ssize_t sent = 0;
   if (tries < 1) {
     tries = 1;
@@ -195,7 +195,7 @@ uint NatNet_send_pkt(NatNet *nn, NatNet_packet packet, uint tries) {
   return -1;
 }
 
-uint NatNet_send_cmd(NatNet *nn, char *cmd, uint tries) {
+int NatNet_send_cmd(NatNet *nn, char *cmd, uint tries) {
   // reset global result
   nn->cmd_response.response = -1;
   // format command packet
@@ -220,11 +220,11 @@ uint NatNet_send_cmd(NatNet *nn, char *cmd, uint tries) {
     }
 
     if (nn->cmd_response.response == -1) {
-      printf("Command response not received (timeout)\n");
+      nn->printf("Command response not received (timeout)\n");
     } else if (nn->cmd_response.response == 0) {
-      printf("Command response received with success\n");
+      nn->printf("Command response received with success\n");
     } else if (nn->cmd_response.response > 0) {
-      printf("Command response received with errors\n");
+      nn->printf("Command response received with errors\n");
     }
   }
 
@@ -246,14 +246,6 @@ long NatNet_recv_data(NatNet *nn, char *data, size_t len) {
                             (struct sockaddr *)&nn->host_sockaddr, &addr_len);
   return bytes_received;
 }
-
-#define READ_AND_ADVANCE(dst, src, len, FILE)                                  \
-  memcpy(dst, src, 2);                                                         \
-  if (FILE) {                                                                  \
-    fwrite(src, sizeof(char), len, FILE);                                      \
-  }                                                                            \
-  ptr += len;
-
 
 
 
