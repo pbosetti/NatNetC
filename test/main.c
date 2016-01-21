@@ -14,6 +14,70 @@
 #include <sys/stat.h>
 
 int main(int argc, const char * argv[]) {
+#if 1
+  int opt_value = 1, retval = 0;
+  int bufsize = 20000;
+  struct timeval data_timeout = {.tv_sec = 1, .tv_usec = 0};
+  struct sockaddr_in data_sockaddr, host_sockaddr;
+  SOCKET data_sock;
+
+  
+  data_sockaddr.sin_family = AF_INET;
+  data_sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+  data_sockaddr.sin_port = htons(1234);
+beginning:
+  // Data socket configuration
+  if ((data_sock = socket(AF_INET, SOCK_DGRAM, 0)) == INVALID_SOCKET) {
+    perror("Could not create socket");
+    retval--;
+  }
+  if (setsockopt(data_sock, SOL_SOCKET, SO_REUSEADDR, (char *)&opt_value,
+                 sizeof(opt_value))) {
+    perror("Setting data socket option");
+    retval--;
+  }
+  if (setsockopt(data_sock, SOL_SOCKET, SO_RCVBUF, (char *)&bufsize,
+                 sizeof(bufsize))) {
+    perror("Setting data socket receive buffer");
+    retval--;
+  }
+  if (setsockopt(data_sock, SOL_SOCKET, SO_RCVTIMEO, &data_timeout,
+                 sizeof(data_timeout)) != 0) {
+    perror("Setting data socket timeout");
+    retval--;
+  }
+
+  if (bind(data_sock, (struct sockaddr *)&data_sockaddr, sizeof(data_sockaddr))) {
+    perror("Binding data socket");
+    return -1;
+  }
+  
+  if (retval != 0) {
+    close(data_sock);
+    return retval;
+  }
+  
+  
+  
+  long bytes_received;
+  socklen_t addr_len = sizeof(struct sockaddr);
+  char *data = calloc(bufsize, sizeof(char));
+  for (;;) {
+    bytes_received = recvfrom(data_sock, data, bufsize, NULL,
+                              (struct sockaddr *)&host_sockaddr, &addr_len);
+    if (bytes_received < 0)
+      perror("Error: ");
+    else
+      break;
+  }
+  data[bytes_received - 1] = '\0';
+  printf("Got %ld bytes: '%s'\n", bytes_received, data);
+  close(data_sock);
+  if (strncmp(data, "stop", 4) != 0) {
+    memset(data, 0, bufsize);
+    goto beginning;
+  }
+#else
   
   struct stat info;
   char *data_file_name = (char *)argv[1];
@@ -110,7 +174,7 @@ int main(int argc, const char * argv[]) {
   printf("YAML: \n%s\n", nn->yaml);
   
   NatNet_free(nn);
-  
+#endif
   
   return 0;
 }
