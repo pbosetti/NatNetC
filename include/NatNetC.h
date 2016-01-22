@@ -126,6 +126,15 @@ int NatNet_bind_data(NatNet *nn);
 int NatNet_send_pkt(NatNet *nn, NatNet_packet packet, uint tries);
 
 /*!
+ Close both command and data sockets.
+ \brief Close sockets
+ \author Paolo
+ \return 0 on success, <0 on error (check \p errno!)
+ \params nn NatNet struct
+ */
+int NatNet_close(NatNet *nn);
+
+/*!
  Send a command to the Motive server.
  \brief Send a command
  \author Paolo

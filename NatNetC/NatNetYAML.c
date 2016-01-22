@@ -51,7 +51,7 @@
   if (!yaml_emitter_emit(emitter, event))                                      \
     goto emitter_error;
 
-int yaml_write_handler(void *data, unsigned char *buffer, size_t size) {
+static int yaml_write_handler(void *data, unsigned char *buffer, size_t size) {
   NatNet *nn = (NatNet *)data;
   if (nn->yaml == NULL) {
     if (!(nn->yaml = (char *)calloc(size + 1, sizeof(char)))) {

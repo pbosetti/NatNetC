@@ -179,6 +179,13 @@ int NatNet_bind_command(NatNet *nn) {
   return 0;
 }
 
+int NatNet_close(NatNet *nn) {
+  int result;
+  result = close(nn->data);
+  result += close(nn->command);
+  return result;
+}
+
 int NatNet_send_pkt(NatNet *nn, NatNet_packet packet, uint tries) {
   ssize_t sent = 0;
   if (tries < 1) {

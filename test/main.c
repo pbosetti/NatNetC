@@ -12,6 +12,7 @@
 #endif
 #include <NatNetC.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 
 int main(int argc, const char * argv[]) {
 #if 1
@@ -46,6 +47,11 @@ beginning:
     perror("Setting data socket timeout");
     retval--;
   }
+  // Optionally set to non-blocking behavior
+//  if (fcntl(data_sock, F_SETFL, O_NONBLOCK) != 0) {
+//    perror("Settin non-blocking behavior");
+//    retval--;
+//  }
 
   if (bind(data_sock, (struct sockaddr *)&data_sockaddr, sizeof(data_sockaddr))) {
     perror("Binding data socket");
@@ -65,9 +71,9 @@ beginning:
   for (;;) {
     bytes_received = recvfrom(data_sock, data, bufsize, NULL,
                               (struct sockaddr *)&host_sockaddr, &addr_len);
-    if (bytes_received < 0)
+    if (bytes_received < 0 && errno != EAGAIN)
       perror("Error: ");
-    else
+    else if (bytes_received > 0)
       break;
   }
   data[bytes_received - 1] = '\0';
