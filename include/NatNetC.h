@@ -177,6 +177,16 @@ long NatNet_recv_data(NatNet *nn, char *cmd, size_t len);
  */
 void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len);
 
+/*!
+ Pack existing frame struct into \p NatNet.last_frame into a binary string in \p data.
+ \brief Pack NatNet.last_frame into char array
+ \author Paolo
+ \params nn NatNet struct
+ \params data char array that will be internally allocated
+ \params len length of the char array containing packed data, written on exit
+ */
+void NatNet_pack_struct(NatNet *nn, char *data, size_t *len);
+
 #ifdef NATNET_YAML
 /*!
  Unpack a whole frame of data and put the result into \p NatNet.yaml

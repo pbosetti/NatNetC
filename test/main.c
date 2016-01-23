@@ -15,7 +15,7 @@
 #include <fcntl.h>
 
 int main(int argc, const char * argv[]) {
-#if 1
+#if 0
   int opt_value = 1, retval = 0;
   int bufsize = 20000;
   struct timeval data_timeout = {.tv_sec = 1, .tv_usec = 0};
@@ -85,14 +85,14 @@ beginning:
   }
 #else
   
-  struct stat info;
-  char *data_file_name = (char *)argv[1];
-  stat(data_file_name, &info);
-  printf("FILE %s SIZE: %lld\n", data_file_name, info.st_size);
-  FILE *data_file = fopen(data_file_name, "r");
-  char *data = (char *)calloc(info.st_size, sizeof(char));
-  fread(data, info.st_size, sizeof(char), data_file);
-  fclose(data_file);
+//  struct stat info;
+//  char *data_file_name = (char *)argv[1];
+//  stat(data_file_name, &info);
+//  printf("FILE %s SIZE: %lld\n", data_file_name, info.st_size);
+//  FILE *data_file = fopen(data_file_name, "r");
+//  char *data = (char *)calloc(info.st_size, sizeof(char));
+//  fread(data, info.st_size, sizeof(char), data_file);
+//  fclose(data_file);
   
   size_t nsets = 3;
   size_t nmarkers = 10;
@@ -106,6 +106,7 @@ beginning:
   
   
   NatNet_frame *frame = nn->last_frame;
+  frame->ID = 123;
   
   NatNet_frame_alloc_marker_sets(frame, nsets);
   
@@ -166,18 +167,26 @@ beginning:
   
   int messageID = 7;
   char *pData = calloc(2048, sizeof(char));
-  size_t len = 0;
   memset(pData, 0, 2048);
   memcpy(pData, &messageID, 2);
   
   nn->NatNet_ver[0] = 2;
   nn->NatNet_ver[1] = 6;
   nn->printf = &NatNet_printf_std;
-  NatNet_unpack_all(nn, data, &len);
   
+  char *packed_data = calloc(RCV_BUFSIZE, sizeof(char));
+  memset(packed_data, 0, RCV_BUFSIZE);
+  size_t length = 0;
+  NatNet_pack_struct(nn, packed_data, &length);
+  
+  NatNet_unpack_yaml(nn, packed_data, &length);
+  
+
+//  size_t len = 0;
+  //NatNet_unpack_all(nn, data, &len);
   //NatNet_unpack_yaml(nn, data, &len);
   
-  printf("YAML: \n%s\n", nn->yaml);
+   printf("YAML: \n%s\n", nn->yaml);
   
   NatNet_free(nn);
 #endif
