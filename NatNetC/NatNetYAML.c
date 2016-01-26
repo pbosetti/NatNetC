@@ -53,16 +53,19 @@
 
 static int yaml_write_handler(void *data, unsigned char *buffer, size_t size) {
   NatNet *nn = (NatNet *)data;
+  size_t current_len;
   if (nn->yaml == NULL) {
     if (!(nn->yaml = (char *)calloc(size + 1, sizeof(char)))) {
       return 0;
     }
-  } else if (size > strlen(nn->yaml)) {
-    if (!(nn->yaml = (char *)realloc(nn->yaml, size + 1))) {
+  }
+  current_len = strlen(nn->yaml);
+  if (current_len > 0) {
+    if (!(nn->yaml = (char *)realloc(nn->yaml, current_len + size + 1))) {
       return 0;
     }
   }
-  memcpy(nn->yaml, buffer, size + 1);
+  memcpy(nn->yaml + current_len, buffer, size);
   return 1;
 }
 
@@ -71,12 +74,17 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
   int major = 2; //nn->NatNet_ver[0];
   int minor = 9; //nn->NatNet_ver[1];
   char *ptr = pData;
-
+  
   yaml_emitter_t emitter;
   yaml_event_t event;
   memset(&emitter, 0, sizeof(emitter));
   memset(&event, 0, sizeof(event));
-
+  
+  if (nn->yaml) {
+    free(nn->yaml);
+    nn->yaml = NULL;
+  }
+  
   if (!yaml_emitter_initialize(&emitter)) {
     fprintf(stderr, "Could not inialize the emitter object\n");
     return 1;

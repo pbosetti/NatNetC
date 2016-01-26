@@ -94,10 +94,13 @@ beginning:
 //  fread(data, info.st_size, sizeof(char), data_file);
 //  fclose(data_file);
   
-  size_t nsets = 3;
+  size_t nsets = 10;
   size_t nmarkers = 10;
-  size_t nbodies = 10;
+  size_t nbodies = 3;
+  size_t nuimarkers = 2;
+  size_t labmarkers = 3;
   size_t s, m, j;
+  char name[128] = "";
   
   NatNet *nn = NatNet_new("127.0.0.1", "127.0.0.1", MULTICAST_ADDRESS,
                           PORT_COMMAND, PORT_DATA);
@@ -111,20 +114,39 @@ beginning:
   NatNet_frame_alloc_marker_sets(frame, nsets);
   
   for (s = 0; s < frame->n_marker_sets; s++) {
-    frame->marker_sets[s] = NatNet_markers_set_new("test", nmarkers);
+    sprintf(name, "marker set %zu", s);
+    frame->marker_sets[s] = NatNet_markers_set_new(name, nmarkers);
   }
   
   NatNet_frame_alloc_marker_sets(frame, nsets * 2);
-  for (s = 3; s < frame->n_marker_sets; s++) {
-    frame->marker_sets[s] = NatNet_markers_set_new("test2", nmarkers);
+  for (s = nsets; s < frame->n_marker_sets; s++) {
+    sprintf(name, "New marker set %zu", s);
+    frame->marker_sets[s] = NatNet_markers_set_new(name, nmarkers);
   }
 
-  NatNet_frame_alloc_ui_markers(frame, 10);
-  NatNet_frame_alloc_labeled_markers(frame, 3);
+  NatNet_frame_alloc_ui_markers(frame, nuimarkers);
+  for (s = 0; s < frame->n_ui_markers; s++) {
+    frame->ui_markers[s].x = 0.0f;
+    frame->ui_markers[s].y = 1.0f;
+    frame->ui_markers[s].z = 2.0f;
+    frame->ui_markers[s].w = 0.0f;
+  }
+
+  NatNet_frame_alloc_labeled_markers(frame, labmarkers);
+  for (s = 0; s < frame->n_labeled_markers; s++) {
+    frame->labeled_markers[s].ID = s;
+    frame->labeled_markers[s].loc.x = 0.0f;
+    frame->labeled_markers[s].loc.y= 0.0f;
+    frame->labeled_markers[s].loc.z = 0.0f;
+    frame->labeled_markers[s].loc.w = 0.0f;
+    frame->labeled_markers[s].model_solved = false;
+    frame->labeled_markers[s].occluded = false;
+    frame->labeled_markers[s].pc_solved = false;
+  }
   
 
   NatNet_frame_alloc_bodies(frame, nbodies);
-  for (j=0; j<nbodies; j++) {
+  for (j=0; j < nbodies; j++) {
     if (!frame->bodies[j]) {
       frame->bodies[j] = NatNet_rigid_body_new(nmarkers);
     }
@@ -137,33 +159,15 @@ beginning:
     frame->bodies[j]->ori.qy = j*3;
     frame->bodies[j]->ori.qz = j*2;
     frame->bodies[j]->ori.qw = j;
-    for (m=0; m<nmarkers; m++) {
+    for (m=0; m < nmarkers; m++) {
       frame->bodies[j]->markers[m].x = m * j;
       frame->bodies[j]->markers[m].y = m * j;
       frame->bodies[j]->markers[m].z = m * j;
     }
+    frame->bodies[j]->error = 0.01f;
   }
   
-  NatNet_frame_alloc_bodies(frame, nbodies*2);
-  for (j=0; j<nbodies*2; j++) {
-    if (!frame->bodies[j]) {
-      frame->bodies[j] = NatNet_rigid_body_new(nmarkers);
-    }
-    frame->bodies[j]->ID = j;
-    frame->bodies[j]->loc.x = j;
-    frame->bodies[j]->loc.y = j*2;
-    frame->bodies[j]->loc.z = j*3;
-    frame->bodies[j]->loc.w = 0;
-    frame->bodies[j]->ori.qx = j*4;
-    frame->bodies[j]->ori.qy = j*3;
-    frame->bodies[j]->ori.qz = j*2;
-    frame->bodies[j]->ori.qw = j;
-    for (m=0; m<nmarkers; m++) {
-      frame->bodies[j]->markers[m].x = m * j;
-      frame->bodies[j]->markers[m].y = m * j;
-      frame->bodies[j]->markers[m].z = m * j;
-    }
-  }
+
   
   int messageID = 7;
   char *pData = calloc(2048, sizeof(char));
@@ -181,6 +185,7 @@ beginning:
   
   NatNet_unpack_yaml(nn, packed_data, &length);
   
+  NatNet_unpack_yaml(nn, packed_data, &length);
 
 //  size_t len = 0;
   //NatNet_unpack_all(nn, data, &len);
