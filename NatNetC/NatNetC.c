@@ -1109,194 +1109,190 @@ void NatNet_pack_struct(NatNet *nn, char *data, size_t *len) {
   } // next rigid body
   
   // skeletons (version 2.1 and later)
-  if (((major == 2) && (minor > 0)) || (major > 2)) {
-    int nSkeletons = 0;  // Niente skeletons ****
-    IPLTOHL(nSkeletons);
-    memcpy(ptr, &nSkeletons, 4);
-    ptr += 4;
-    nn->printf("Skeleton Count : %d\n", nSkeletons);
+  int nSkeletons = 0;  // Niente skeletons ****
+  IPLTOHL(nSkeletons);
+  memcpy(ptr, &nSkeletons, 4);
+  ptr += 4;
+  nn->printf("Skeleton Count : %d\n", nSkeletons);
 
 #if 0
-    // ARRIVATO FIN QUI *******
-    for (int j = 0; j < nSkeletons; j++) {
-      // skeleton id
-      int skeletonID = 0;
-      memcpy(&skeletonID, ptr, 4);
-      IPLTOHL(skeletonID);
+  // ARRIVATO FIN QUI *******
+  for (int j = 0; j < nSkeletons; j++) {
+    // skeleton id
+    int skeletonID = 0;
+    memcpy(&skeletonID, ptr, 4);
+    IPLTOHL(skeletonID);
+    ptr += 4;
+    
+    // # of rigid bodies (bones) in skeleton
+    int nRigidBodies = 0;
+    memcpy(&nRigidBodies, ptr, 4);
+    IPLTOHL(nRigidBodies);
+    ptr += 4;
+    nn->printf("Rigid Body Count : %d\n", nRigidBodies);
+    
+    if (!frame->skeletons[j]) {
+      frame->skeletons[j] = NatNet_skeleton_new(nRigidBodies);
+    }
+    else {
+      NatNet_skeleton_alloc_bodies(frame->skeletons[j], nRigidBodies);
+    }
+    frame->skeletons[j]->ID = skeletonID;
+    
+    for (int i = 0; i < nRigidBodies; i++) {
+      // rigid body pos/ori
+      int ID = 0;
+      memcpy(&ID, ptr, 4);
+      IPLTOHL(ID);
       ptr += 4;
-      
-      // # of rigid bodies (bones) in skeleton
-      int nRigidBodies = 0;
-      memcpy(&nRigidBodies, ptr, 4);
-      IPLTOHL(nRigidBodies);
+      float x = 0.0f;
+      memcpy(&x, ptr, 4);
       ptr += 4;
-      nn->printf("Rigid Body Count : %d\n", nRigidBodies);
+      float y = 0.0f;
+      memcpy(&y, ptr, 4);
+      ptr += 4;
+      float z = 0.0f;
+      memcpy(&z, ptr, 4);
+      ptr += 4;
+      float qx = 0;
+      memcpy(&qx, ptr, 4);
+      ptr += 4;
+      float qy = 0;
+      memcpy(&qy, ptr, 4);
+      ptr += 4;
+      float qz = 0;
+      memcpy(&qz, ptr, 4);
+      ptr += 4;
+      float qw = 0;
+      memcpy(&qw, ptr, 4);
+      ptr += 4;
+      nn->printf("ID : %d\n", ID);
+      nn->printf("pos: [%3.2f,%3.2f,%3.2f]\n", x, y, z);
+      nn->printf("ori: [%3.2f,%3.2f,%3.2f,%3.2f]\n", qx, qy, qz, qw);
       
-      if (!frame->skeletons[j]) {
-        frame->skeletons[j] = NatNet_skeleton_new(nRigidBodies);
+      // associated marker positions
+      int nRigidMarkers = 0;
+      memcpy(&nRigidMarkers, ptr, 4);
+      IPLTOHL(nRigidMarkers);
+      ptr += 4;
+      nn->printf("Marker Count: %d\n", nRigidMarkers);
+      int nBytes = nRigidMarkers * 3 * sizeof(float);
+      float *markerData = (float *)malloc(nBytes);
+      memcpy(markerData, ptr, nBytes);
+      ptr += nBytes;
+      
+      // associated marker IDs
+      nBytes = nRigidMarkers * sizeof(int);
+      int *markerIDs = (int *)malloc(nBytes);
+      memcpy(markerIDs, ptr, nBytes);
+      ptr += nBytes;
+      
+      // associated marker sizes
+      nBytes = nRigidMarkers * sizeof(float);
+      float *markerSizes = (float *)malloc(nBytes);
+      memcpy(markerSizes, ptr, nBytes);
+      ptr += nBytes;
+      
+      if (!frame->skeletons[j]->bodies[i]) {
+        frame->skeletons[j]->bodies[i] = NatNet_rigid_body_new(nRigidMarkers);
       }
-      else {
-        NatNet_skeleton_alloc_bodies(frame->skeletons[j], nRigidBodies);
+      frame->skeletons[j]->bodies[i]->ID = ID;
+      frame->skeletons[j]->bodies[i]->loc.x = x;
+      frame->skeletons[j]->bodies[i]->loc.y = y;
+      frame->skeletons[j]->bodies[i]->loc.z = z;
+      frame->skeletons[j]->bodies[i]->loc.w = 0;
+      frame->skeletons[j]->bodies[i]->ori.qx = qx;
+      frame->skeletons[j]->bodies[i]->ori.qy = qy;
+      frame->skeletons[j]->bodies[i]->ori.qz = qz;
+      frame->skeletons[j]->bodies[i]->ori.qw = qw;
+      
+      
+      
+      for (int k = 0; k < nRigidMarkers; k++) {
+        nn->printf("\tMarker %d: id=%d\tsize=%3.1f\tpos=[%3.2f,%3.2f,%3.2f]\n",
+                   k, LTOHL(markerIDs[k]), markerSizes[k], markerData[k * 3],
+                   markerData[k * 3 + 1], markerData[k * 3 + 2]);
+        frame->skeletons[j]->bodies[i]->markers[k].x = markerData[k * 3];
+        frame->skeletons[j]->bodies[i]->markers[k].y = markerData[k * 3 + 1];
+        frame->skeletons[j]->bodies[i]->markers[k].z = markerData[k * 3 + 2];
+        frame->skeletons[j]->bodies[i]->markers[k].w = markerSizes[k];
       }
-      frame->skeletons[j]->ID = skeletonID;
       
-      for (int i = 0; i < nRigidBodies; i++) {
-        // rigid body pos/ori
-        int ID = 0;
-        memcpy(&ID, ptr, 4);
-        IPLTOHL(ID);
+      // Mean marker error (2.0 and later)
+      if (major >= 2) {
+        float fError = 0.0f;
+        memcpy(&fError, ptr, 4);
         ptr += 4;
-        float x = 0.0f;
-        memcpy(&x, ptr, 4);
-        ptr += 4;
-        float y = 0.0f;
-        memcpy(&y, ptr, 4);
-        ptr += 4;
-        float z = 0.0f;
-        memcpy(&z, ptr, 4);
-        ptr += 4;
-        float qx = 0;
-        memcpy(&qx, ptr, 4);
-        ptr += 4;
-        float qy = 0;
-        memcpy(&qy, ptr, 4);
-        ptr += 4;
-        float qz = 0;
-        memcpy(&qz, ptr, 4);
-        ptr += 4;
-        float qw = 0;
-        memcpy(&qw, ptr, 4);
-        ptr += 4;
-        nn->printf("ID : %d\n", ID);
-        nn->printf("pos: [%3.2f,%3.2f,%3.2f]\n", x, y, z);
-        nn->printf("ori: [%3.2f,%3.2f,%3.2f,%3.2f]\n", qx, qy, qz, qw);
-        
-        // associated marker positions
-        int nRigidMarkers = 0;
-        memcpy(&nRigidMarkers, ptr, 4);
-        IPLTOHL(nRigidMarkers);
-        ptr += 4;
-        nn->printf("Marker Count: %d\n", nRigidMarkers);
-        int nBytes = nRigidMarkers * 3 * sizeof(float);
-        float *markerData = (float *)malloc(nBytes);
-        memcpy(markerData, ptr, nBytes);
-        ptr += nBytes;
-        
-        // associated marker IDs
-        nBytes = nRigidMarkers * sizeof(int);
-        int *markerIDs = (int *)malloc(nBytes);
-        memcpy(markerIDs, ptr, nBytes);
-        ptr += nBytes;
-        
-        // associated marker sizes
-        nBytes = nRigidMarkers * sizeof(float);
-        float *markerSizes = (float *)malloc(nBytes);
-        memcpy(markerSizes, ptr, nBytes);
-        ptr += nBytes;
-        
-        if (!frame->skeletons[j]->bodies[i]) {
-          frame->skeletons[j]->bodies[i] = NatNet_rigid_body_new(nRigidMarkers);
-        }
-        frame->skeletons[j]->bodies[i]->ID = ID;
-        frame->skeletons[j]->bodies[i]->loc.x = x;
-        frame->skeletons[j]->bodies[i]->loc.y = y;
-        frame->skeletons[j]->bodies[i]->loc.z = z;
-        frame->skeletons[j]->bodies[i]->loc.w = 0;
-        frame->skeletons[j]->bodies[i]->ori.qx = qx;
-        frame->skeletons[j]->bodies[i]->ori.qy = qy;
-        frame->skeletons[j]->bodies[i]->ori.qz = qz;
-        frame->skeletons[j]->bodies[i]->ori.qw = qw;
-        
-        
-        
-        for (int k = 0; k < nRigidMarkers; k++) {
-          nn->printf("\tMarker %d: id=%d\tsize=%3.1f\tpos=[%3.2f,%3.2f,%3.2f]\n",
-                     k, LTOHL(markerIDs[k]), markerSizes[k], markerData[k * 3],
-                     markerData[k * 3 + 1], markerData[k * 3 + 2]);
-          frame->skeletons[j]->bodies[i]->markers[k].x = markerData[k * 3];
-          frame->skeletons[j]->bodies[i]->markers[k].y = markerData[k * 3 + 1];
-          frame->skeletons[j]->bodies[i]->markers[k].z = markerData[k * 3 + 2];
-          frame->skeletons[j]->bodies[i]->markers[k].w = markerSizes[k];
-        }
-        
-        // Mean marker error (2.0 and later)
-        if (major >= 2) {
-          float fError = 0.0f;
-          memcpy(&fError, ptr, 4);
-          ptr += 4;
-          nn->printf("Mean marker error: %3.2f\n", fError);
-          frame->skeletons[j]->bodies[i]->error = fError;
-        }
-        
-        // Tracking flags (2.6 and later)
-        if (((major == 2) && (minor >= 6)) || (major > 2) || (major == 0)) {
-          // params
-          short params = 0;
-          memcpy(&params, ptr, 2);
-          IPLTOHS(params);
-          ptr += 2;
-          bool bTrackingValid = params & 0x01; // 0x01 : rigid body was
-                                               // successfully tracked in this
-                                               // frame
-          frame->skeletons[j]->bodies[i]->tracking_valid = bTrackingValid;
-        }
-        
-        // release resources
-        if (markerIDs)
-          free(markerIDs);
-        if (markerSizes)
-          free(markerSizes);
-        if (markerData)
-          free(markerData);
-        
-      } // next rigid body
+        nn->printf("Mean marker error: %3.2f\n", fError);
+        frame->skeletons[j]->bodies[i]->error = fError;
+      }
       
-    } // next skeleton
+      // Tracking flags (2.6 and later)
+      if (((major == 2) && (minor >= 6)) || (major > 2) || (major == 0)) {
+        // params
+        short params = 0;
+        memcpy(&params, ptr, 2);
+        IPLTOHS(params);
+        ptr += 2;
+        bool bTrackingValid = params & 0x01; // 0x01 : rigid body was
+                                             // successfully tracked in this
+                                             // frame
+        frame->skeletons[j]->bodies[i]->tracking_valid = bTrackingValid;
+      }
+      
+      // release resources
+      if (markerIDs)
+        free(markerIDs);
+      if (markerSizes)
+        free(markerSizes);
+      if (markerData)
+        free(markerData);
+      
+    } // next rigid body
+    
+  } // next skeleton
 #endif
-  }
   
   // labeled markers (version 2.3 and later)
-  if (((major == 2) && (minor >= 3)) || (major > 2)) {
-    int nLabeledMarkers = frame->n_labeled_markers;
-    IPLTOHL(nLabeledMarkers);
-    memcpy(ptr, &nLabeledMarkers, 4);
+  int nLabeledMarkers = frame->n_labeled_markers;
+  IPLTOHL(nLabeledMarkers);
+  memcpy(ptr, &nLabeledMarkers, 4);
+  ptr += 4;
+  nn->printf("Labeled Marker Count : %d\n", nLabeledMarkers);
+  
+  for (int j = 0; j < nLabeledMarkers; j++) {
+    // id
+    int ID = frame->labeled_markers[j].ID;
+    IPLTOHL(ID);
+    memcpy(ptr, &ID, 4);
     ptr += 4;
-    nn->printf("Labeled Marker Count : %d\n", nLabeledMarkers);
+    // x
+    float x = frame->labeled_markers[j].loc.x;
+    memcpy(ptr, &x, 4);
+    ptr += 4;
+    // y
+    float y = frame->labeled_markers[j].loc.y;
+    memcpy(ptr, &y, 4);
+    ptr += 4;
+    // z
+    float z = frame->labeled_markers[j].loc.z;
+    memcpy(ptr, &z, 4);
+    ptr += 4;
+    // size
+    float size = frame->labeled_markers[j].loc.w;
+    memcpy(ptr, &size, 4);
+    ptr += 4;
     
-    for (int j = 0; j < nLabeledMarkers; j++) {
-      // id
-      int ID = frame->labeled_markers[j].ID;
-      IPLTOHL(ID);
-      memcpy(ptr, &ID, 4);
-      ptr += 4;
-      // x
-      float x = frame->labeled_markers[j].loc.x;
-      memcpy(ptr, &x, 4);
-      ptr += 4;
-      // y
-      float y = frame->labeled_markers[j].loc.y;
-      memcpy(ptr, &y, 4);
-      ptr += 4;
-      // z
-      float z = frame->labeled_markers[j].loc.z;
-      memcpy(ptr, &z, 4);
-      ptr += 4;
-      // size
-      float size = frame->labeled_markers[j].loc.w;
-      memcpy(ptr, &size, 4);
-      ptr += 4;
-      
-      // marker params
-      short params = 0;
-      IPLTOHS(params);
-      memcpy(ptr, &params, 2);
-      ptr += 2;
-      
-      nn->printf("ID  : %d\n", ID);
-      nn->printf("pos : [%3.2f,%3.2f,%3.2f]\n", x, y, z);
-      nn->printf("size: [%3.2f]\n", size);
+    // marker params
+    short params = 0;
+    IPLTOHS(params);
+    memcpy(ptr, &params, 2);
+    ptr += 2;
+    
+    nn->printf("ID  : %d\n", ID);
+    nn->printf("pos : [%3.2f,%3.2f,%3.2f]\n", x, y, z);
+    nn->printf("size: [%3.2f]\n", size);
 
-    }
   }
   
   // Force Plate data (version 2.9 and later)

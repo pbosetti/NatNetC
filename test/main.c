@@ -138,7 +138,7 @@ beginning:
     frame->labeled_markers[s].loc.x = 0.0f;
     frame->labeled_markers[s].loc.y= 0.0f;
     frame->labeled_markers[s].loc.z = 0.0f;
-    frame->labeled_markers[s].loc.w = 0.0f;
+    frame->labeled_markers[s].loc.w = (float)s;
     frame->labeled_markers[s].model_solved = false;
     frame->labeled_markers[s].occluded = false;
     frame->labeled_markers[s].pc_solved = false;
