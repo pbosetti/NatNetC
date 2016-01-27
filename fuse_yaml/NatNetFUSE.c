@@ -264,8 +264,9 @@ static int NatNet_read(const char *path, char *buf, size_t size, off_t offset,
         long nDataBytesReceived;
         if (NatNet_bind_data(nn)) {
           char *msg;
-          asprintf(msg, "---\nError: Errror binding data socket\nErrorMSG: %s\n",
+          asprintf(&msg, "---\nError: Error binding data socket\nErrorMSG: %s\n",
                    strerror(errno));
+          free(nn->yaml);
           nn->yaml = msg;
         }
         else {
