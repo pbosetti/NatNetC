@@ -77,20 +77,20 @@ typedef struct {
 
 
 typedef struct {
-  size_t ID;
+  uint ID;
   NatNet_point loc;
   NatNet_quaternion ori;
   NatNet_point *markers;
-  size_t n_markers;
+  uint n_markers;
   float error;
   bool tracking_valid;
 } NatNet_rigid_body;
-NatNet_rigid_body * NatNet_rigid_body_new(size_t n_markers);
-void NatNet_rigid_body_alloc_markers(NatNet_rigid_body *rb, size_t n_markers);
+NatNet_rigid_body * NatNet_rigid_body_new(uint n_markers);
+void NatNet_rigid_body_alloc_markers(NatNet_rigid_body *rb, uint n_markers);
 void NatNet_rigid_body_free(NatNet_rigid_body *rb);
 
 typedef struct {
-  size_t ID;
+  uint ID;
   NatNet_point loc;
   bool occluded;
   bool pc_solved;
@@ -99,26 +99,26 @@ typedef struct {
 
 
 typedef struct {
-  size_t ID;
+  uint ID;
   NatNet_rigid_body **bodies;
-  size_t n_bodies;
+  uint n_bodies;
 } NatNet_skeleton;
-NatNet_skeleton * NatNet_skeleton_new(size_t n_bodies);
-void NatNet_skeleton_alloc_bodies(NatNet_skeleton *sk, size_t n_bodies);
+NatNet_skeleton * NatNet_skeleton_new(uint n_bodies);
+void NatNet_skeleton_alloc_bodies(NatNet_skeleton *sk, uint n_bodies);
 void NatNet_skeleton_free(NatNet_skeleton *sk);
 
 typedef struct {
   char name[64];
   NatNet_point *markers;
-  size_t n_markers;
+  uint n_markers;
 } NatNet_markers_set;
-NatNet_markers_set * NatNet_markers_set_new(const char *name, size_t n_markers);
-void NatNet_markers_set_alloc_markers(NatNet_markers_set *ms, size_t n_markers);
+NatNet_markers_set * NatNet_markers_set_new(const char *name, uint n_markers);
+void NatNet_markers_set_alloc_markers(NatNet_markers_set *ms, uint n_markers);
 void NatNet_markers_set_free(NatNet_markers_set *ms);
 
 
 typedef struct {
-  size_t ID;
+  uint ID;
   size_t bytes;
   float latency;
   uint32_t timecode;
@@ -128,22 +128,22 @@ typedef struct {
   bool tracked_models_changed;
   
   NatNet_markers_set **marker_sets;
-  size_t n_marker_sets;
+  uint n_marker_sets;
   NatNet_rigid_body **bodies;
-  size_t n_bodies;
+  uint n_bodies;
   NatNet_skeleton **skeletons;
-  size_t n_skeletons;
+  uint n_skeletons;
   NatNet_point *ui_markers;
-  size_t n_ui_markers;
+  uint n_ui_markers;
   NatNet_labeled_marker *labeled_markers;
-  size_t n_labeled_markers;
+  uint n_labeled_markers;
 } NatNet_frame;
-NatNet_frame * NatNet_frame_new(size_t ID, size_t bytes);
-void NatNet_frame_alloc_marker_sets(NatNet_frame *frame, size_t n_marker_sets);
-void NatNet_frame_alloc_bodies(NatNet_frame *frame, size_t n_bodies);
-void NatNet_frame_alloc_skeletons(NatNet_frame *frame, size_t n_skeletons);
-void NatNet_frame_alloc_ui_markers(NatNet_frame *frame, size_t n_ui_markers);
-void NatNet_frame_alloc_labeled_markers(NatNet_frame *frame, size_t n_labeled_markers);
+NatNet_frame * NatNet_frame_new(uint ID, size_t bytes);
+void NatNet_frame_alloc_marker_sets(NatNet_frame *frame, uint n_marker_sets);
+void NatNet_frame_alloc_bodies(NatNet_frame *frame, uint n_bodies);
+void NatNet_frame_alloc_skeletons(NatNet_frame *frame, uint n_skeletons);
+void NatNet_frame_alloc_ui_markers(NatNet_frame *frame, uint n_ui_markers);
+void NatNet_frame_alloc_labeled_markers(NatNet_frame *frame, uint n_labeled_markers);
 void NatNet_frame_free(NatNet_frame *frame);
 
 

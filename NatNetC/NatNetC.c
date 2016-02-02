@@ -297,7 +297,7 @@ void NatNet_unpack_all(NatNet *nn, size_t *len) {
   {
     NatNet_frame *frame = nn->last_frame;
     // frame number
-    int frameNumber = 0;
+    uint frameNumber = 0;
     memcpy(&frameNumber, ptr, 4);
     IPLTOHL(frameNumber);
     ptr += 4;
@@ -306,14 +306,14 @@ void NatNet_unpack_all(NatNet *nn, size_t *len) {
     frame->bytes = nBytes;
     
     // number of data sets (markersets, rigidbodies, etc)
-    int nMarkerSets = 0;
+    uint nMarkerSets = 0;
     memcpy(&nMarkerSets, ptr, 4);
     IPLTOHL(nMarkerSets);
     ptr += 4;
     nn->printf("Marker Set Count : %d\n", nMarkerSets);
     NatNet_frame_alloc_marker_sets(frame, nMarkerSets);
     
-    for (int i = 0; i < nMarkerSets; i++) {
+    for (uint i = 0; i < nMarkerSets; i++) {
       // Markerset name
       char szName[256];
       strncpy(szName, ptr, 256);
@@ -322,7 +322,7 @@ void NatNet_unpack_all(NatNet *nn, size_t *len) {
       nn->printf("Model Name: %s\n", szName);
       
       // marker data
-      int nMarkers = 0;
+      uint nMarkers = 0;
       memcpy(&nMarkers, ptr, 4);
       IPLTOHL(nMarkers);
       ptr += 4;
@@ -334,7 +334,7 @@ void NatNet_unpack_all(NatNet *nn, size_t *len) {
       else {
         NatNet_markers_set_alloc_markers(frame->marker_sets[i], nMarkers);
       }
-      for (int j = 0; j < nMarkers; j++) {
+      for (uint j = 0; j < nMarkers; j++) {
         float x = 0;
         memcpy(&x, ptr, 4);
         ptr += 4;
@@ -353,14 +353,14 @@ void NatNet_unpack_all(NatNet *nn, size_t *len) {
     }
     
     // unidentified markers
-    int nOtherMarkers = 0;
+    uint nOtherMarkers = 0;
     memcpy(&nOtherMarkers, ptr, 4);
     IPLTOHL(nOtherMarkers);
     ptr += 4;
     nn->printf("Unidentified Marker Count : %d\n", nOtherMarkers);
     NatNet_frame_alloc_ui_markers(frame, nOtherMarkers);
     
-    for (int j = 0; j < nOtherMarkers; j++) {
+    for (uint j = 0; j < nOtherMarkers; j++) {
       float x = 0.0f;
       memcpy(&x, ptr, 4);
       ptr += 4;
@@ -378,14 +378,14 @@ void NatNet_unpack_all(NatNet *nn, size_t *len) {
     }
     
     // rigid bodies
-    int nRigidBodies = 0;
+    uint nRigidBodies = 0;
     memcpy(&nRigidBodies, ptr, 4);
     IPLTOHL(nRigidBodies);
     ptr += 4;
     nn->printf("Rigid Body Count : %d\n", nRigidBodies);
     NatNet_frame_alloc_bodies(frame, nRigidBodies);
     
-    for (int j = 0; j < nRigidBodies; j++) {
+    for (uint j = 0; j < nRigidBodies; j++) {
       // rigid body pos/ori
       int ID = 0;
       memcpy(&ID, ptr, 4);
@@ -417,12 +417,12 @@ void NatNet_unpack_all(NatNet *nn, size_t *len) {
       nn->printf("ori: [%3.2f,%3.2f,%3.2f,%3.2f]\n", qx, qy, qz, qw);
       
       // associated marker positions
-      int nRigidMarkers = 0;
+      uint nRigidMarkers = 0;
       memcpy(&nRigidMarkers, ptr, 4);
       IPLTOHL(nRigidMarkers);
       ptr += 4;
       nn->printf("Marker Count: %d\n", nRigidMarkers);
-      int nBytes = nRigidMarkers * 3 * sizeof(float);
+      uint nBytes = nRigidMarkers * 3 * sizeof(float);
       float *markerData = (float *)malloc(nBytes);
       memcpy(markerData, ptr, nBytes);
       ptr += nBytes;
@@ -446,7 +446,7 @@ void NatNet_unpack_all(NatNet *nn, size_t *len) {
       if (major >= 2) {
         // associated marker IDs
         nBytes = nRigidMarkers * sizeof(int);
-        int *markerIDs = (int *)malloc(nBytes);
+        uint *markerIDs = (uint *)malloc(nBytes);
         memcpy(markerIDs, ptr, nBytes);
         ptr += nBytes;
         
@@ -456,7 +456,7 @@ void NatNet_unpack_all(NatNet *nn, size_t *len) {
         memcpy(markerSizes, ptr, nBytes);
         ptr += nBytes;
         
-        for (int k = 0; k < nRigidMarkers; k++) {
+        for (uint k = 0; k < nRigidMarkers; k++) {
           nn->printf("\tMarker %d: id=%d\tsize=%3.1f\tpos=[%3.2f,%3.2f,%3.2f]\n", k,
                  LTOHL(markerIDs[k]), markerSizes[k], markerData[k * 3],
                  markerData[k * 3 + 1], markerData[k * 3 + 2]);
@@ -472,7 +472,7 @@ void NatNet_unpack_all(NatNet *nn, size_t *len) {
           free(markerSizes);
         
       } else {
-        for (int k = 0; k < nRigidMarkers; k++) {
+        for (uint k = 0; k < nRigidMarkers; k++) {
           nn->printf("\tMarker %d: pos = [%3.2f,%3.2f,%3.2f]\n", k,
                  markerData[k * 3], markerData[k * 3 + 1],
                  markerData[k * 3 + 2]);
@@ -511,13 +511,13 @@ void NatNet_unpack_all(NatNet *nn, size_t *len) {
     
     // skeletons (version 2.1 and later)
     if (((major == 2) && (minor > 0)) || (major > 2)) {
-      int nSkeletons = 0;
+      uint nSkeletons = 0;
       memcpy(&nSkeletons, ptr, 4);
       IPLTOHL(nSkeletons);
       ptr += 4;
       nn->printf("Skeleton Count : %d\n", nSkeletons);
       NatNet_frame_alloc_skeletons(frame, nSkeletons);
-      for (int j = 0; j < nSkeletons; j++) {
+      for (uint j = 0; j < nSkeletons; j++) {
         // skeleton id
         int skeletonID = 0;
         memcpy(&skeletonID, ptr, 4);
@@ -525,7 +525,7 @@ void NatNet_unpack_all(NatNet *nn, size_t *len) {
         ptr += 4;
         
         // # of rigid bodies (bones) in skeleton
-        int nRigidBodies = 0;
+        uint nRigidBodies = 0;
         memcpy(&nRigidBodies, ptr, 4);
         IPLTOHL(nRigidBodies);
         ptr += 4;
@@ -539,9 +539,9 @@ void NatNet_unpack_all(NatNet *nn, size_t *len) {
         }
         frame->skeletons[j]->ID = skeletonID;
         
-        for (int i = 0; i < nRigidBodies; i++) {
+        for (uint i = 0; i < nRigidBodies; i++) {
           // rigid body pos/ori
-          int ID = 0;
+          uint ID = 0;
           memcpy(&ID, ptr, 4);
           IPLTOHL(ID);
           ptr += 4;
@@ -571,19 +571,19 @@ void NatNet_unpack_all(NatNet *nn, size_t *len) {
           nn->printf("ori: [%3.2f,%3.2f,%3.2f,%3.2f]\n", qx, qy, qz, qw);
           
           // associated marker positions
-          int nRigidMarkers = 0;
+          uint nRigidMarkers = 0;
           memcpy(&nRigidMarkers, ptr, 4);
           IPLTOHL(nRigidMarkers);
           ptr += 4;
           nn->printf("Marker Count: %d\n", nRigidMarkers);
-          int nBytes = nRigidMarkers * 3 * sizeof(float);
+          uint nBytes = nRigidMarkers * 3 * sizeof(float);
           float *markerData = (float *)malloc(nBytes);
           memcpy(markerData, ptr, nBytes);
           ptr += nBytes;
           
           // associated marker IDs
           nBytes = nRigidMarkers * sizeof(int);
-          int *markerIDs = (int *)malloc(nBytes);
+          uint *markerIDs = (uint *)malloc(nBytes);
           memcpy(markerIDs, ptr, nBytes);
           ptr += nBytes;
           
@@ -608,7 +608,7 @@ void NatNet_unpack_all(NatNet *nn, size_t *len) {
           
           
           
-          for (int k = 0; k < nRigidMarkers; k++) {
+          for (uint k = 0; k < nRigidMarkers; k++) {
             nn->printf("\tMarker %d: id=%d\tsize=%3.1f\tpos=[%3.2f,%3.2f,%3.2f]\n",
                    k, LTOHL(markerIDs[k]), markerSizes[k], markerData[k * 3],
                    markerData[k * 3 + 1], markerData[k * 3 + 2]);
@@ -655,16 +655,16 @@ void NatNet_unpack_all(NatNet *nn, size_t *len) {
     
     // labeled markers (version 2.3 and later)
     if (((major == 2) && (minor >= 3)) || (major > 2)) {
-      int nLabeledMarkers = 0;
+      uint nLabeledMarkers = 0;
       memcpy(&nLabeledMarkers, ptr, 4);
       IPLTOHL(nLabeledMarkers);
       ptr += 4;
       nn->printf("Labeled Marker Count : %d\n", nLabeledMarkers);
       NatNet_frame_alloc_labeled_markers(frame, nLabeledMarkers);
       
-      for (int j = 0; j < nLabeledMarkers; j++) {
+      for (uint j = 0; j < nLabeledMarkers; j++) {
         // id
-        int ID = 0;
+        uint ID = 0;
         memcpy(&ID, ptr, 4);
         IPLTOHL(ID);
         ptr += 4;
@@ -717,32 +717,32 @@ void NatNet_unpack_all(NatNet *nn, size_t *len) {
     
     // Force Plate data (version 2.9 and later)
     if (((major == 2) && (minor >= 9)) || (major > 2)) {
-      int nForcePlates;
+      uint nForcePlates;
       memcpy(&nForcePlates, ptr, 4);
       IPLTOHL(nForcePlates);
       ptr += 4;
-      for (int iForcePlate = 0; iForcePlate < nForcePlates; iForcePlate++) {
+      for (uint iForcePlate = 0; iForcePlate < nForcePlates; iForcePlate++) {
         // ID
-        int ID = 0;
+        uint ID = 0;
         memcpy(&ID, ptr, 4);
         IPLTOHL(ID);
         ptr += 4;
         nn->printf("Force Plate : %d\n", ID);
         
         // Channel Count
-        int nChannels = 0;
+        uint nChannels = 0;
         memcpy(&nChannels, ptr, 4);
         IPLTOHL(nChannels);
         ptr += 4;
         
         // Channel Data
-        for (int i = 0; i < nChannels; i++) {
+        for (uint i = 0; i < nChannels; i++) {
           nn->printf(" Channel %d : ", i);
-          int nFrames = 0;
+          uint nFrames = 0;
           memcpy(&nFrames, ptr, 4);
           IPLTOHL(nFrames);
           ptr += 4;
-          for (int j = 0; j < nFrames; j++) {
+          for (uint j = 0; j < nFrames; j++) {
             float val = 0.0f;
             memcpy(&val, ptr, 4);
             ptr += 4;
@@ -761,11 +761,11 @@ void NatNet_unpack_all(NatNet *nn, size_t *len) {
     frame->latency = latency;
     
     // timecode
-    unsigned int timecode = 0;
+    uint timecode = 0;
     memcpy(&timecode, ptr, 4);
     IPLTOHL(timecode);
     ptr += 4;
-    unsigned int timecodeSub = 0;
+    uint timecodeSub = 0;
     memcpy(&timecodeSub, ptr, 4);
     IPLTOHL(timecodeSub);
     ptr += 4;
@@ -811,13 +811,13 @@ void NatNet_unpack_all(NatNet *nn, size_t *len) {
   } else if (MessageID == 5) // Data Descriptions
   {
     // number of datasets
-    int nDatasets = 0;
+    uint nDatasets = 0;
     memcpy(&nDatasets, ptr, 4);
     IPLTOHL(nDatasets);
     ptr += 4;
     nn->printf("Dataset Count : %d\n", nDatasets);
     
-    for (int i = 0; i < nDatasets; i++) {
+    for (uint i = 0; i < nDatasets; i++) {
       nn->printf("Dataset %d\n", i);
       
       int type = 0;
@@ -831,21 +831,21 @@ void NatNet_unpack_all(NatNet *nn, size_t *len) {
         // name
         char szName[256];
         strcpy(szName, ptr);
-        int nDataBytes = (int)strlen(szName) + 1;
+        uint nDataBytes = (int)strlen(szName) + 1;
         ptr += nDataBytes;
         nn->printf("Markerset Name: %s\n", szName);
         
         // marker data
-        int nMarkers = 0;
+        uint nMarkers = 0;
         memcpy(&nMarkers, ptr, 4);
         IPLTOHL(nMarkers);
         ptr += 4;
         nn->printf("Marker Count : %d\n", nMarkers);
         
-        for (int j = 0; j < nMarkers; j++) {
+        for (uint j = 0; j < nMarkers; j++) {
           char szName[256];
           strcpy(szName, ptr);
-          int nDataBytes = (int)strlen(szName) + 1;
+          uint nDataBytes = (int)strlen(szName) + 1;
           ptr += nDataBytes;
           nn->printf("Marker Name: %s\n", szName);
         }
@@ -859,13 +859,13 @@ void NatNet_unpack_all(NatNet *nn, size_t *len) {
           nn->printf("Name: %s\n", szName);
         }
         
-        int ID = 0;
+        uint ID = 0;
         memcpy(&ID, ptr, 4);
         IPLTOHL(ID);
         ptr += 4;
         nn->printf("ID : %d\n", ID);
         
-        int parentID = 0;
+        uint parentID = 0;
         memcpy(&parentID, ptr, 4);
         IPLTOHL(parentID);
         ptr += 4;
@@ -893,19 +893,19 @@ void NatNet_unpack_all(NatNet *nn, size_t *len) {
         ptr += strlen(ptr) + 1;
         nn->printf("Name: %s\n", szName);
         
-        int ID = 0;
+        uint ID = 0;
         memcpy(&ID, ptr, 4);
         IPLTOHL(ID);
         ptr += 4;
         nn->printf("ID : %d\n", ID);
         
-        int nRigidBodies = 0;
+        uint nRigidBodies = 0;
         memcpy(&nRigidBodies, ptr, 4);
         IPLTOHL(nRigidBodies);
         ptr += 4;
         nn->printf("RigidBody (Bone) Count : %d\n", nRigidBodies);
         
-        for (int i = 0; i < nRigidBodies; i++) {
+        for (uint i = 0; i < nRigidBodies; i++) {
           if (major >= 2) {
             // RB name
             char szName[MAX_NAMELENGTH];
@@ -914,13 +914,13 @@ void NatNet_unpack_all(NatNet *nn, size_t *len) {
             nn->printf("Rigid Body Name: %s\n", szName);
           }
           
-          int ID = 0;
+          uint ID = 0;
           memcpy(&ID, ptr, 4);
           IPLTOHL(ID);
           ptr += 4;
           nn->printf("RigidBody ID : %d\n", ID);
           
-          int parentID = 0;
+          uint parentID = 0;
           memcpy(&parentID, ptr, 4);
           IPLTOHL(parentID);
           ptr += 4;

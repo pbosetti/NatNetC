@@ -9,14 +9,14 @@
 #include "NatNetC/NatNetTypes.h"
 
 
-NatNet_markers_set * NatNet_markers_set_new(const char *name, size_t n_markers) {
+NatNet_markers_set * NatNet_markers_set_new(const char *name, uint n_markers) {
   NatNet_markers_set *ms = calloc(1, sizeof(NatNet_markers_set));
   NatNet_markers_set_alloc_markers(ms, n_markers);
   strcpy(ms->name, name);
   return ms;
 }
 
-void NatNet_markers_set_alloc_markers(NatNet_markers_set *ms, size_t n_markers) {
+void NatNet_markers_set_alloc_markers(NatNet_markers_set *ms, uint n_markers) {
   // Nothing to release when shrinking
   if (ms->n_markers == 0 || ms->markers == NULL) { // allocating
     ms->markers = calloc(n_markers, sizeof(NatNet_point));
@@ -34,7 +34,7 @@ void NatNet_markers_set_free(NatNet_markers_set *ms) {
 
 
 
-NatNet_rigid_body * NatNet_rigid_body_new(size_t n_markers) {
+NatNet_rigid_body * NatNet_rigid_body_new(uint n_markers) {
   NatNet_rigid_body *rb = calloc(1, sizeof(NatNet_rigid_body));
   NatNet_rigid_body_alloc_markers(rb, n_markers);
   rb->error = 0.0;
@@ -42,7 +42,7 @@ NatNet_rigid_body * NatNet_rigid_body_new(size_t n_markers) {
   return rb;
 }
 
-void NatNet_rigid_body_alloc_markers(NatNet_rigid_body *rb, size_t n_markers) {
+void NatNet_rigid_body_alloc_markers(NatNet_rigid_body *rb, uint n_markers) {
   // Nothing to release when shrinking
   if (rb->n_markers == 0 || rb->markers == NULL) { // allocating
     rb->markers = calloc(n_markers, sizeof(NatNet_point));
@@ -62,13 +62,13 @@ void NatNet_rigid_body_free(NatNet_rigid_body *rb) {
 
 
 
-NatNet_skeleton * NatNet_skeleton_new(size_t n_bodies) {
+NatNet_skeleton * NatNet_skeleton_new(uint n_bodies) {
   NatNet_skeleton *sk = calloc(1, sizeof(NatNet_skeleton));
   NatNet_skeleton_alloc_bodies(sk, n_bodies);
   return sk;
 }
 
-void NatNet_skeleton_alloc_bodies(NatNet_skeleton *sk, size_t n_bodies) {
+void NatNet_skeleton_alloc_bodies(NatNet_skeleton *sk, uint n_bodies) {
   if (sk->n_bodies > n_bodies) { // Only when shrinking
     size_t i = 0;
     for (i=n_bodies; i<sk->n_bodies; i++) {
@@ -95,14 +95,14 @@ void NatNet_skeleton_free(NatNet_skeleton *sk) {
 
 
 
-NatNet_frame * NatNet_frame_new(size_t ID, size_t bytes) {
+NatNet_frame * NatNet_frame_new(uint ID, size_t bytes) {
   NatNet_frame *frame = calloc(1, sizeof(NatNet_frame));
   frame->ID = ID;
   frame->bytes = bytes;
   return frame;
 }
 
-void NatNet_frame_alloc_marker_sets(NatNet_frame *frame, size_t n_marker_sets) {
+void NatNet_frame_alloc_marker_sets(NatNet_frame *frame, uint n_marker_sets) {
   if (frame->n_marker_sets > n_marker_sets) { // Only when shrinking
     size_t i = 0;
     for (i=n_marker_sets; i<frame->n_marker_sets; i++) {
@@ -118,7 +118,7 @@ void NatNet_frame_alloc_marker_sets(NatNet_frame *frame, size_t n_marker_sets) {
   frame->n_marker_sets = n_marker_sets;
 }
 
-void NatNet_frame_alloc_bodies(NatNet_frame *frame, size_t n_bodies) {
+void NatNet_frame_alloc_bodies(NatNet_frame *frame, uint n_bodies) {
   if (frame->n_bodies > n_bodies) { // Only when shrinking
     size_t i = 0;
     for (i=n_bodies; i<frame->n_bodies; i++) {
@@ -134,7 +134,7 @@ void NatNet_frame_alloc_bodies(NatNet_frame *frame, size_t n_bodies) {
   frame->n_bodies = n_bodies;
 }
 
-void NatNet_frame_alloc_skeletons(NatNet_frame *frame, size_t n_skeletons) {
+void NatNet_frame_alloc_skeletons(NatNet_frame *frame, uint n_skeletons) {
   if (frame->n_skeletons > n_skeletons) { // Only when shrinking
     size_t i = 0;
     for (i=n_skeletons; i<frame->n_skeletons; i++) {
@@ -150,7 +150,7 @@ void NatNet_frame_alloc_skeletons(NatNet_frame *frame, size_t n_skeletons) {
   frame->n_skeletons = n_skeletons;
 }
 
-void NatNet_frame_alloc_ui_markers(NatNet_frame *frame, size_t n_ui_markers) {
+void NatNet_frame_alloc_ui_markers(NatNet_frame *frame, uint n_ui_markers) {
   // Nothing to release when shrinking
   if (frame->n_ui_markers == 0 || frame->ui_markers == NULL) {
     frame->ui_markers = calloc(n_ui_markers, sizeof(NatNet_point));
@@ -161,7 +161,7 @@ void NatNet_frame_alloc_ui_markers(NatNet_frame *frame, size_t n_ui_markers) {
   frame->n_ui_markers = n_ui_markers;
 }
 
-void NatNet_frame_alloc_labeled_markers(NatNet_frame *frame, size_t n_labeled_markers) {
+void NatNet_frame_alloc_labeled_markers(NatNet_frame *frame, uint n_labeled_markers) {
   // Nothing to release when shrinking
   if (frame->n_ui_markers == 0 || frame->ui_markers == NULL) {
     frame->labeled_markers = calloc(n_labeled_markers, sizeof(NatNet_labeled_marker));

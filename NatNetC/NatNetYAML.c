@@ -71,8 +71,8 @@ static int yaml_write_handler(void *data, unsigned char *buffer, size_t size) {
 
 
 int NatNet_unpack_yaml(NatNet *nn, size_t *len) {
-  int major = 2; //nn->NatNet_ver[0];
-  int minor = 9; //nn->NatNet_ver[1];
+  int major = nn->server_ver[0];
+  int minor = nn->server_ver[1];
   char *ptr = nn->raw_data;
   
   yaml_emitter_t emitter;
@@ -132,7 +132,7 @@ int NatNet_unpack_yaml(NatNet *nn, size_t *len) {
   if (MessageID == 7) // FRAME OF MOCAP DATA packet
   {
     // frame number
-    int frameNumber = 0;
+    uint frameNumber = 0;
     memcpy(&frameNumber, ptr, 4);
     IPLTOHL(frameNumber);
     ptr += 4;
@@ -144,7 +144,7 @@ int NatNet_unpack_yaml(NatNet *nn, size_t *len) {
                   emitter_error);
 
     // number of data sets (markersets, rigidbodies, etc)
-    int nMarkerSets = 0;
+    uint nMarkerSets = 0;
     memcpy(&nMarkerSets, ptr, 4);
     IPLTOHL(nMarkerSets);
     ptr += 4;
@@ -153,7 +153,7 @@ int NatNet_unpack_yaml(NatNet *nn, size_t *len) {
     YAML_ADD_STRING(&emitter, &event, key, event_error, emitter_error);
 
     YAML_SEQUENCE_START(&emitter, &event, event_error, emitter_error);
-    for (int i = 0; i < nMarkerSets; i++) {
+    for (uint i = 0; i < nMarkerSets; i++) {
       // Markerset name
       char szName[256];
       strncpy(szName, ptr, 256);
@@ -161,7 +161,7 @@ int NatNet_unpack_yaml(NatNet *nn, size_t *len) {
       ptr += nDataBytes;
 
       // marker data
-      int nMarkers = 0;
+      uint nMarkers = 0;
       memcpy(&nMarkers, ptr, 4);
       IPLTOHL(nMarkers);
       ptr += 4;
@@ -173,7 +173,7 @@ int NatNet_unpack_yaml(NatNet *nn, size_t *len) {
       strcpy(key, "markers");
       YAML_ADD_STRING(&emitter, &event, key, event_error, emitter_error);
       YAML_SEQUENCE_START(&emitter, &event, event_error, emitter_error);
-      for (int j = 0; j < nMarkers; j++) {
+      for (uint j = 0; j < nMarkers; j++) {
         YAML_SEQUENCE_START(&emitter, &event, event_error, emitter_error);
         float x = 0;
         memcpy(&x, ptr, 4);
@@ -201,14 +201,14 @@ int NatNet_unpack_yaml(NatNet *nn, size_t *len) {
     YAML_SEQUENCE_END(&emitter, &event);
 
     // unidentified markers
-    int nOtherMarkers = 0;
+    uint nOtherMarkers = 0;
     memcpy(&nOtherMarkers, ptr, 4);
     IPLTOHL(nOtherMarkers);
     ptr += 4;
 
     YAML_ADD_STRING(&emitter, &event, "uiMarkers", event_error, emitter_error);
     YAML_SEQUENCE_START(&emitter, &event, event_error, emitter_error);
-    for (int j = 0; j < nOtherMarkers; j++) {
+    for (uint j = 0; j < nOtherMarkers; j++) {
       YAML_SEQUENCE_START(&emitter, &event, event_error, emitter_error);
       float x = 0.0f;
       memcpy(&x, ptr, 4);
@@ -233,16 +233,16 @@ int NatNet_unpack_yaml(NatNet *nn, size_t *len) {
     YAML_SEQUENCE_END(&emitter, &event);
 
     // rigid bodies
-    int nRigidBodies = 0;
+    uint nRigidBodies = 0;
     memcpy(&nRigidBodies, ptr, 4);
     IPLTOHL(nRigidBodies);
     ptr += 4;
     YAML_ADD_STRING(&emitter, &event, "rigidBodies", event_error,
                     emitter_error);
     YAML_SEQUENCE_START(&emitter, &event, event_error, emitter_error);
-    for (int j = 0; j < nRigidBodies; j++) {
+    for (uint j = 0; j < nRigidBodies; j++) {
       // rigid body pos/ori
-      int ID = 0;
+      uint ID = 0;
       memcpy(&ID, ptr, 4);
       IPLTOHL(ID);
       ptr += 4;
@@ -295,12 +295,12 @@ int NatNet_unpack_yaml(NatNet *nn, size_t *len) {
       YAML_SEQUENCE_END(&emitter, &event);
 
       // associated marker positions
-      int nRigidMarkers = 0;
+      uint nRigidMarkers = 0;
       memcpy(&nRigidMarkers, ptr, 4);
       IPLTOHL(nRigidMarkers);
       ptr += 4;
 
-      int nBytes = nRigidMarkers * 3 * sizeof(float);
+      uint nBytes = nRigidMarkers * 3 * sizeof(float);
       float *markerData = (float *)malloc(nBytes);
       memcpy(markerData, ptr, nBytes);
       ptr += nBytes;
@@ -310,7 +310,7 @@ int NatNet_unpack_yaml(NatNet *nn, size_t *len) {
       if (major >= 2) {
         // associated marker IDs
         nBytes = nRigidMarkers * sizeof(int);
-        int *markerIDs = (int *)malloc(nBytes);
+        uint *markerIDs = (uint *)malloc(nBytes);
         memcpy(markerIDs, ptr, nBytes);
         ptr += nBytes;
 
@@ -319,7 +319,7 @@ int NatNet_unpack_yaml(NatNet *nn, size_t *len) {
         float *markerSizes = (float *)malloc(nBytes);
         memcpy(markerSizes, ptr, nBytes);
         ptr += nBytes;
-        for (int k = 0; k < nRigidMarkers; k++) {
+        for (uint k = 0; k < nRigidMarkers; k++) {
           YAML_MAPPING_START(&emitter, &event, event_error, emitter_error);
           sprintf(value, "%d", LTOHL(markerIDs[k]));
           YAML_ADD_PAIR(&emitter, &event, "ID", value, event_error,
@@ -344,7 +344,7 @@ int NatNet_unpack_yaml(NatNet *nn, size_t *len) {
           free(markerSizes);
 
       } else {
-        for (int k = 0; k < nRigidMarkers; k++) {
+        for (uint k = 0; k < nRigidMarkers; k++) {
           YAML_MAPPING_START(&emitter, &event, event_error, emitter_error);
           sprintf(value, "%d", k);
           YAML_ADD_PAIR(&emitter, &event, "ID", value, event_error,
@@ -399,20 +399,20 @@ int NatNet_unpack_yaml(NatNet *nn, size_t *len) {
 
     // skeletons (version 2.1 and later)
     if (((major == 2) && (minor > 0)) || (major > 2)) {
-      int nSkeletons = 0;
+      uint nSkeletons = 0;
       memcpy(&nSkeletons, ptr, 4);
       IPLTOHL(nSkeletons);
       ptr += 4;
 
-      for (int j = 0; j < nSkeletons; j++) {
+      for (uint j = 0; j < nSkeletons; j++) {
         // skeleton id
-        int skeletonID = 0;
+        uint skeletonID = 0;
         memcpy(&skeletonID, ptr, 4);
         IPLTOHL(skeletonID);
         ptr += 4;
 
         // # of rigid bodies (bones) in skeleton
-        int nRigidBodies = 0;
+        uint nRigidBodies = 0;
         memcpy(&nRigidBodies, ptr, 4);
         IPLTOHL(nRigidBodies);
         ptr += 4;
@@ -420,7 +420,7 @@ int NatNet_unpack_yaml(NatNet *nn, size_t *len) {
 
         for (int i = 0; i < nRigidBodies; i++) {
           // rigid body pos/ori
-          int ID = 0;
+          uint ID = 0;
           memcpy(&ID, ptr, 4);
           IPLTOHL(ID);
           ptr += 4;
@@ -450,12 +450,12 @@ int NatNet_unpack_yaml(NatNet *nn, size_t *len) {
           printf("ori: [%3.2f,%3.2f,%3.2f,%3.2f]\n", qx, qy, qz, qw);
 
           // associated marker positions
-          int nRigidMarkers = 0;
+          uint nRigidMarkers = 0;
           memcpy(&nRigidMarkers, ptr, 4);
           IPLTOHL(nRigidMarkers);
           ptr += 4;
           printf("Marker Count: %d\n", nRigidMarkers);
-          int nBytes = nRigidMarkers * 3 * sizeof(float);
+          uint nBytes = nRigidMarkers * 3 * sizeof(float);
           float *markerData = (float *)malloc(nBytes);
           memcpy(markerData, ptr, nBytes);
           ptr += nBytes;
@@ -472,7 +472,7 @@ int NatNet_unpack_yaml(NatNet *nn, size_t *len) {
           memcpy(markerSizes, ptr, nBytes);
           ptr += nBytes;
 
-          for (int k = 0; k < nRigidMarkers; k++) {
+          for (uint k = 0; k < nRigidMarkers; k++) {
             printf("\tMarker %d: id=%d\tsize=%3.1f\tpos=[%3.2f,%3.2f,%3.2f]\n",
                    k, LTOHL(markerIDs[k]), markerSizes[k], markerData[k * 3],
                    markerData[k * 3 + 1], markerData[k * 3 + 2]);
@@ -516,14 +516,14 @@ int NatNet_unpack_yaml(NatNet *nn, size_t *len) {
       YAML_ADD_STRING(&emitter, &event, "labeledMarkers", event_error,
                       emitter_error);
       YAML_SEQUENCE_START(&emitter, &event, event_error, emitter_error);
-      int nLabeledMarkers = 0;
+      uint nLabeledMarkers = 0;
       memcpy(&nLabeledMarkers, ptr, 4);
       IPLTOHL(nLabeledMarkers);
       ptr += 4;
 
-      for (int j = 0; j < nLabeledMarkers; j++) {
+      for (uint j = 0; j < nLabeledMarkers; j++) {
         // id
-        int ID = 0;
+        uint ID = 0;
         memcpy(&ID, ptr, 4);
         IPLTOHL(ID);
         ptr += 4;
@@ -591,26 +591,26 @@ int NatNet_unpack_yaml(NatNet *nn, size_t *len) {
 
     // Force Plate data (version 2.9 and later)
     if (((major == 2) && (minor >= 9)) || (major > 2)) {
-      int nForcePlates;
+      uint nForcePlates;
       memcpy(&nForcePlates, ptr, 4);
       IPLTOHL(nForcePlates);
       ptr += 4;
-      for (int iForcePlate = 0; iForcePlate < nForcePlates; iForcePlate++) {
+      for (uint iForcePlate = 0; iForcePlate < nForcePlates; iForcePlate++) {
         // ID
-        int ID = 0;
+        uint ID = 0;
         memcpy(&ID, ptr, 4);
         IPLTOHL(ID);
         ptr += 4;
         printf("Force Plate : %d\n", ID);
         
         // Channel Count
-        int nChannels = 0;
+        uint nChannels = 0;
         memcpy(&nChannels, ptr, 4);
         IPLTOHL(nChannels);
         ptr += 4;
         
         // Channel Data
-        for (int i = 0; i < nChannels; i++) {
+        for (uint i = 0; i < nChannels; i++) {
           printf(" Channel %d : ", i);
           int nFrames = 0;
           memcpy(&nFrames, ptr, 4);
@@ -636,11 +636,11 @@ int NatNet_unpack_yaml(NatNet *nn, size_t *len) {
                   emitter_error);
 
     // timecode
-    unsigned int timecode = 0;
+    uint timecode = 0;
     memcpy(&timecode, ptr, 4);
     IPLTOHL(timecode);
     ptr += 4;
-    unsigned int timecodeSub = 0;
+    uint timecodeSub = 0;
     memcpy(&timecodeSub, ptr, 4);
     IPLTOHL(timecodeSub);
     ptr += 4;
