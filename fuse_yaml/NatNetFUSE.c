@@ -47,8 +47,9 @@
 #pragma mark -
 #pragma mark Function Declarations
 
+static bool receive_data(bool frame_aval, size_t *yaml_len);
+static long get_version(NatNet *nn);
 void *DataListenThread(void *dummy);
-long get_version(NatNet *nn);
 
 #pragma mark -
 #pragma mark Function Definitions
@@ -158,6 +159,7 @@ static int NatNet_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
     filler(buf, "..", NULL, 0);
     filler(buf, "test.txt", NULL, 0);
     filler(buf, "frame.yaml", NULL, 0);
+    filler(buf, "frame.raw", NULL, 0);
   }
   else if (strcmp(path, "/info") == 0) {
     filler(buf, ".", NULL, 0);
@@ -191,7 +193,6 @@ static int NatNet_open(const char *path, struct fuse_file_info *fi)
   
   return 0;
 }
-
 
 static int NatNet_read(const char *path, char *buf, size_t size, off_t offset,
                        struct fuse_file_info *fi)
@@ -259,26 +260,7 @@ static int NatNet_read(const char *path, char *buf, size_t size, off_t offset,
     else if (strcmp(path_components[2], "frame.yaml") == 0) {
       static bool frame_aval = false;
       static size_t len = 0;
-      if (!frame_aval) {
-        char szData[20000];
-        long nDataBytesReceived;
-        if (NatNet_bind_data(nn)) {
-          char *msg;
-          asprintf(&msg, "---\nError: Error binding data socket\nErrorMSG: %s\n",
-                   strerror(errno));
-          free(nn->yaml);
-          nn->yaml = msg;
-        }
-        else {
-          nDataBytesReceived = NatNet_recv_data(nn, szData, sizeof(szData));
-          if (nDataBytesReceived > 0 && errno != EINVAL) {
-            NatNet_unpack_yaml(nn, szData, &len);
-          }
-          close(nn->data);
-        }
-        frame_aval = true;
-      }
-      //len = strlen(yaml_buffer);
+      frame_aval = receive_data(frame_aval, &len);
       if (offset < len) {
         if (offset + size > len)
           size = len - offset;
@@ -290,6 +272,22 @@ static int NatNet_read(const char *path, char *buf, size_t size, off_t offset,
       }
       ret = (int)size;
     }
+    else if (strcmp(path_components[2], "frame.raw") == 0) {
+      static bool frame_aval = false;
+      static size_t len = 0;
+      frame_aval = receive_data(frame_aval, &len);
+      if (offset < nn->raw_data_len) {
+        if (offset + size > nn->raw_data_len)
+          size = nn->raw_data_len - offset;
+        memcpy(buf, nn->raw_data + offset, size);
+      }
+      else {
+        size = 0;
+        frame_aval = false;
+      }
+      ret = (int)size;
+    }
+
   }
   else {
     ret = -ENOENT;
@@ -381,8 +379,32 @@ int main(int argc, char *argv[]) {
   
 }
 
+static bool receive_data(bool frame_aval, size_t *yaml_len) {
+  if (!frame_aval) {
+    if (NatNet_bind_data(nn)) {
+      char *msg;
+      asprintf(&msg, "---\nError: Error binding data socket\nErrorMSG: %s\n",
+               strerror(errno));
+      free(nn->yaml);
+      nn->yaml = msg;
+    }
+    else {
+      if (nn->raw_data == NULL) {
+        nn->raw_data = calloc(nn->receive_bufsize, sizeof(char));
+      }
+      nn->raw_data_len = NatNet_recv_data(nn);
+      if (nn->raw_data_len > 0 && errno != EINVAL) {
+        NatNet_unpack_yaml(nn, yaml_len);
+      }
+      close(nn->data);
+    }
+  }
+  return true;
+}
+
+
 // get version Mirko
-long get_version(NatNet *nn) {
+static long get_version(NatNet *nn) {
   // send initial ping command
   NatNet_packet PacketOut;
   PacketOut.iMessage = NAT_PING;
@@ -426,10 +448,10 @@ void *DataListenThread(void *dummy) {
   while (1) {
     // Block until we receive a datagram from the network (from anyone including
     // ourselves)
-    nDataBytesReceived = NatNet_recv_data(nn, szData, sizeof(szData));
+    nDataBytesReceived = NatNet_recv_data(nn);
     if (nDataBytesReceived > 0 && errno != EINVAL) {
 //      NatNet_unpack_all(nn, szData, &len);
-      NatNet_unpack_yaml(nn, szData, &len);
+      NatNet_unpack_yaml(nn, &len);
 //      printf("---\nBodies: %zu\n", nn->last_frame->n_bodies);
 //      for (int i = 0; i < nn->last_frame->n_bodies; i++) {
 //        printf("  Body %d L[%11.6f %11.6f %11.6f]  O[%11.6f %11.6f %11.6f "
@@ -445,6 +467,5 @@ void *DataListenThread(void *dummy) {
 //      printf("Latency: %f\n", nn->last_frame->latency);
     }
   }
-
   return 0;
 }

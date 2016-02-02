@@ -70,10 +70,10 @@ static int yaml_write_handler(void *data, unsigned char *buffer, size_t size) {
 }
 
 
-int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
+int NatNet_unpack_yaml(NatNet *nn, size_t *len) {
   int major = 2; //nn->NatNet_ver[0];
   int minor = 9; //nn->NatNet_ver[1];
-  char *ptr = pData;
+  char *ptr = nn->raw_data;
   
   yaml_emitter_t emitter;
   yaml_event_t event;
@@ -698,7 +698,6 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
   else {
     printf("Unrecognized Packet Type.\n");
   }
-  *len = (size_t)(ptr - pData);
 
   /* Create and emit the SEQUENCE-END event. */
   if (!yaml_mapping_end_event_initialize(&event))
@@ -721,15 +720,20 @@ int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len) {
   yaml_event_delete(&event);
   yaml_emitter_delete(&emitter);
 
+  //*len = (size_t)(ptr - nn->raw_data);
+  *len = strlen(nn->yaml);
+
   return 0;
 
 event_error:
   nn->yaml = calloc(1024, sizeof(char));
   strncpy(nn->yaml, "---\nmessageType: YAML Event Error", 1024);
+  *len = strlen(nn->yaml);
   return -1;
 emitter_error:
   nn->yaml = calloc(1024, sizeof(char));
   strncpy(nn->yaml, "---\nmessageType: YAML Emitter Error", 1024);
+  *len = strlen(nn->yaml);
   return -2;
 }
 

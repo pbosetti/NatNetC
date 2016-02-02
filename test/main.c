@@ -178,14 +178,13 @@ beginning:
   nn->NatNet_ver[1] = 6;
   nn->printf = &NatNet_printf_std;
   
-  char *packed_data = calloc(RCV_BUFSIZE, sizeof(char));
-  memset(packed_data, 0, RCV_BUFSIZE);
   size_t length = 0;
-  NatNet_pack_struct(nn, packed_data, &length);
+
+  NatNet_pack_struct(nn, nn->raw_data, &length);
   
-  NatNet_unpack_yaml(nn, packed_data, &length);
+  NatNet_unpack_yaml(nn, &length);
   
-  NatNet_unpack_yaml(nn, packed_data, &length);
+  NatNet_unpack_yaml(nn, &length);
 
 //  size_t len = 0;
   //NatNet_unpack_all(nn, data, &len);

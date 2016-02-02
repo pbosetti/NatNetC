@@ -75,6 +75,12 @@ void NatNet_free(NatNet *nn);
 
 /*!
  Initialize a newly allocated  NatNet object.
+ 
+ \b Warning: the function initializes the buffer \p NatNet.raw_data to a size of 
+             NatNet.receive_bufsize. If you want to change this size, you have
+            to manually call realloc() or to free() and calloc() it again.
+ \b Warning: the function does not allocate the NatNet.yaml field, which is
+             expected to be automatically allocated by NatNet_unpack_yaml().
  \author Paolo
  \return 0 on success
  \param nn theNatNet struct to be initialized
@@ -157,7 +163,7 @@ int NatNet_send_cmd(NatNet *nn, char *cmd, uint tries);
 long NatNet_recv_cmd(NatNet *nn, char *cmd, size_t len);
 
 /*!
- Receive data from Motive
+ Receive data from Motive into a passed buffer
  \brief Receive data
  \author Paolo
  \return Number of bytes received
@@ -165,17 +171,26 @@ long NatNet_recv_cmd(NatNet *nn, char *cmd, size_t len);
  \params cmd the (externally allocated) buffer where received data will be stored
  \params len the size of the received data (in bytes)
  */
-long NatNet_recv_data(NatNet *nn, char *cmd, size_t len);
+long NatNet_recv_data_into(NatNet *nn, char *cmd, size_t len);
 
 /*!
- Unpack a whole frame of data and put the result into \p nn->last_frame
+ Receive data from Motive into NatNet.raw_data
+ \brief Receive data
+ \author Paolo
+ \return Number of bytes received (also in NatNet.raw_data_len)
+ \params nn NatNet struct
+ */
+size_t NatNet_recv_data(NatNet *nn);
+
+/*!
+ Unpack a whole frame of data (in NatNet.raw_data) and put the result into 
+ \p nn->last_frame
  \brief Unpack into \p NatNet.last_frame
  \author Paolo
  \params nn NatNet struct
- \params pData pointer to data buffer (externally allocated)
  \params len on exit is the size of data
  */
-void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len);
+void NatNet_unpack_all(NatNet *nn, size_t *len);
 
 /*!
  Pack existing frame struct into \p NatNet.last_frame into a binary string in \p data.
@@ -196,7 +211,7 @@ void NatNet_pack_struct(NatNet *nn, char *data, size_t *len);
  \params pData pointer to data buffer (externally allocated)
  \params len on exit is the size of data
  */
-int NatNet_unpack_yaml(NatNet *nn, char *pData, size_t *len);
+int NatNet_unpack_yaml(NatNet *nn, size_t *len);
 #endif
 
 #pragma mark -

@@ -25,6 +25,7 @@ NatNet *NatNet_new(char *my_addr, char *their_addr, char *multicast_addr,
 
 void NatNet_free(NatNet *nn) {
   NatNet_frame_free(nn->last_frame);
+  if (nn->raw_data) free(nn->raw_data);
 #ifdef NATNET_YAML
   if (nn->yaml) {
     free(nn->yaml);
@@ -42,11 +43,7 @@ int NatNet_printf_std(const char * restrict format, ...) {
 
 
 int NatNet_init(NatNet *nn, char *my_addr, char *their_addr,
-                char *multicast_addr, u_short command_port, u_short data_port) {
-  struct sockaddr_in cmd_sockaddr, data_sockaddr;
-  struct in_addr multicast_in_addr;
-  struct ip_mreq mreq;
-  
+                char *multicast_addr, u_short command_port, u_short data_port) {  
   memset(nn, 0, sizeof(*nn));
   strcpy(nn->my_addr, my_addr);
   strcpy(nn->their_addr, their_addr);
@@ -61,24 +58,12 @@ int NatNet_init(NatNet *nn, char *my_addr, char *their_addr,
   if ((nn->last_frame = NatNet_frame_new(0, 0)) == NULL) {
     return -1;
   }
+  nn->raw_data = calloc(nn->receive_bufsize, sizeof(char));
+  nn->raw_data_len = 0;
 #ifdef NATNET_YAML
   nn->yaml = NULL;
 #endif
   nn->printf = &NatNet_printf_noop;
-  
-    // Command socket: socket receiving incoming command replies, broadcast mode
-  cmd_sockaddr.sin_family = AF_INET;
-  cmd_sockaddr.sin_addr.s_addr = inet_addr(nn->my_addr);
-  cmd_sockaddr.sin_port = htons(0);
-  
-    // Data socket: socket that accepts incoming data packets on nn->data_port
-  data_sockaddr.sin_family = AF_INET;
-  data_sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-  data_sockaddr.sin_port = htons(nn->data_port);
-    // Multicast group to which data socket is added
-  multicast_in_addr.s_addr = inet_addr(nn->multicast_addr);
-  mreq.imr_multiaddr = multicast_in_addr;
-  mreq.imr_interface = cmd_sockaddr.sin_addr;
   
     // Host socket address, to which commands will be sent
   nn->host_sockaddr.sin_family = AF_INET;
@@ -97,11 +82,27 @@ int NatNet_bind(NatNet *nn) {
 
 int NatNet_bind_data(NatNet *nn) {
   struct sockaddr_in data_sockaddr;
+  struct in_addr multicast_in_addr;
   struct ip_mreq mreq;
   int opt_value = 0;
   int retval = 0;
 
-
+  struct sockaddr_in cmd_sockaddr;
+  
+  // Command socket: socket receiving incoming command replies, broadcast mode
+  cmd_sockaddr.sin_family = AF_INET;
+  cmd_sockaddr.sin_addr.s_addr = inet_addr(nn->my_addr);
+  cmd_sockaddr.sin_port = htons(0);
+  
+  // Data socket: socket that accepts incoming data packets on nn->data_port
+  data_sockaddr.sin_family = AF_INET;
+  data_sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+  data_sockaddr.sin_port = htons(nn->data_port);
+  // Multicast group to which data socket is added
+  multicast_in_addr.s_addr = inet_addr(nn->multicast_addr);
+  mreq.imr_multiaddr = multicast_in_addr;
+  mreq.imr_interface = cmd_sockaddr.sin_addr;
+  
   // Data socket configuration
   if ((nn->data = socket(AF_INET, SOCK_DGRAM, 0)) == INVALID_SOCKET) {
     perror("Could not create socket");
@@ -147,6 +148,11 @@ int NatNet_bind_command(NatNet *nn) {
   struct sockaddr_in cmd_sockaddr;
   int opt_value = 0;
   int retval = 0;
+  
+  // Command socket: socket receiving incoming command replies, broadcast mode
+  cmd_sockaddr.sin_family = AF_INET;
+  cmd_sockaddr.sin_addr.s_addr = inet_addr(nn->my_addr);
+  cmd_sockaddr.sin_port = htons(0);
   
   // Command socket configuration
   if ((nn->command = socket(AF_INET, SOCK_DGRAM, 0)) == INVALID_SOCKET) {
@@ -246,7 +252,7 @@ long NatNet_recv_cmd(NatNet *nn, char *data, size_t len) {
   return bytes_received;
 }
 
-long NatNet_recv_data(NatNet *nn, char *data, size_t len) {
+long NatNet_recv_data_into(NatNet *nn, char *data, size_t len) {
   long bytes_received;
   socklen_t addr_len = sizeof(struct sockaddr);
   bytes_received = recvfrom(nn->data, data, len, 0,
@@ -254,15 +260,22 @@ long NatNet_recv_data(NatNet *nn, char *data, size_t len) {
   return bytes_received;
 }
 
+size_t NatNet_recv_data(NatNet *nn) {
+  socklen_t addr_len = sizeof(struct sockaddr);
+  nn->raw_data_len = recvfrom(nn->data, nn->raw_data, nn->receive_bufsize, 0,
+                            (struct sockaddr *)&nn->host_sockaddr, &addr_len);
+  return nn->raw_data_len;
+}
 
 
-void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
+
+void NatNet_unpack_all(NatNet *nn, size_t *len) {
   // Check where's the problem here (on windows, version goes here)
 //  int major = nn->NatNet_ver[0];
 //  int minor = nn->NatNet_ver[1];
   int major = nn->server_ver[0];
   int minor = nn->server_ver[1];
-  char *ptr = pData;
+  char *ptr = nn->raw_data;
   
   nn->printf("Begin Packet\n-------\n");
   
@@ -936,7 +949,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
   } else {
     nn->printf("Unrecognized Packet Type.\n");
   }
-  *len = (size_t)(ptr - pData);
+  *len = (size_t)(ptr - nn->raw_data);
 
 }
 
