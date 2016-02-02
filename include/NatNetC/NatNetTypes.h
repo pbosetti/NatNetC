@@ -27,7 +27,7 @@
 
 // max size of packet (actual packet size is dynamic)
 #define MAX_PACKETSIZE 100000
-#define RCV_BUFSIZE 0x100000
+#define RCV_BUFSIZE 20000
 #define MAX_NAMELENGTH 256
 
 
@@ -164,6 +164,8 @@ typedef struct {
   int NatNet_ver[4];
   int server_ver[4];
   NatNet_frame *last_frame;
+  char *raw_data;
+  size_t raw_data_len;
 #ifdef NATNET_YAML
   char * yaml;
 #endif

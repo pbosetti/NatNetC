@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
   NatNet *nn = NatNet_new(szMyIPAddress, szServerIPAddress, MULTICAST_ADDRESS,
                           PORT_COMMAND, PORT_DATA);
   if (NatNet_bind(nn)) {
-    perror("Error binding NetNat");
+    perror("Error binding NatNet");
     return -1;
   }
 
@@ -252,9 +252,9 @@ void *DataListenThread(void *dummy) {
   while (1) {
     // Block until we receive a datagram from the network (from anyone including
     // ourselves)
-    nDataBytesReceived = NatNet_recv_data(nn, szData, sizeof(szData));
+    nDataBytesReceived = NatNet_recv_data(nn);
     if (nDataBytesReceived > 0 && errno != EINVAL) {
-      NatNet_unpack_all(nn, szData, &len);
+      NatNet_unpack_all(nn, &len);
       printf("---\nBodies: %zu\n", nn->last_frame->n_bodies);
       for (int i = 0; i < nn->last_frame->n_bodies; i++) {
         printf("  Body %d L[%11.6f %11.6f %11.6f]  O[%11.6f %11.6f %11.6f %11.6f]\n", i,

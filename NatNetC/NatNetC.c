@@ -25,6 +25,7 @@ NatNet *NatNet_new(char *my_addr, char *their_addr, char *multicast_addr,
 
 void NatNet_free(NatNet *nn) {
   NatNet_frame_free(nn->last_frame);
+  if (nn->raw_data) free(nn->raw_data);
 #ifdef NATNET_YAML
   if (nn->yaml) {
     free(nn->yaml);
@@ -42,7 +43,7 @@ int NatNet_printf_std(const char * restrict format, ...) {
 
 
 int NatNet_init(NatNet *nn, char *my_addr, char *their_addr,
-                char *multicast_addr, u_short command_port, u_short data_port) {
+                char *multicast_addr, u_short command_port, u_short data_port) {  
   memset(nn, 0, sizeof(*nn));
   strcpy(nn->my_addr, my_addr);
   strcpy(nn->their_addr, their_addr);
@@ -57,25 +58,42 @@ int NatNet_init(NatNet *nn, char *my_addr, char *their_addr,
   if ((nn->last_frame = NatNet_frame_new(0, 0)) == NULL) {
     return -1;
   }
+  nn->raw_data = calloc(nn->receive_bufsize, sizeof(char));
+  nn->raw_data_len = 0;
 #ifdef NATNET_YAML
   nn->yaml = NULL;
 #endif
   nn->printf = &NatNet_printf_noop;
+  
+    // Host socket address, to which commands will be sent
+  nn->host_sockaddr.sin_family = AF_INET;
+  nn->host_sockaddr.sin_addr.s_addr = inet_addr(nn->their_addr);
+  nn->host_sockaddr.sin_port = htons(nn->command_port);
+
   return 0;
 }
 
 int NatNet_bind(NatNet *nn) {
-  struct sockaddr_in cmd_sockaddr, data_sockaddr;
+  int retval = 0;
+  retval += NatNet_bind_command(nn);
+  retval += NatNet_bind_data(nn);
+  return retval;
+}
+
+int NatNet_bind_data(NatNet *nn) {
+  struct sockaddr_in data_sockaddr;
   struct in_addr multicast_in_addr;
   struct ip_mreq mreq;
   int opt_value = 0;
   int retval = 0;
 
+  struct sockaddr_in cmd_sockaddr;
+  
   // Command socket: socket receiving incoming command replies, broadcast mode
   cmd_sockaddr.sin_family = AF_INET;
   cmd_sockaddr.sin_addr.s_addr = inet_addr(nn->my_addr);
   cmd_sockaddr.sin_port = htons(0);
-
+  
   // Data socket: socket that accepts incoming data packets on nn->data_port
   data_sockaddr.sin_family = AF_INET;
   data_sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -84,12 +102,7 @@ int NatNet_bind(NatNet *nn) {
   multicast_in_addr.s_addr = inet_addr(nn->multicast_addr);
   mreq.imr_multiaddr = multicast_in_addr;
   mreq.imr_interface = cmd_sockaddr.sin_addr;
-
-  // Host socket address, to which commands will be sent
-  nn->host_sockaddr.sin_family = AF_INET;
-  nn->host_sockaddr.sin_addr.s_addr = inet_addr(nn->their_addr);
-  nn->host_sockaddr.sin_port = htons(nn->command_port);
-
+  
   // Data socket configuration
   if ((nn->data = socket(AF_INET, SOCK_DGRAM, 0)) == INVALID_SOCKET) {
     perror("Could not create socket");
@@ -127,6 +140,20 @@ int NatNet_bind(NatNet *nn) {
     return retval;
   }
 
+  return 0;
+}
+
+
+int NatNet_bind_command(NatNet *nn) {
+  struct sockaddr_in cmd_sockaddr;
+  int opt_value = 0;
+  int retval = 0;
+  
+  // Command socket: socket receiving incoming command replies, broadcast mode
+  cmd_sockaddr.sin_family = AF_INET;
+  cmd_sockaddr.sin_addr.s_addr = inet_addr(nn->my_addr);
+  cmd_sockaddr.sin_port = htons(0);
+  
   // Command socket configuration
   if ((nn->command = socket(AF_INET, SOCK_DGRAM, 0)) == INVALID_SOCKET) {
     perror("Could not create command socket");
@@ -148,17 +175,24 @@ int NatNet_bind(NatNet *nn) {
     perror("Binding command socket");
     retval--;
   }
-
+  
   if (retval != 0) {
     close(nn->data);
     close(nn->command);
     return retval;
   }
-
+  
   return 0;
 }
 
-uint NatNet_send_pkt(NatNet *nn, NatNet_packet packet, uint tries) {
+int NatNet_close(NatNet *nn) {
+  int result;
+  result = close(nn->data);
+  result += close(nn->command);
+  return result;
+}
+
+int NatNet_send_pkt(NatNet *nn, NatNet_packet packet, uint tries) {
   ssize_t sent = 0;
   if (tries < 1) {
     tries = 1;
@@ -174,7 +208,7 @@ uint NatNet_send_pkt(NatNet *nn, NatNet_packet packet, uint tries) {
   return -1;
 }
 
-uint NatNet_send_cmd(NatNet *nn, char *cmd, uint tries) {
+int NatNet_send_cmd(NatNet *nn, char *cmd, uint tries) {
   // reset global result
   nn->cmd_response.response = -1;
   // format command packet
@@ -199,11 +233,11 @@ uint NatNet_send_cmd(NatNet *nn, char *cmd, uint tries) {
     }
 
     if (nn->cmd_response.response == -1) {
-      printf("Command response not received (timeout)\n");
+      nn->printf("Command response not received (timeout)\n");
     } else if (nn->cmd_response.response == 0) {
-      printf("Command response received with success\n");
+      nn->printf("Command response received with success\n");
     } else if (nn->cmd_response.response > 0) {
-      printf("Command response received with errors\n");
+      nn->printf("Command response received with errors\n");
     }
   }
 
@@ -218,7 +252,7 @@ long NatNet_recv_cmd(NatNet *nn, char *data, size_t len) {
   return bytes_received;
 }
 
-long NatNet_recv_data(NatNet *nn, char *data, size_t len) {
+long NatNet_recv_data_into(NatNet *nn, char *data, size_t len) {
   long bytes_received;
   socklen_t addr_len = sizeof(struct sockaddr);
   bytes_received = recvfrom(nn->data, data, len, 0,
@@ -226,40 +260,36 @@ long NatNet_recv_data(NatNet *nn, char *data, size_t len) {
   return bytes_received;
 }
 
-#define READ_AND_ADVANCE(dst, src, len, FILE)                                  \
-  memcpy(dst, src, 2);                                                         \
-  if (FILE) {                                                                  \
-    fwrite(src, sizeof(char), len, FILE);                                      \
-  }                                                                            \
-  ptr += len;
+size_t NatNet_recv_data(NatNet *nn) {
+  socklen_t addr_len = sizeof(struct sockaddr);
+  nn->raw_data_len = recvfrom(nn->data, nn->raw_data, nn->receive_bufsize, 0,
+                            (struct sockaddr *)&nn->host_sockaddr, &addr_len);
+  return nn->raw_data_len;
+}
 
 
-#ifndef _ntohs
-#define _ntohs(i) i
-#define _ntohl(i) i
-#endif
 
-void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
+void NatNet_unpack_all(NatNet *nn, size_t *len) {
   // Check where's the problem here (on windows, version goes here)
 //  int major = nn->NatNet_ver[0];
 //  int minor = nn->NatNet_ver[1];
   int major = nn->server_ver[0];
   int minor = nn->server_ver[1];
-  char *ptr = pData;
+  char *ptr = nn->raw_data;
   
   nn->printf("Begin Packet\n-------\n");
   
   // message ID
   short MessageID = 0;
   memcpy(&MessageID, ptr, 2);
-  MessageID = _ntohs(MessageID);
+  IPLTOHS(MessageID);
   ptr += 2;
   nn->printf("Message ID : %d\n", MessageID);
   
   // size
   short nBytes = 0;
   memcpy(&nBytes, ptr, 2);
-  nBytes = _ntohs(nBytes);
+  IPLTOHS(nBytes);
   ptr += 2;
   nn->printf("Byte count : %d\n", nBytes);
   
@@ -269,7 +299,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
     // frame number
     int frameNumber = 0;
     memcpy(&frameNumber, ptr, 4);
-    frameNumber = _ntohl(frameNumber);
+    IPLTOHL(frameNumber);
     ptr += 4;
     nn->printf("Frame # : %d\n", frameNumber);
     frame->ID = frameNumber;
@@ -278,7 +308,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
     // number of data sets (markersets, rigidbodies, etc)
     int nMarkerSets = 0;
     memcpy(&nMarkerSets, ptr, 4);
-    nMarkerSets = _ntohl(nMarkerSets);
+    IPLTOHL(nMarkerSets);
     ptr += 4;
     nn->printf("Marker Set Count : %d\n", nMarkerSets);
     NatNet_frame_alloc_marker_sets(frame, nMarkerSets);
@@ -294,7 +324,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
       // marker data
       int nMarkers = 0;
       memcpy(&nMarkers, ptr, 4);
-      nMarkers = _ntohl(nMarkers);
+      IPLTOHL(nMarkers);
       ptr += 4;
       nn->printf("Marker Count : %d\n", nMarkers);
       
@@ -325,7 +355,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
     // unidentified markers
     int nOtherMarkers = 0;
     memcpy(&nOtherMarkers, ptr, 4);
-    nOtherMarkers = _ntohl(nOtherMarkers);
+    IPLTOHL(nOtherMarkers);
     ptr += 4;
     nn->printf("Unidentified Marker Count : %d\n", nOtherMarkers);
     NatNet_frame_alloc_ui_markers(frame, nOtherMarkers);
@@ -350,7 +380,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
     // rigid bodies
     int nRigidBodies = 0;
     memcpy(&nRigidBodies, ptr, 4);
-    nRigidBodies = _ntohl(nRigidBodies);
+    IPLTOHL(nRigidBodies);
     ptr += 4;
     nn->printf("Rigid Body Count : %d\n", nRigidBodies);
     NatNet_frame_alloc_bodies(frame, nRigidBodies);
@@ -359,7 +389,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
       // rigid body pos/ori
       int ID = 0;
       memcpy(&ID, ptr, 4);
-      ID = _ntohl(ID);
+      IPLTOHL(ID);
       ptr += 4;
       float x = 0.0f;
       memcpy(&x, ptr, 4);
@@ -389,7 +419,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
       // associated marker positions
       int nRigidMarkers = 0;
       memcpy(&nRigidMarkers, ptr, 4);
-      nRigidMarkers = _ntohl(nRigidMarkers);
+      IPLTOHL(nRigidMarkers);
       ptr += 4;
       nn->printf("Marker Count: %d\n", nRigidMarkers);
       int nBytes = nRigidMarkers * 3 * sizeof(float);
@@ -428,7 +458,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
         
         for (int k = 0; k < nRigidMarkers; k++) {
           nn->printf("\tMarker %d: id=%d\tsize=%3.1f\tpos=[%3.2f,%3.2f,%3.2f]\n", k,
-                 _ntohl(markerIDs[k]), markerSizes[k], markerData[k * 3],
+                 LTOHL(markerIDs[k]), markerSizes[k], markerData[k * 3],
                  markerData[k * 3 + 1], markerData[k * 3 + 2]);
           frame->bodies[j]->markers[k].x = markerData[k * 3];
           frame->bodies[j]->markers[k].y = markerData[k * 3 + 1];
@@ -469,7 +499,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
         // params
         short params = 0;
         memcpy(&params, ptr, 2);
-        params = _ntohs(params);
+        IPLTOHS(params);
         ptr += 2;
         bool bTrackingValid =
         params &
@@ -483,7 +513,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
     if (((major == 2) && (minor > 0)) || (major > 2)) {
       int nSkeletons = 0;
       memcpy(&nSkeletons, ptr, 4);
-      nSkeletons = _ntohl(nSkeletons);
+      IPLTOHL(nSkeletons);
       ptr += 4;
       nn->printf("Skeleton Count : %d\n", nSkeletons);
       NatNet_frame_alloc_skeletons(frame, nSkeletons);
@@ -491,13 +521,13 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
         // skeleton id
         int skeletonID = 0;
         memcpy(&skeletonID, ptr, 4);
-        skeletonID = _ntohl(skeletonID);
+        IPLTOHL(skeletonID);
         ptr += 4;
         
         // # of rigid bodies (bones) in skeleton
         int nRigidBodies = 0;
         memcpy(&nRigidBodies, ptr, 4);
-        nRigidBodies = _ntohl(nRigidBodies);
+        IPLTOHL(nRigidBodies);
         ptr += 4;
         nn->printf("Rigid Body Count : %d\n", nRigidBodies);
         
@@ -513,7 +543,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
           // rigid body pos/ori
           int ID = 0;
           memcpy(&ID, ptr, 4);
-          ID = _ntohl(ID);
+          IPLTOHL(ID);
           ptr += 4;
           float x = 0.0f;
           memcpy(&x, ptr, 4);
@@ -543,7 +573,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
           // associated marker positions
           int nRigidMarkers = 0;
           memcpy(&nRigidMarkers, ptr, 4);
-          nRigidMarkers = _ntohl(nRigidMarkers);
+          IPLTOHL(nRigidMarkers);
           ptr += 4;
           nn->printf("Marker Count: %d\n", nRigidMarkers);
           int nBytes = nRigidMarkers * 3 * sizeof(float);
@@ -580,7 +610,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
           
           for (int k = 0; k < nRigidMarkers; k++) {
             nn->printf("\tMarker %d: id=%d\tsize=%3.1f\tpos=[%3.2f,%3.2f,%3.2f]\n",
-                   k, _ntohl(markerIDs[k]), markerSizes[k], markerData[k * 3],
+                   k, LTOHL(markerIDs[k]), markerSizes[k], markerData[k * 3],
                    markerData[k * 3 + 1], markerData[k * 3 + 2]);
             frame->skeletons[j]->bodies[i]->markers[k].x = markerData[k * 3];
             frame->skeletons[j]->bodies[i]->markers[k].y = markerData[k * 3 + 1];
@@ -602,7 +632,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
             // params
             short params = 0;
             memcpy(&params, ptr, 2);
-            params = _ntohs(params);
+            IPLTOHS(params);
             ptr += 2;
             bool bTrackingValid = params & 0x01; // 0x01 : rigid body was
                                                  // successfully tracked in this
@@ -627,7 +657,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
     if (((major == 2) && (minor >= 3)) || (major > 2)) {
       int nLabeledMarkers = 0;
       memcpy(&nLabeledMarkers, ptr, 4);
-      nLabeledMarkers = _ntohl(nLabeledMarkers);
+      IPLTOHL(nLabeledMarkers);
       ptr += 4;
       nn->printf("Labeled Marker Count : %d\n", nLabeledMarkers);
       NatNet_frame_alloc_labeled_markers(frame, nLabeledMarkers);
@@ -636,7 +666,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
         // id
         int ID = 0;
         memcpy(&ID, ptr, 4);
-        ID = _ntohl(ID);
+        IPLTOHL(ID);
         ptr += 4;
         // x
         float x = 0.0f;
@@ -660,7 +690,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
           // marker params
           short params = 0;
           memcpy(&params, ptr, 2);
-          params = _ntohs(params);
+          IPLTOHS(params);
           ptr += 2;
           bool bOccluded =
           params & 0x01; // marker was not visible (occluded) in this frame
@@ -689,20 +719,20 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
     if (((major == 2) && (minor >= 9)) || (major > 2)) {
       int nForcePlates;
       memcpy(&nForcePlates, ptr, 4);
-      nForcePlates = _ntohl(nForcePlates);
+      IPLTOHL(nForcePlates);
       ptr += 4;
       for (int iForcePlate = 0; iForcePlate < nForcePlates; iForcePlate++) {
         // ID
         int ID = 0;
         memcpy(&ID, ptr, 4);
-        ID = _ntohl(ID);
+        IPLTOHL(ID);
         ptr += 4;
         nn->printf("Force Plate : %d\n", ID);
         
         // Channel Count
         int nChannels = 0;
         memcpy(&nChannels, ptr, 4);
-        nChannels = _ntohl(nChannels);
+        IPLTOHL(nChannels);
         ptr += 4;
         
         // Channel Data
@@ -710,7 +740,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
           nn->printf(" Channel %d : ", i);
           int nFrames = 0;
           memcpy(&nFrames, ptr, 4);
-          nFrames = _ntohl(nFrames);
+          IPLTOHL(nFrames);
           ptr += 4;
           for (int j = 0; j < nFrames; j++) {
             float val = 0.0f;
@@ -733,11 +763,11 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
     // timecode
     unsigned int timecode = 0;
     memcpy(&timecode, ptr, 4);
-    timecode = _ntohl(timecode);
+    IPLTOHL(timecode);
     ptr += 4;
     unsigned int timecodeSub = 0;
     memcpy(&timecodeSub, ptr, 4);
-    timecodeSub = _ntohl(timecodeSub);
+    IPLTOHL(timecodeSub);
     ptr += 4;
     frame->timecode = timecode;
     frame->sub_timecode = timecodeSub;
@@ -762,7 +792,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
     // frame params
     short params = 0;
     memcpy(&params, ptr, 2);
-    params = _ntohs(params);
+    IPLTOHS(params);
     ptr += 2;
     bool bIsRecording = params & 0x01; // 0x01 Motive is recording
     bool bTrackedModelsChanged =
@@ -774,7 +804,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
     // end of data tag
     int eod = 0;
     memcpy(&eod, ptr, 4);
-    eod = _ntohl(eod);
+    IPLTOHL(eod);
     ptr += 4;
     nn->printf("End Packet\n-------------\n");
     
@@ -783,7 +813,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
     // number of datasets
     int nDatasets = 0;
     memcpy(&nDatasets, ptr, 4);
-    nDatasets = _ntohl(nDatasets);
+    IPLTOHL(nDatasets);
     ptr += 4;
     nn->printf("Dataset Count : %d\n", nDatasets);
     
@@ -792,7 +822,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
       
       int type = 0;
       memcpy(&type, ptr, 4);
-      type = _ntohl(type);
+      IPLTOHL(type);
       ptr += 4;
       nn->printf("Type %d: %d\n", i, type);
       
@@ -808,7 +838,7 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
         // marker data
         int nMarkers = 0;
         memcpy(&nMarkers, ptr, 4);
-        nMarkers = _ntohl(nMarkers);
+        IPLTOHL(nMarkers);
         ptr += 4;
         nn->printf("Marker Count : %d\n", nMarkers);
         
@@ -831,13 +861,13 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
         
         int ID = 0;
         memcpy(&ID, ptr, 4);
-        ID = _ntohl(ID);
+        IPLTOHL(ID);
         ptr += 4;
         nn->printf("ID : %d\n", ID);
         
         int parentID = 0;
         memcpy(&parentID, ptr, 4);
-        parentID = _ntohl(parentID);
+        IPLTOHL(parentID);
         ptr += 4;
         nn->printf("Parent ID : %d\n", parentID);
         
@@ -865,13 +895,13 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
         
         int ID = 0;
         memcpy(&ID, ptr, 4);
-        ID = _ntohl(ID);
+        IPLTOHL(ID);
         ptr += 4;
         nn->printf("ID : %d\n", ID);
         
         int nRigidBodies = 0;
         memcpy(&nRigidBodies, ptr, 4);
-        nRigidBodies = _ntohl(nRigidBodies);
+        IPLTOHL(nRigidBodies);
         ptr += 4;
         nn->printf("RigidBody (Bone) Count : %d\n", nRigidBodies);
         
@@ -886,13 +916,13 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
           
           int ID = 0;
           memcpy(&ID, ptr, 4);
-          ID = _ntohl(ID);
+          IPLTOHL(ID);
           ptr += 4;
           nn->printf("RigidBody ID : %d\n", ID);
           
           int parentID = 0;
           memcpy(&parentID, ptr, 4);
-          parentID = _ntohl(parentID);
+          IPLTOHL(parentID);
           ptr += 4;
           nn->printf("Parent ID : %d\n", parentID);
           
@@ -919,19 +949,475 @@ void NatNet_unpack_all(NatNet *nn, char *pData, size_t *len) {
   } else {
     nn->printf("Unrecognized Packet Type.\n");
   }
-  *len = (size_t)(ptr - pData);
+  *len = (size_t)(ptr - nn->raw_data);
 
 }
 
-#ifndef _ntohs
-#undef _ntohs
-#undef _ntohl
-#endif
 
+void NatNet_pack_struct(NatNet *nn, char *data, size_t *len) {
+  // Check where's the problem here (on windows, version goes here)
+  //  int major = nn->NatNet_ver[0];
+  //  int minor = nn->NatNet_ver[1];
+  int major = nn->server_ver[0];
+  int minor = nn->server_ver[1];
+  char *ptr = data;
+  NatNet_frame *frame = nn->last_frame;
+
+  nn->printf("Begin Packet\n-------\n");
+  
+  // message ID
+  short MessageID = 7;
+  IPLTOHS(MessageID);
+  memcpy(ptr, &MessageID, 2);
+  ptr += 2;
+  nn->printf("Message ID : %d\n", MessageID);
+  
+  //leave space for nbytes
+  ptr += 2;
+  
+  // frame number
+  unsigned int frameNumber = (unsigned int)frame->ID;
+  IPLTOHL(frameNumber);
+  memcpy(ptr, &frameNumber, 4);
+  ptr += 4;
+  nn->printf("Frame # : %d\n", frameNumber);
+  
+  // number of data sets (markersets, rigidbodies, etc)
+  uint nMarkerSets = (uint)frame->n_marker_sets;
+  IPLTOHL(nMarkerSets);
+  memcpy(ptr, &nMarkerSets, 4);
+  ptr += 4;
+  nn->printf("Marker Set Count : %d\n", nMarkerSets);
+  
+  for (int i = 0; i < nMarkerSets; i++) {
+    // Markerset name
+    char *szName = frame->marker_sets[i]->name;
+    strncpy(ptr, szName, 256);
+    int nDataBytes = (int)strlen(szName) + 1;
+    ptr += nDataBytes;
+    nn->printf("Model Name: %s\n", szName);
+    
+    // marker data
+    uint nMarkers = (uint)frame->marker_sets[i]->n_markers;
+    IPLTOHL(nMarkers);
+    memcpy(ptr, &nMarkers, 4);
+    ptr += 4;
+    nn->printf("Marker Count : %d\n", nMarkers);
+    
+    for (int j = 0; j < nMarkers; j++) {
+      float x = frame->marker_sets[i]->markers[j].x;
+      memcpy(ptr, &x, 4);
+      ptr += 4;
+      float y = frame->marker_sets[i]->markers[j].x;
+      memcpy(ptr, &y, 4);
+      ptr += 4;
+      float z = frame->marker_sets[i]->markers[j].x;
+      memcpy(ptr, &z, 4);
+      ptr += 4;
+      nn->printf("\tMarker %d : [x=%3.2f,y=%3.2f,z=%3.2f]\n", j, x, y, z);
+    }
+  }
+
+  // unidentified markers
+  uint nOtherMarkers = (uint)frame->n_ui_markers;
+  IPLTOHL(nOtherMarkers);
+  memcpy(ptr, &nOtherMarkers, 4);
+  ptr += 4;
+  nn->printf("Unidentified Marker Count : %d\n", nOtherMarkers);
+  
+  for (int j = 0; j < nOtherMarkers; j++) {
+    float x = frame->ui_markers[j].x;
+    memcpy(ptr, &x, 4);
+    ptr += 4;
+    float y = frame->ui_markers[j].y;
+    memcpy(ptr, &y, 4);
+    ptr += 4;
+    float z = frame->ui_markers[j].z;
+    memcpy(ptr, &z, 4);
+    ptr += 4;
+    nn->printf("\tMarker %d : pos = [%3.2f,%3.2f,%3.2f]\n", j, x, y, z);
+  }
+  
+  
+  // rigid bodies
+  uint nRigidBodies = (uint)frame->n_bodies;
+  IPLTOHL(nRigidBodies);
+  memcpy(ptr, &nRigidBodies, 4);
+  ptr += 4;
+  nn->printf("Rigid Body Count : %d\n", nRigidBodies);
+  
+  for (int j = 0; j < nRigidBodies; j++) {
+    // rigid body pos/ori
+    uint ID = (uint)frame->bodies[j]->ID;
+    IPLTOHL(ID);
+    memcpy(ptr, &ID, 4);
+    ptr += 4;
+    float x = frame->bodies[j]->loc.x;
+    memcpy(ptr, &x, 4);
+    ptr += 4;
+    float y = frame->bodies[j]->loc.y;
+    memcpy(ptr, &y, 4);
+    ptr += 4;
+    float z = frame->bodies[j]->loc.z;
+    memcpy(ptr, &z, 4);
+    ptr += 4;
+    float qx = frame->bodies[j]->ori.qx;
+    memcpy(ptr, &qx, 4);
+    ptr += 4;
+    float qy = frame->bodies[j]->ori.qy;
+    memcpy(ptr, &qy, 4);
+    ptr += 4;
+    float qz = frame->bodies[j]->ori.qz;
+    memcpy(ptr, &qz, 4);
+    ptr += 4;
+    float qw = frame->bodies[j]->ori.qw;
+    memcpy(ptr, &qw, 4);
+    ptr += 4;
+    nn->printf("ID : %d\n", ID);
+    nn->printf("pos: [%3.2f,%3.2f,%3.2f]\n", x, y, z);
+    nn->printf("ori: [%3.2f,%3.2f,%3.2f,%3.2f]\n", qx, qy, qz, qw);
+    
+    // associated marker positions
+    uint nRigidMarkers = (uint)frame->bodies[j]->n_markers;
+    IPLTOHL(nRigidMarkers);
+    memcpy(ptr, &nRigidMarkers, 4);
+    ptr += 4;
+    nn->printf("Marker Count: %d\n", nRigidMarkers);
+    
+    for (int k = 0; k < nRigidMarkers; k++) {
+      float pos[3] = {
+        frame->bodies[j]->markers[k].x,
+        frame->bodies[j]->markers[k].y,
+        frame->bodies[j]->markers[k].z
+      };
+      memcpy(ptr, &pos, sizeof(pos));
+      ptr += sizeof(pos);
+    }
+    
+    for (int k = 0; k < nRigidMarkers; k++) {
+      int ID = LTOHL(k);
+      memcpy(ptr, &ID, sizeof(int));
+      ptr += sizeof(int);
+    }
+
+    for (int k = 0; k < nRigidMarkers; k++) {
+      float size = frame->bodies[j]->markers[k].w;
+      memcpy(ptr, &size, sizeof(float));
+      ptr += sizeof(float);
+    }
+    
+    // Mean marker error
+    float fError = frame->bodies[j]->error;
+    memcpy(ptr, &fError, 4);
+    ptr += 4;
+    nn->printf("Mean marker error: %3.2f\n", fError);
+    
+    // 2.6 and later
+    // params
+    short params = frame->bodies[j]->tracking_valid;
+    IPLTOHS(params);
+    memcpy(ptr, &params, 2);
+    ptr += 2;
+    
+  } // next rigid body
+  
+  // skeletons (version 2.1 and later)
+  int nSkeletons = 0;  // Niente skeletons ****
+  IPLTOHL(nSkeletons);
+  memcpy(ptr, &nSkeletons, 4);
+  ptr += 4;
+  nn->printf("Skeleton Count : %d\n", nSkeletons);
+
+#if 0
+  // ARRIVATO FIN QUI *******
+  for (int j = 0; j < nSkeletons; j++) {
+    // skeleton id
+    int skeletonID = 0;
+    memcpy(&skeletonID, ptr, 4);
+    IPLTOHL(skeletonID);
+    ptr += 4;
+    
+    // # of rigid bodies (bones) in skeleton
+    int nRigidBodies = 0;
+    memcpy(&nRigidBodies, ptr, 4);
+    IPLTOHL(nRigidBodies);
+    ptr += 4;
+    nn->printf("Rigid Body Count : %d\n", nRigidBodies);
+    
+    if (!frame->skeletons[j]) {
+      frame->skeletons[j] = NatNet_skeleton_new(nRigidBodies);
+    }
+    else {
+      NatNet_skeleton_alloc_bodies(frame->skeletons[j], nRigidBodies);
+    }
+    frame->skeletons[j]->ID = skeletonID;
+    
+    for (int i = 0; i < nRigidBodies; i++) {
+      // rigid body pos/ori
+      int ID = 0;
+      memcpy(&ID, ptr, 4);
+      IPLTOHL(ID);
+      ptr += 4;
+      float x = 0.0f;
+      memcpy(&x, ptr, 4);
+      ptr += 4;
+      float y = 0.0f;
+      memcpy(&y, ptr, 4);
+      ptr += 4;
+      float z = 0.0f;
+      memcpy(&z, ptr, 4);
+      ptr += 4;
+      float qx = 0;
+      memcpy(&qx, ptr, 4);
+      ptr += 4;
+      float qy = 0;
+      memcpy(&qy, ptr, 4);
+      ptr += 4;
+      float qz = 0;
+      memcpy(&qz, ptr, 4);
+      ptr += 4;
+      float qw = 0;
+      memcpy(&qw, ptr, 4);
+      ptr += 4;
+      nn->printf("ID : %d\n", ID);
+      nn->printf("pos: [%3.2f,%3.2f,%3.2f]\n", x, y, z);
+      nn->printf("ori: [%3.2f,%3.2f,%3.2f,%3.2f]\n", qx, qy, qz, qw);
+      
+      // associated marker positions
+      int nRigidMarkers = 0;
+      memcpy(&nRigidMarkers, ptr, 4);
+      IPLTOHL(nRigidMarkers);
+      ptr += 4;
+      nn->printf("Marker Count: %d\n", nRigidMarkers);
+      int nBytes = nRigidMarkers * 3 * sizeof(float);
+      float *markerData = (float *)malloc(nBytes);
+      memcpy(markerData, ptr, nBytes);
+      ptr += nBytes;
+      
+      // associated marker IDs
+      nBytes = nRigidMarkers * sizeof(int);
+      int *markerIDs = (int *)malloc(nBytes);
+      memcpy(markerIDs, ptr, nBytes);
+      ptr += nBytes;
+      
+      // associated marker sizes
+      nBytes = nRigidMarkers * sizeof(float);
+      float *markerSizes = (float *)malloc(nBytes);
+      memcpy(markerSizes, ptr, nBytes);
+      ptr += nBytes;
+      
+      if (!frame->skeletons[j]->bodies[i]) {
+        frame->skeletons[j]->bodies[i] = NatNet_rigid_body_new(nRigidMarkers);
+      }
+      frame->skeletons[j]->bodies[i]->ID = ID;
+      frame->skeletons[j]->bodies[i]->loc.x = x;
+      frame->skeletons[j]->bodies[i]->loc.y = y;
+      frame->skeletons[j]->bodies[i]->loc.z = z;
+      frame->skeletons[j]->bodies[i]->loc.w = 0;
+      frame->skeletons[j]->bodies[i]->ori.qx = qx;
+      frame->skeletons[j]->bodies[i]->ori.qy = qy;
+      frame->skeletons[j]->bodies[i]->ori.qz = qz;
+      frame->skeletons[j]->bodies[i]->ori.qw = qw;
+      
+      
+      
+      for (int k = 0; k < nRigidMarkers; k++) {
+        nn->printf("\tMarker %d: id=%d\tsize=%3.1f\tpos=[%3.2f,%3.2f,%3.2f]\n",
+                   k, LTOHL(markerIDs[k]), markerSizes[k], markerData[k * 3],
+                   markerData[k * 3 + 1], markerData[k * 3 + 2]);
+        frame->skeletons[j]->bodies[i]->markers[k].x = markerData[k * 3];
+        frame->skeletons[j]->bodies[i]->markers[k].y = markerData[k * 3 + 1];
+        frame->skeletons[j]->bodies[i]->markers[k].z = markerData[k * 3 + 2];
+        frame->skeletons[j]->bodies[i]->markers[k].w = markerSizes[k];
+      }
+      
+      // Mean marker error (2.0 and later)
+      if (major >= 2) {
+        float fError = 0.0f;
+        memcpy(&fError, ptr, 4);
+        ptr += 4;
+        nn->printf("Mean marker error: %3.2f\n", fError);
+        frame->skeletons[j]->bodies[i]->error = fError;
+      }
+      
+      // Tracking flags (2.6 and later)
+      if (((major == 2) && (minor >= 6)) || (major > 2) || (major == 0)) {
+        // params
+        short params = 0;
+        memcpy(&params, ptr, 2);
+        IPLTOHS(params);
+        ptr += 2;
+        bool bTrackingValid = params & 0x01; // 0x01 : rigid body was
+                                             // successfully tracked in this
+                                             // frame
+        frame->skeletons[j]->bodies[i]->tracking_valid = bTrackingValid;
+      }
+      
+      // release resources
+      if (markerIDs)
+        free(markerIDs);
+      if (markerSizes)
+        free(markerSizes);
+      if (markerData)
+        free(markerData);
+      
+    } // next rigid body
+    
+  } // next skeleton
+#endif
+  
+  // labeled markers (version 2.3 and later)
+  int nLabeledMarkers = frame->n_labeled_markers;
+  IPLTOHL(nLabeledMarkers);
+  memcpy(ptr, &nLabeledMarkers, 4);
+  ptr += 4;
+  nn->printf("Labeled Marker Count : %d\n", nLabeledMarkers);
+  
+  for (int j = 0; j < nLabeledMarkers; j++) {
+    // id
+    int ID = frame->labeled_markers[j].ID;
+    IPLTOHL(ID);
+    memcpy(ptr, &ID, 4);
+    ptr += 4;
+    // x
+    float x = frame->labeled_markers[j].loc.x;
+    memcpy(ptr, &x, 4);
+    ptr += 4;
+    // y
+    float y = frame->labeled_markers[j].loc.y;
+    memcpy(ptr, &y, 4);
+    ptr += 4;
+    // z
+    float z = frame->labeled_markers[j].loc.z;
+    memcpy(ptr, &z, 4);
+    ptr += 4;
+    // size
+    float size = frame->labeled_markers[j].loc.w;
+    memcpy(ptr, &size, 4);
+    ptr += 4;
+    
+    // marker params
+    short params = 0;
+    IPLTOHS(params);
+    memcpy(ptr, &params, 2);
+    ptr += 2;
+    
+    nn->printf("ID  : %d\n", ID);
+    nn->printf("pos : [%3.2f,%3.2f,%3.2f]\n", x, y, z);
+    nn->printf("size: [%3.2f]\n", size);
+
+  }
+  
+  // Force Plate data (version 2.9 and later)
+  if (((major == 2) && (minor >= 9)) || (major > 2)) {
+    int nForcePlates = 0;
+    IPLTOHL(nForcePlates);
+    memcpy(ptr, &nForcePlates, 4);
+    ptr += 4;
+    
+    for (int iForcePlate = 0; iForcePlate < nForcePlates; iForcePlate++) {
+      // ID
+      int ID = 0;
+      memcpy(&ID, ptr, 4);
+      IPLTOHL(ID);
+      ptr += 4;
+      nn->printf("Force Plate : %d\n", ID);
+      
+      // Channel Count
+      int nChannels = 0;
+      memcpy(&nChannels, ptr, 4);
+      IPLTOHL(nChannels);
+      ptr += 4;
+      
+      // Channel Data
+      for (int i = 0; i < nChannels; i++) {
+        nn->printf(" Channel %d : ", i);
+        int nFrames = 0;
+        memcpy(&nFrames, ptr, 4);
+        IPLTOHL(nFrames);
+        ptr += 4;
+        for (int j = 0; j < nFrames; j++) {
+          float val = 0.0f;
+          memcpy(&val, ptr, 4);
+          ptr += 4;
+          nn->printf("%3.2f   ", val);
+        }
+        nn->printf("\n");
+      }
+    }
+  }
+  
+  // latency
+  float latency = frame->latency;
+  memcpy(ptr, &latency, 4);
+  ptr += 4;
+  nn->printf("latency : %3.3f\n", latency);
+  
+  // timecode
+  unsigned int timecode = frame->timecode;
+  IPLTOHL(timecode);
+  memcpy(ptr, &timecode, 4);
+  ptr += 4;
+  unsigned int timecodeSub = frame->sub_timecode;
+  IPLTOHL(timecodeSub);
+  memcpy(ptr, &timecodeSub, 4);
+  ptr += 4;
+  
+  // timestamp
+  double timestamp = frame->timestamp;
+  memcpy(ptr, &timestamp, 8);
+  ptr += 8;
+  
+  // frame params
+  short params = 0;
+  IPLTOHS(params);
+  memcpy(ptr, &params, 2);
+  ptr += 2;
+  
+  // end of data tag
+  int eod = 0;
+  IPLTOHL(eod);
+  memcpy(ptr, &eod, 4);
+  ptr += 4;
+  nn->printf("End Packet\n-------------\n");
+  
+  
+  
+  short nBytes = (short)(ptr - data);
+  IPLTOHS(nBytes);
+  memcpy(data + 2, &nBytes, 2);
+  nn->printf("Byte count : %d\n", nBytes);
+  
+}
 
 
 #pragma mark -
 #pragma mark Utilities
+
+int swap4(int i) {
+  i = ((i & (0x0000FFFF)) << 16) | ((i & (0xFFFF0000)) >> 16);
+  i = ((i & (0x00FF00FF)) << 8) | ((i & (0xFF00FF00)) >>8);
+  return i;
+}
+
+void ipswap4(void *a) {
+  int *i = (int *)a;
+  *i = ((*i & (0x0000FFFF)) << 16) | ((*i & (0xFFFF0000)) >> 16);
+  *i = ((*i & (0x00FF00FF)) << 8) | ((*i & (0xFF00FF00)) >>8);
+}
+
+short swap2(short i) {
+  i = ((i & (0x00FF00FF)) << 8) | ((i & (0xFF00FF00)) >>8);
+  return i;
+}
+
+void ipswap2(void *a) {
+  short *i = (short *)a;
+  *i = ((*i & (0x00FF00FF)) << 8) | ((*i & (0xFF00FF00)) >>8);
+}
+
+#pragma mark -
+#pragma mark Top Be Removed
 // Very Badly written functions (from original OptiTrack examples)
 // To be rewritten!
 
