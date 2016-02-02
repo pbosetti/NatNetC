@@ -1267,7 +1267,7 @@ void NatNet_pack_struct(NatNet *nn, char *data, size_t *len) {
 #endif
   
   // labeled markers (version 2.3 and later)
-  int nLabeledMarkers = frame->n_labeled_markers;
+  int nLabeledMarkers = (int)frame->n_labeled_markers;
   IPLTOHL(nLabeledMarkers);
   memcpy(ptr, &nLabeledMarkers, 4);
   ptr += 4;
@@ -1275,7 +1275,7 @@ void NatNet_pack_struct(NatNet *nn, char *data, size_t *len) {
   
   for (int j = 0; j < nLabeledMarkers; j++) {
     // id
-    int ID = frame->labeled_markers[j].ID;
+    int ID = (int)frame->labeled_markers[j].ID;
     IPLTOHL(ID);
     memcpy(ptr, &ID, 4);
     ptr += 4;

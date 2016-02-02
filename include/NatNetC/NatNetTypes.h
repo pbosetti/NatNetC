@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <sys/time.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
@@ -24,12 +25,13 @@
 #include <errno.h>
 
 
-
 // max size of packet (actual packet size is dynamic)
 #define MAX_PACKETSIZE 100000
 #define RCV_BUFSIZE 20000
 #define MAX_NAMELENGTH 256
-
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
 
 #pragma mark -
 #pragma mark Types
@@ -40,7 +42,6 @@ typedef enum {
 } bool;
 
 typedef int SOCKET;
-
 
 // sender
 typedef struct {
@@ -148,7 +149,7 @@ void NatNet_frame_free(NatNet_frame *frame);
 
 typedef struct {
   char my_addr[128], their_addr[128], multicast_addr[128];
-  u_short command_port, data_port;
+  unsigned short command_port, data_port;
   int receive_bufsize;
   struct timeval data_timeout;
   struct timeval cmd_timeout;
