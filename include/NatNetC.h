@@ -8,7 +8,7 @@
 
 #ifndef NatNetC_h
 #define NatNetC_h
-
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/socket.h>
@@ -248,7 +248,7 @@ int NatNet_printf_std(const char * restrict format, ...);
 // Functions beginning with 'ip' work In-Place on the passed pointer.
 // NatNet protocol uses little-endian order (i386).
 // Corresponding macros are made available for
-#ifdef __BIG_ENDIAN
+#if defined(__BIG_ENDIAN) && __BYTE_ORDER == __BIG_ENDIAN
 #define IPLTOHS(i) ipswap2(i)
 #define LTOHS(i) swap2(i)
 #define IPLTOHL(i) ipswap4(i)
