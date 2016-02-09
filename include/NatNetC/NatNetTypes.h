@@ -24,6 +24,9 @@
 #include <pthread.h>
 #include <errno.h>
 
+#ifdef EDISON
+typedef unsigned int uint;
+#endif
 
 // max size of packet (actual packet size is dynamic)
 #define MAX_PACKETSIZE 100000
