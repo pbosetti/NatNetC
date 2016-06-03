@@ -182,10 +182,11 @@ beginning:
 
   NatNet_pack_struct(nn, nn->raw_data, &length);
   
-  NatNet_unpack_yaml(nn, &length);
   
-  NatNet_unpack_yaml(nn, &length);
-
+  while (true) {
+    NatNet_unpack_yaml(nn, &length);
+  }
+  
 //  size_t len = 0;
   //NatNet_unpack_all(nn, data, &len);
   //NatNet_unpack_yaml(nn, data, &len);

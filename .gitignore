@@ -6,3 +6,5 @@
 *.depend
 *.temp
 *.tmp
+
+xcuserdata
