@@ -4,7 +4,7 @@ BIN_DIR = ./bin
 INC_DIR = ./include
 
 C = clang
-CFLAGS = -fPIC -I$(INC_DIR) -pthread -D_MULTI_THREADED
+CFLAGS = -std=c99 -fPIC -I$(INC_DIR) -pthread -D_MULTI_THREADED
 HEADERPATHS = -I/usr/local/include
 LIBPATH = -L/usr/local/lib
 
@@ -77,7 +77,7 @@ static: dirs $(LIB_OBJS)
 	$(AR) $(ARFLAGS) $(LIB_DIR)/lib$(LIBNAME).a $(LIB_OBJS)
 	
 dll: dirs $(LIB_OBJS)
-	$(C) $(DLLFLAGS) $(LIB_OBJS) $(LIBPATH) $(BIN_LIBS) -o $(LIB_DIR)/$(DLLNAME)
+	$(C) $(DLLFLAGS) $(LIB_OBJS) -o $(LIB_DIR)/$(DLLNAME)
 	
 demo: dirs static $(DEMO_OBJS)
 	$(C) $(DEMO_OBJS) $(BIN_LIBPATH) $(LIBPATH) $(HEADERPATHS) $(BIN_LIBS) $(LIB_DIR)/lib$(LIBNAME).a -o $(BIN_DIR)/$(DEMONAME)

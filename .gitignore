@@ -1,6 +1,7 @@
 /lib
 /bin
 /mruby
+._*
 *.DS_Store
 *.o
 *.depend
