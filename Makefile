@@ -42,7 +42,7 @@ CFLAGS += -O2
 DLLNAME = lib$(LIBNAME).so
 DLLFLAGS = -shared -Wl,-soname,$(DLLNAME)
 BIN_LIBPATH = -L./lib
-BIN_LIBS = -lpthread
+BIN_LIBS = -lpthread -lyaml
 FUSE_HEADERPATH = 
 FUSE_LIBS = -lfuse -pthread -lyaml
 FUSE_LIBPATH = 
@@ -77,7 +77,7 @@ static: dirs $(LIB_OBJS)
 	$(AR) $(ARFLAGS) $(LIB_DIR)/lib$(LIBNAME).a $(LIB_OBJS)
 	
 dll: dirs $(LIB_OBJS)
-	$(C) $(DLLFLAGS) $(LIB_OBJS) $(LIBPATH) $(BIN_LIBS) -o $(LIB_DIR)/$(DLLNAME)
+	$(C) $(DLLFLAGS) $(LIB_OBJS) -o $(LIB_DIR)/$(DLLNAME)
 	
 demo: dirs static $(DEMO_OBJS)
 	$(C) $(DEMO_OBJS) $(BIN_LIBPATH) $(LIBPATH) $(HEADERPATHS) $(BIN_LIBS) $(LIB_DIR)/lib$(LIBNAME).a -o $(BIN_DIR)/$(DEMONAME)
