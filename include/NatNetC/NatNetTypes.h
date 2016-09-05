@@ -24,7 +24,7 @@
 #include <pthread.h>
 #include <errno.h>
 
-#ifdef EDISON
+#ifndef _DARWIN_C_SOURCE
 typedef unsigned int uint;
 typedef unsigned short int u_short;
 #endif
