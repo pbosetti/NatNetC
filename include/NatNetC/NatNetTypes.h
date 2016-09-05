@@ -24,7 +24,7 @@
 #include <pthread.h>
 #include <errno.h>
 
-#ifndef _DARWIN_C_SOURCE
+#ifdef POKY_LINUX
 typedef unsigned int uint;
 typedef unsigned short int u_short;
 #endif
