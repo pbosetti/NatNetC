@@ -26,6 +26,7 @@
 
 #ifdef EDISON
 typedef unsigned int uint;
+typedef unsigned short int u_short;
 #endif
 
 // max size of packet (actual packet size is dynamic)
